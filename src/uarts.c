@@ -306,6 +306,33 @@ error:
 
 }
 
+int onrisc_set_uart_mode_binary(int port_nr, uint8_t mode)
+{
+	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
+
+	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
+		fprintf(stderr, "device has no switchable UARTs\n");
+		return EXIT_FAILURE;
+	}
+
+	/* handle RS-modes */
+	if (onrisc_setup_uart_gpios(OUTPUT, port_nr) == EXIT_FAILURE) {
+		return EXIT_FAILURE;
+	}
+
+	libsoc_gpio_set_level(ctrl->gpio[0], mode & DIP_S1);
+	libsoc_gpio_set_level(ctrl->gpio[1], mode & DIP_S2);
+	libsoc_gpio_set_level(ctrl->gpio[2], mode & DIP_S3);
+	libsoc_gpio_set_level(ctrl->gpio[3], mode & DIP_S4);
+
+	uint8_t rs485 = (mode == DIP_S2) || (mode == (DIP_S2 | DIP_S1)) ||(mode == (DIP_S4 | DIP_S2)) || (mode == (DIP_S4 | DIP_S2 | DIP_S1));
+	if (onrisc_set_sr485_ioctl(port_nr, rs485) == EXIT_FAILURE) {
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+
 int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 {
 	int rc = EXIT_SUCCESS;
