@@ -164,6 +164,17 @@ int onrisc_init_caps()
 					0x21);
 			}
 			break;
+		case VS860:
+			uarts->num = 2;
+			uarts->flags = UARTS_SWITCHABLE | UARTS_DIPS_PHYSICAL;
+			for (i = 0; i < uarts->num; i++) {
+				onrisc_config_switch(&uarts->ctrl[i],
+					(RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
+					4,
+					8 + 4 * i,
+					0x20);
+			}
+			break;
 		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
 		case NETCON3:
@@ -507,6 +518,17 @@ int onrisc_init_caps()
 			break;
 
 		case BALTOS_IR_2110:
+			eths->eth[1].num = 1;
+			eths->eth[1].flags = (ETH_RMII_100M | ETH_PHYSICAL);
+			eths->eth[1].phy_id = 1;
+			strcpy(eths->eth[1].if_name, "eth0");
+			break;
+
+		case VS860:
+			eths->eth[0].num = 1;
+			eths->eth[0].flags = (ETH_RMII_100M | ETH_PHYSICAL);
+			eths->eth[0].phy_id = 1;
+			strcpy(eths->eth[0].if_name, "usb0");
 			eths->eth[1].num = 1;
 			eths->eth[1].flags = (ETH_RMII_100M | ETH_PHYSICAL);
 			eths->eth[1].phy_id = 1;
