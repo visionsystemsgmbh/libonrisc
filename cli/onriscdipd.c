@@ -119,13 +119,13 @@ int readconfig(char *filename)
 			buf=strtok(NULL,"\n");
 			sscanf(buf, "%s", cmd);
 
-			if(strlen(cmd) > 4)
+			if(strlen(cmd) > 5)
 				exit(EXIT_FAILURE);
 
 			mode = 0;
-			for (i=0; i<4; ++i){
+			for (i=0; i<strlen(cmd); ++i){
 				if (cmd[i] == '1') {
-					mode |= 1 << (3 - i);
+					mode |= 1 << ((strlen(cmd) - 1) - i);
 				} else if (cmd[i] == '0') {
 				} else {
 					exit(EXIT_FAILURE);
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
 			if (hw_uart_dips) {
 				for(i=1;i <= caps->uarts->num; ++i) {	
 					dips.mask=0;
-					onrisc_get_uart_mode_raw(i,&dips.value);
+					onrisc_get_uart_dips(i,&dips.value);
 					test_callback(dips,NULL);
 				}
 			} else {

@@ -361,6 +361,13 @@ int onrisc_get_uart_dips(int port_nr, uint32_t * mode)
 
 	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
 
+	/* check, if GPIOs are already initialized */
+	if (!(ctrl->flags & RS_IS_SETUP)) {
+		if (onrisc_setup_uart_gpios(DIRECTION_ERROR, port_nr) == EXIT_FAILURE) {
+			goto error;
+		}
+	}
+
 	/* check GPIO direction settings */
 	if (libsoc_gpio_get_direction(ctrl->gpio[0]) == OUTPUT) {
 		if (onrisc_get_uart_mode_raw(port_nr, &old_mode) == EXIT_FAILURE) {
@@ -412,8 +419,15 @@ int onrisc_set_uart_mode_raw(int port_nr, uint8_t mode)
 	}
 
 	/* handle RS-modes */
-	if (onrisc_setup_uart_gpios(OUTPUT, port_nr) == EXIT_FAILURE) {
-		return EXIT_FAILURE;
+	if (mode & (1 << 4)) {	
+		if (onrisc_setup_uart_gpios(OUTPUT, port_nr) == EXIT_FAILURE) {
+			return EXIT_FAILURE;
+		}
+	} else {
+		if (onrisc_setup_uart_gpios(INPUT, port_nr) == EXIT_FAILURE) {
+			return EXIT_FAILURE;
+		}
+		return EXIT_SUCCESS;
 	}
 	
 	assert(ctrl->num == 4);
