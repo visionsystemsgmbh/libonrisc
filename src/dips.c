@@ -98,7 +98,7 @@ int generic_dip_callback(void * arg)
 	for (i = 0; i < onrisc_dips->dip_switch[0].num; i++) {
 		level = libsoc_gpio_get_level(onrisc_dips->dip_switch[0].gpio[i]);
 
-		if (level == LOW) {
+		if (level == HIGH) {
 			val.value &= ~(1 << i);
 		} else {
 			val.value |= 1 << i;
@@ -128,33 +128,21 @@ int onrisc_dip_register_callback(uint32_t idx, int (*callback_fn) (onrisc_gpios_
 		}
 	}
 
-	switch (onrisc_system.model) {
-	case ALEKTO:
-	case ALEKTO_LAN:
-	case ALENA:
-		break;
-	case ALEKTO2:
-	case BALTOS_IR_3220:
-	case BALTOS_IR_5221:
-	case BALTOS_DIO_1080:
-	case NETCON3:
-		for (i = 0; i < onrisc_dips->dip_switch[idx].num; i++) {
-			/* set trigger edge */
-			libsoc_gpio_set_edge(onrisc_dips->dip_switch[idx].gpio[i], edge);	
-			params = malloc(sizeof(callback_int_arg_t));
-			if (NULL == params) {
-				goto error;
-			}
-			memset(params, 0, sizeof(callback_int_arg_t));
-			
-			params->callback_fn = callback_fn;				
-			params->index = i;				
-			params->args = arg;				
-
-			/* register ISR */
-			libsoc_gpio_callback_interrupt(onrisc_dips->dip_switch[idx].gpio[i], generic_dip_callback, (void *) params);
+	for (i = 0; i < onrisc_dips->dip_switch[idx].num; i++) {
+		/* set trigger edge */
+		libsoc_gpio_set_edge(onrisc_dips->dip_switch[idx].gpio[i], edge);	
+		params = malloc(sizeof(callback_int_arg_t));
+		if (NULL == params) {
+			goto error;
 		}
-		break;
+		memset(params, 0, sizeof(callback_int_arg_t));
+		
+		params->callback_fn = callback_fn;				
+		params->index = i;				
+		params->args = arg;				
+
+		/* register ISR */
+		libsoc_gpio_callback_interrupt(onrisc_dips->dip_switch[idx].gpio[i], generic_dip_callback, (void *) params);
 	}
 	rc = EXIT_SUCCESS;
  error:
@@ -174,21 +162,9 @@ int onrisc_dip_cancel_callback(uint32_t idx)
 	}
 	onrisc_dips = onrisc_capabilities.dips;
 
-	switch (onrisc_system.model) {
-	case ALEKTO:
-	case ALEKTO_LAN:
-	case ALENA:
-		break;
-	case ALEKTO2:
-	case BALTOS_IR_3220:
-	case BALTOS_IR_5221:
-	case BALTOS_DIO_1080:
-	case NETCON3:
-		for (i = 0; i < onrisc_dips->dip_switch[idx].num; i++) {
-			/* register ISR */
-			libsoc_gpio_callback_interrupt_cancel(onrisc_dips->dip_switch[idx].gpio[i]);
-		}
-		break;
+	for (i = 0; i < onrisc_dips->dip_switch[idx].num; i++) {
+		/* register ISR */
+		libsoc_gpio_callback_interrupt_cancel(onrisc_dips->dip_switch[idx].gpio[i]);
 	}
 	rc = EXIT_SUCCESS;
  error:
