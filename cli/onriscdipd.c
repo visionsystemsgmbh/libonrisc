@@ -45,8 +45,8 @@ int test_callback(onrisc_gpios_t dips, void* data)
 	printf("CB:0x%08x\n", dips.value);
 	if(dip_list[dips.value].action_type == SERIAL_MODE) {
 		printf("MD:0x%08x\n", dip_list[dips.value].action.mode);
-		onrisc_set_uart_mode_binary(1, dip_list[dips.value].action.mode);
-		onrisc_set_uart_mode_binary(2, dip_list[dips.value].action.mode);
+		onrisc_set_uart_mode_raw(1, dip_list[dips.value].action.mode);
+		onrisc_set_uart_mode_raw(2, dip_list[dips.value].action.mode);
 	} 
 }	
 

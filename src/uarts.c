@@ -306,7 +306,7 @@ error:
 
 }
 
-int onrisc_set_uart_mode_binary(int port_nr, uint8_t mode)
+int onrisc_set_uart_mode_raw(int port_nr, uint8_t mode)
 {
 	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
 
@@ -320,10 +320,10 @@ int onrisc_set_uart_mode_binary(int port_nr, uint8_t mode)
 		return EXIT_FAILURE;
 	}
 
-	libsoc_gpio_set_level(ctrl->gpio[0], mode & DIP_S1);
-	libsoc_gpio_set_level(ctrl->gpio[1], mode & DIP_S2);
-	libsoc_gpio_set_level(ctrl->gpio[2], mode & DIP_S3);
-	libsoc_gpio_set_level(ctrl->gpio[3], mode & DIP_S4);
+	libsoc_gpio_set_level(ctrl->gpio[0], (mode & DIP_S1)? HIGH:LOW);
+	libsoc_gpio_set_level(ctrl->gpio[1], (mode & DIP_S2)? HIGH:LOW);
+	libsoc_gpio_set_level(ctrl->gpio[2], (mode & DIP_S3)? HIGH:LOW);
+	libsoc_gpio_set_level(ctrl->gpio[3], (mode & DIP_S4)? HIGH:LOW);
 
 	uint8_t rs485 = (mode == DIP_S2) || (mode == (DIP_S2 | DIP_S1)) ||(mode == (DIP_S4 | DIP_S2)) || (mode == (DIP_S4 | DIP_S2 | DIP_S1));
 	if (onrisc_set_sr485_ioctl(port_nr, rs485) == EXIT_FAILURE) {
