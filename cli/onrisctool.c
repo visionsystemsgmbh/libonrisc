@@ -470,7 +470,7 @@ int main(int argc, char **argv)
 		case 'q':
 			if (onrisc_get_wlan_sw_state(&wlan_sw_state) ==
 			    EXIT_FAILURE) {
-				printf("failed to get WLAN swithc state\n");
+				printf("failed to get WLAN switch state\n");
 			} else {
 				printf("WLAN switch: %s\n",
 				       wlan_sw_state ? "on" : "off");
