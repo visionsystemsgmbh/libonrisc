@@ -306,8 +306,57 @@ error:
 
 }
 
+int onrisc_get_uart_mode_raw(int port_nr, uint8_t * mode)
+{
+	int rc = EXIT_FAILURE;
+
+	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
+		fprintf(stderr, "device has no switchable UARTs\n");
+		goto error;
+	}
+
+	if (onrisc_capabilities.uarts->ctrl[port_nr - 1].flags & RS_IS_GPIO_BASED) {
+		int i;
+		gpio_direction dir;
+		onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
+		gpio_level val;
+
+		/* check, if GPIOs are already initialized */
+		if (!(ctrl->flags & RS_IS_SETUP)) {
+			if (onrisc_setup_uart_gpios(DIRECTION_ERROR, port_nr) == EXIT_FAILURE) {
+				goto error;
+			}
+		}
+
+		*mode=0;
+		
+		for (i = 0; i < ctrl->num; i++) {
+			val = libsoc_gpio_get_level(ctrl->gpio[i]);
+			if (val == LEVEL_ERROR) {
+				goto error;
+			} else if (val == HIGH){
+				*mode |= 1 << i;
+			}
+		}
+
+		rc = EXIT_SUCCESS;
+	} 
+
+error:
+	return rc;
+}
+
 int onrisc_set_uart_mode_raw(int port_nr, uint8_t mode)
 {
+	int i;
+	if (port_nr == -1) {
+		for (i=1; i <= onrisc_capabilities.uarts->num; ++i) {
+			if(onrisc_set_uart_mode_raw(i, mode) == EXIT_FAILURE)
+				return EXIT_FAILURE;
+		}
+		return EXIT_SUCCESS;
+	}	 
+
 	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
 
 	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
@@ -319,6 +368,8 @@ int onrisc_set_uart_mode_raw(int port_nr, uint8_t mode)
 	if (onrisc_setup_uart_gpios(OUTPUT, port_nr) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
 	}
+	
+	assert(ctrl->num == 4);
 
 	libsoc_gpio_set_level(ctrl->gpio[0], (mode & DIP_S1)? HIGH:LOW);
 	libsoc_gpio_set_level(ctrl->gpio[1], (mode & DIP_S2)? HIGH:LOW);
