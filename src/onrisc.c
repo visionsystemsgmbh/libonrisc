@@ -340,6 +340,38 @@ int onrisc_blink_pwr_led_stop(blink_led *blinker)
 	return EXIT_SUCCESS;
 }
 
+void onrisc_print_hw_params()
+{
+	int i;
+
+	assert( init_flag == 1);
+
+	printf("Hardware Parameters\n");
+	printf("===================\n");
+	printf("Model: %d\n", onrisc_system.model);
+	printf("HW Revision: %d.%d\n", onrisc_system.hw_rev >> 16, onrisc_system.hw_rev & 0xff);
+	printf("Serial Number: %d\n", onrisc_system.ser_nr);
+	printf("Production date: %s\n", onrisc_system.prd_date);
+	printf("MAC1: ");
+	for(i = 0; i < 6; i++)
+	{
+		printf("%02x", onrisc_system.mac1[i]);
+	}
+	printf("\n");
+	printf("MAC2: ");
+	for(i = 0; i < 6; i++)
+	{
+		printf("%02x", onrisc_system.mac2[i]);
+	}
+	printf("\n");
+	printf("MAC3: ");
+	for(i = 0; i < 6; i++)
+	{
+		printf("%02x", onrisc_system.mac3[i]);
+	}
+	printf("\n");
+}
+
 /**
  * @brief get system, hardware parameters etc.
  * @param data pointer to the structure, where system data will be stored
@@ -371,6 +403,8 @@ int onrisc_init(onrisc_system_t *data)
 			strncpy(onrisc_system.mac2, hw_nor.mac2, 6);
 			for (i = 0; i < 6; i++)
 			{
+				onrisc_system.mac1[i] = hw_nor.mac1[i];
+				onrisc_system.mac2[i] = hw_nor.mac2[i];
 				onrisc_system.mac3[i] = 0xff;
 			}
 			break;
@@ -384,9 +418,12 @@ int onrisc_init(onrisc_system_t *data)
 			onrisc_system.hw_rev = hw_eeprom.HwRev;
 			onrisc_system.ser_nr = hw_eeprom.SerialNumber;
 			strncpy(onrisc_system.prd_date, hw_eeprom.PrdDate, 11);
-			strncpy(onrisc_system.mac1, hw_eeprom.MAC1, 6);
-			strncpy(onrisc_system.mac2, hw_eeprom.MAC2, 6);
-			strncpy(onrisc_system.mac3, hw_eeprom.MAC3, 6);
+			for (i = 0; i < 6; i++)
+			{
+				onrisc_system.mac1[i] = hw_eeprom.MAC1[i];
+				onrisc_system.mac2[i] = hw_eeprom.MAC2[i];
+				onrisc_system.mac3[i] = hw_eeprom.MAC3[i];
+			}
 			break;
 	}
 

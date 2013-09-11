@@ -178,6 +178,7 @@ typedef struct
 } blink_led;
 
 /* prototypes */
+void onrisc_print_hw_params();
 int onrisc_blink_pwr_led_start(blink_led *blinker);
 int onrisc_blink_pwr_led_stop(blink_led *blinker);
 
