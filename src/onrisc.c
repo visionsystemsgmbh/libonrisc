@@ -36,7 +36,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM *hw_params, int model)
 		rc = EXIT_FAILURE;
 		goto error;
 	}
-	rv = read(fd, &hw_params, sizeof(struct _BSP_VS_HWPARAM));
+	rv = read(fd, hw_params, sizeof(struct _BSP_VS_HWPARAM));
 	if (rv != sizeof(struct _BSP_VS_HWPARAM))
 	{
 		rc = EXIT_FAILURE;
