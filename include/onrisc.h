@@ -26,10 +26,10 @@ typedef struct
 	uint16_t model;	
 	uint32_t hw_rev;
 	uint32_t ser_nr;
+	char prd_date[11];
 	uint8_t mac1[6];
 	uint8_t mac2[6];
 	uint8_t mac3[6];
-	char prd_date[11];
 } __attribute__ ((packed)) onrisc_system_t; 
 
 //! @brief Hardware parameter stored in flash
