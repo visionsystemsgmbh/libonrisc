@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <stdint.h>
+#include <sys/time.h>
 #include <libsoc_gpio.h>
 
 #define ALEKTO2_EEPROM	"/sys/bus/i2c/devices/1-0050/eeprom"
@@ -170,16 +171,44 @@ struct gpio_struct
 
 typedef struct
 {
-	uint32_t interval;
-	uint8_t high_phase;
+	struct timeval interval;	/**< time for complete cycles (high and low phase) */
+	struct timeval high_phase;	/**< high phase duration */
+	uint32_t led_type;		/**< LED type: power led, user led etc. */
+	int32_t count;			/**< number of cycles or -1 for infinite */
+
+	/* internal fields */
 	pthread_t thread_id;
 	gpio *led;
 	int fd;
-} blink_led;
+	unsigned long leds_old;
+} blink_led_t;
 
 /* prototypes */
+
+/**
+ * @brief get system, hardware parameters etc.
+ * @param data pointer to the structure, where system data will be stored
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_init(onrisc_system_t *data);
+
+/**
+ * @brief show content of the internal onrisc_system_t structure
+ */
 void onrisc_print_hw_params();
-int onrisc_blink_pwr_led_start(blink_led *blinker);
-int onrisc_blink_pwr_led_stop(blink_led *blinker);
+
+/**
+ * @brief start blinking thread
+ * @param blinker blink_led structure
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_blink_led_start(blink_led_t *blinker);
+
+/**
+ * @brief cancel blinking thread and free GPIO
+ * @param blinker blink_led structure
+ * @todo send signal to the blinking thread and make cleanup only there
+ */
+int onrisc_blink_led_stop(blink_led_t *blinker);
 
 #endif	/*_ONRISC_H_ */

@@ -198,6 +198,95 @@ gpio* onrisc_gpio_init_sysfs(unsigned int gpio_id)
 	return test_gpio;
 }
 
+int timeval_subtract (result, x, y)
+struct timeval *result, *x, *y;
+{
+	/* Perform the carry for the later subtraction by updating y. */
+	if (x->tv_usec < y->tv_usec) {
+		int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+		y->tv_usec -= 1000000 * nsec;
+		y->tv_sec += nsec;
+	}
+	if (x->tv_usec - y->tv_usec > 1000000)
+	{
+		int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+		y->tv_usec += 1000000 * nsec;
+		y->tv_sec -= nsec;
+	}
+
+	/* Compute the time remaining to wait.
+	*           tv_usec is certainly positive. */
+	result->tv_sec = x->tv_sec - y->tv_sec;
+	result->tv_usec = x->tv_usec - y->tv_usec;
+
+	/* Return 1 if result is negative. */
+	return x->tv_sec < y->tv_sec;
+}
+
+int onrisc_restore_leds(blink_led_t *blinker)
+{
+	switch (onrisc_system.model)
+	{
+		case ALEKTO:
+		case ALENA:
+		case ALEKTO_LAN:
+			if (ioctl(blinker->fd, GPIO_CMD_SET_LEDS, &blinker->leds_old) < 0)
+			{
+				perror("ioctl: GPIO_CMD_SET_LEDS");
+			}
+
+			close(blinker->fd);
+			break;
+		case  ALEKTO2:
+			libsoc_gpio_set_direction(blinker->led, INPUT);
+			if (libsoc_gpio_free(blinker->led) == EXIT_FAILURE)
+			{
+				printf("Failed to free GPIO\n");
+			}
+			break;
+	}
+}
+
+void onrisc_switch_led(blink_led_t *led, uint8_t state, unsigned long leds_old)
+{
+	unsigned long val;
+
+	switch(onrisc_system.model)
+	{
+		case ALEKTO:
+		case ALENA:
+		case ALEKTO_LAN:
+			if (state)
+			{
+				/* HIGH phase */
+				val = leds_old | led->led_type;
+				ioctl(led->fd, GPIO_CMD_SET_LEDS, &val);
+			}
+			else
+			{
+				/* LOW phase */
+				val = leds_old & (~led->led_type);
+				ioctl(led->fd, GPIO_CMD_SET_LEDS, &val);
+			}
+			break;
+
+		case ALEKTO2:
+			if (state)
+			{
+				/* HIGH phase */
+				libsoc_gpio_set_direction(led->led, INPUT);
+			}
+			else
+			{
+
+				/* LOW phase */
+				libsoc_gpio_set_direction(led->led, OUTPUT);
+				libsoc_gpio_set_level(led->led, LOW);
+			}
+			break;
+	}
+}
+
 /**
  * @brief blinking thread
  * @param data blink_led structure
@@ -205,87 +294,81 @@ gpio* onrisc_gpio_init_sysfs(unsigned int gpio_id)
  */
 void *blink_thread(void *data)
 {
-	unsigned long leds_old = 0, val;
-	blink_led *led = (blink_led *)data;
-	uint32_t high_phase, low_phase;
+	unsigned long leds_old = 0;
+	blink_led_t *led = (blink_led_t *)data;
+	struct timeval low_phase_fixed, low_phase, high_phase;
+	uint8_t run = 1;
+	int32_t count = led->count;
 	
-	high_phase = (led->interval * 1000) * led->high_phase / 100;
-	low_phase = (led->interval * 1000) - high_phase;
+	/* compute low phase duration */
+	high_phase.tv_sec = led->high_phase.tv_sec;
+	high_phase.tv_usec = led->high_phase.tv_usec;
+	timeval_subtract(&low_phase_fixed, &led->interval, &high_phase);
 
-	if ((onrisc_system.model == ALEKTO)
-		|| (onrisc_system.model == ALENA)
-		|| (onrisc_system.model == ALEKTO_LAN))
+	while(run)
 	{
-		if (ioctl(led->fd, GPIO_CMD_GET_LEDS, &leds_old) < 0)
+		/* HIGH phase */
+		onrisc_switch_led(led, 1, leds_old);
+		high_phase.tv_sec = led->high_phase.tv_sec;
+		high_phase.tv_usec = led->high_phase.tv_usec;
+		select(1, NULL, NULL, NULL, &high_phase);
+
+		/* LOW phase */
+		onrisc_switch_led(led, 0, leds_old);
+		low_phase.tv_sec = low_phase_fixed.tv_sec;
+		low_phase.tv_usec = low_phase_fixed.tv_usec;
+		select(1, NULL, NULL, NULL, &low_phase);
+
+		if (count > 0)
 		{
-			perror("ioctl: GPIO_CMD_GET_LEDS");
+			count--;
 		}
-		while(1)
+
+		if (count == 0)
 		{
-			/* HIGH phase */
-			val = leds_old | LED_POWER;
-			ioctl(led->fd, GPIO_CMD_SET_LEDS, &val);
-			usleep(high_phase);
-
-			/* LOW phase */
-			val = leds_old & (~LED_POWER);
-			ioctl(led->fd, GPIO_CMD_SET_LEDS, &val);
-			usleep(low_phase);
-		}
-
-	}
-	/* Alekto 2 */
-	else
-	{
-		while(1)
-		{
-			/* HIGH phase */
-			libsoc_gpio_set_direction(led->led, INPUT);
-			usleep(high_phase);
-
-			/* LOW phase */
-			libsoc_gpio_set_direction(led->led, OUTPUT);
-			libsoc_gpio_set_level(led->led, LOW);
-			usleep(low_phase);
+			run = 0;
 		}
 	}
+
+	onrisc_restore_leds(led);
 }
 
-/**
- * @brief start blinking thread
- * @param blinker blink_led structure
- * @todo use switch/case structure for system identification
- * @return EXIT_SUCCES or EXIT_FAILURE
- */
-int onrisc_blink_pwr_led_start(blink_led *blinker)
+int onrisc_blink_led_start(blink_led_t *blinker)
 {
 	gpio* pwr_gpio;
 	int rc;
+	struct timeval tmp, tmp_res;
 
 	assert( init_flag == 1);
 
-	if ((blinker->high_phase < 10) && (blinker->high_phase > 100))
-	{
-		printf("high_phase out of range\n");
-	}
+	tmp.tv_sec = blinker->high_phase.tv_sec;
+	tmp.tv_usec = blinker->high_phase.tv_usec;
+	assert(timeval_subtract(&tmp_res, &blinker->interval, &tmp) == 0);
 
-	if(onrisc_system.model == ALEKTO2)
+	switch(onrisc_system.model)
 	{
-		pwr_gpio = onrisc_gpio_init_sysfs(217);
-		if(pwr_gpio == NULL)
-		{
-			return EXIT_FAILURE;
-		}
+		case ALEKTO:
+		case ALENA:
+		case ALEKTO_LAN:
+			blinker->fd = open("/dev/gpio", O_RDWR);
+			if (blinker->fd <= 0)
+			{
+				return EXIT_FAILURE;
+			}
+			if (ioctl(blinker->fd, GPIO_CMD_GET_LEDS, &blinker->leds_old) < 0)
+			{
+				perror("ioctl: GPIO_CMD_GET_LEDS");
+			}
+			break;
+		case ALEKTO2:
+			pwr_gpio = onrisc_gpio_init_sysfs(217);
+			if(pwr_gpio == NULL)
+			{
+				return EXIT_FAILURE;
+			}
 
-		blinker->led = pwr_gpio;
-	}
-	else
-	{
-		blinker->fd = open("/dev/gpio", O_RDWR);
-		if (blinker->fd <= 0)
-		{
-			return EXIT_FAILURE;
-		}
+			blinker->led = pwr_gpio;
+			break;
 	}
 
 	/* create blinking thread */
@@ -294,15 +377,11 @@ int onrisc_blink_pwr_led_start(blink_led *blinker)
 			blink_thread,
 			(void *)blinker);
 
-	return EXIT_SUCCESS;
+	return rc?EXIT_FAILURE:EXIT_SUCCESS;
 }
 
-/**
- * @brief cancel blinking thread and free GPIO
- * @param blinker blink_led structure
- * @todo use switch/case structure for system identification
- */
-int onrisc_blink_pwr_led_stop(blink_led *blinker)
+
+int onrisc_blink_led_stop(blink_led_t *blinker)
 {
 	assert( init_flag == 1);
 
@@ -311,31 +390,7 @@ int onrisc_blink_pwr_led_stop(blink_led *blinker)
 	pthread_join(blinker->thread_id, NULL);
 
 	/* restore LED status and free GPIO for Alekto 2 */
-	if(onrisc_system.model == ALEKTO2)
-	{
-		libsoc_gpio_set_direction(blinker->led, INPUT);
-		if (libsoc_gpio_free(blinker->led) == EXIT_FAILURE)
-		{
-			printf("Failed to free GPIO\n");
-		}
-	}
-	else
-	{
-		unsigned long leds_old = 0;
-
-		if (ioctl(blinker->fd, GPIO_CMD_GET_LEDS, &leds_old) < 0)
-		{
-			perror("ioctl: GPIO_CMD_GET_LEDS");
-		}
-
-		leds_old |= LED_POWER;
-		if (ioctl(blinker->fd, GPIO_CMD_SET_LEDS, &leds_old) < 0)
-		{
-			perror("ioctl: GPIO_CMD_SET_LEDS");
-		}
-
-		close(blinker->fd);
-	}
+	onrisc_restore_leds(blinker);
 
 	return EXIT_SUCCESS;
 }
@@ -372,11 +427,6 @@ void onrisc_print_hw_params()
 	printf("\n");
 }
 
-/**
- * @brief get system, hardware parameters etc.
- * @param data pointer to the structure, where system data will be stored
- * @return EXIT_SUCCES or EXIT_FAILURE
- */
 int onrisc_init(onrisc_system_t *data)
 {
 	int model, i;
