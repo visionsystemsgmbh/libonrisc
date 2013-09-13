@@ -1,6 +1,10 @@
 #ifndef _ONRISC_H_
 #define _ONRISC_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <pthread.h>
 #include <stdint.h>
 #include <sys/time.h>
@@ -184,10 +188,6 @@ typedef struct
 } blink_led_t;
 
 /* prototypes */
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
  * @brief get system, hardware parameters etc.
