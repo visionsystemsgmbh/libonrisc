@@ -185,6 +185,10 @@ typedef struct
 
 /* prototypes */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief get system, hardware parameters etc.
  * @param data pointer to the structure, where system data will be stored
@@ -210,5 +214,9 @@ int onrisc_blink_led_start(blink_led_t *blinker);
  * @todo send signal to the blinking thread and make cleanup only there
  */
 int onrisc_blink_led_stop(blink_led_t *blinker);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/*_ONRISC_H_ */
