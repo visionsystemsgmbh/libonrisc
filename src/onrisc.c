@@ -449,8 +449,6 @@ int onrisc_init(onrisc_system_t *data)
 			onrisc_system.hw_rev = hw_nor.hwrev;
 			onrisc_system.ser_nr = hw_nor.serialnr;
 			strncpy(onrisc_system.prd_date, hw_nor.prddate, 11);
-			strncpy(onrisc_system.mac1, hw_nor.mac1, 6);
-			strncpy(onrisc_system.mac2, hw_nor.mac2, 6);
 			for (i = 0; i < 6; i++)
 			{
 				onrisc_system.mac1[i] = hw_nor.mac1[i];
