@@ -333,6 +333,13 @@ void *blink_thread(void *data)
 	onrisc_restore_leds(led);
 }
 
+void onrisc_blink_create(blink_led_t *blinker)
+{
+	blinker->count = -1;
+	blinker->thread_id = -1;
+	blinker->led_type = LED_POWER;
+}
+
 int onrisc_blink_led_start(blink_led_t *blinker)
 {
 	gpio* pwr_gpio;
@@ -385,12 +392,19 @@ int onrisc_blink_led_stop(blink_led_t *blinker)
 {
 	assert( init_flag == 1);
 
+	if(blinker->thread_id == -1)
+	{
+		return EXIT_SUCCESS;
+	}
+
 	/* cancel thread */
 	pthread_cancel(blinker->thread_id);
 	pthread_join(blinker->thread_id, NULL);
 
 	/* restore LED status and free GPIO for Alekto 2 */
 	onrisc_restore_leds(blinker);
+
+	blinker->thread_id = -1;
 
 	return EXIT_SUCCESS;
 }

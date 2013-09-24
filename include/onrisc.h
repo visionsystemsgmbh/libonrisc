@@ -202,6 +202,12 @@ int onrisc_init(onrisc_system_t *data);
 void onrisc_print_hw_params();
 
 /**
+ * @brief init blinker structure
+ * @param blinker blink_led structure
+ */
+void onrisc_blink_create(blink_led_t *blinker);
+
+/**
  * @brief start blinking thread
  * @param blinker blink_led structure
  * @return EXIT_SUCCES or EXIT_FAILURE
