@@ -1,4 +1,4 @@
-project (libonrisc)
+project (libonrisc C)
 
 if(NOT VSOR_ARCH)
 	SET (VSOR_ARCH "armel")
