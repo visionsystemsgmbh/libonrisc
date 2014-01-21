@@ -13,18 +13,29 @@ extern "C" {
 #define ALEKTO2_EEPROM	"/sys/bus/i2c/devices/1-0050/eeprom"
 #define VS860_EEPROM	"/sys/bus/i2c/devices/2-0054/eeprom"
 
-//! @name Hardware parameter stuff
-//@{
-#define PARTITION_REDBOOT		"/dev/mtdblock1"	//!< RedBoot partition device
-#define PARTITION_REDBOOT_SIZE		0x10000	//!< Flash size
-#define GLOBAL_MAGIC			0xDEADBEEF	//!< Magic number
-//@}
+/** @name Hardware parameter stuff */
+/*@{*/
+#define PARTITION_REDBOOT	"/dev/mtdblock1"	//!< RedBoot partition device
+#define PARTITION_REDBOOT_SIZE	0x10000			//!< Flash size
+#define GLOBAL_MAGIC		0xDEADBEEF		//!< Magic number
+/*@}*/
 
 #define ALEKTO		1
 #define ALENA		2
 #define ALEKTO_LAN	3
 #define VS860		100
 #define ALEKTO2		200
+
+enum rs_mode {TYPE_UNKNOWN, TYPE_RS232, TYPE_RS422, TYPE_RS485_FD, TYPE_RS485_HD, TYPE_LOOPBACK, TYPE_DIP, TYPE_CAN};
+
+enum dir_ctrl {DIR_ART, DIR_RTS};
+
+typedef struct {
+	uint32_t rs_mode;
+	uint32_t termination;
+	uint32_t dir_ctrl;
+	uint32_t echo;
+} __attribute__ ((packed)) onrisc_uart_mode_t;
 
 typedef struct 
 {
@@ -35,7 +46,7 @@ typedef struct
 	uint8_t mac1[6];
 	uint8_t mac2[6];
 	uint8_t mac3[6];
-} __attribute__ ((packed)) onrisc_system_t; 
+} __attribute__ ((packed)) onrisc_system_t;
 
 //! @brief Hardware parameter stored in flash
 //!
@@ -220,6 +231,15 @@ int onrisc_blink_led_start(blink_led_t *blinker);
  * @todo send signal to the blinking thread and make cleanup only there
  */
 int onrisc_blink_led_stop(blink_led_t *blinker);
+
+/**
+ * @brief set UART's mode like RS232/RS422/RS485 and termination
+ * @param port_nr port number, i.e. 1 - for /dev/ttyS1 or /dev/sertest0
+ * @param mode pointer to onrisc_uart_mode_t describing UART's mode: RS-modes
+ * termination, echo and direction control
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t *mode);
 
 #ifdef __cplusplus
 }
