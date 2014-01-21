@@ -29,7 +29,12 @@ set_target_properties(onrisc PROPERTIES
 	PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/include/onrisc.h")
 target_link_libraries(onrisc soc pthread)
 
+# cli
+add_executable(onrisctool ${PROJECT_SOURCE_DIR}/cli/onrisctool.c)
+target_link_libraries(onrisctool onrisc)
+
 install(TARGETS onrisc 
 	LIBRARY DESTINATION lib COMPONENT shlib
 	PUBLIC_HEADER DESTINATION include COMPONENT dev
 	)
+install(TARGETS onrisctool RUNTIME DESTINATION bin)
