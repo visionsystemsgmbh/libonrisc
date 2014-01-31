@@ -17,7 +17,7 @@ SET(CPACK_PACKAGE_CONTACT "service@visionsystems.de")
 SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${VSOR_ARCH})
 INCLUDE(CPack)
 
-cmake_minimum_required(VERSION 2.4)
+cmake_minimum_required(VERSION 2.6)
 
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include) 
 
