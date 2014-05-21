@@ -162,6 +162,7 @@ int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 			break;
 		case VS860:
 		case ALEKTO2:
+		case BALIOS_IR_5221:
 			rc = onrisc_set_uart_mode_omap3(port_nr, mode);
 			break;
 	}
@@ -183,7 +184,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM *hw_params, int model)
 	if (model == VS860) {
 		eeprom_file = VS860_EEPROM;
 	}
-	else  if (model == ALEKTO2) {
+	else  if (model == ALEKTO2 || model == BALIOS_IR_5221) {
 		eeprom_file = ALEKTO2_EEPROM;
 	}
 
@@ -326,7 +327,7 @@ int onrisc_get_model(int *model)
 		return EXIT_FAILURE;
 
 	while (fgets(buf, sizeof(buf), fp)) {
-		if (strstr(buf, "Alekto2") || strstr(buf, "am335xevm")) {
+		if (strstr(buf, "Alekto2") || strstr(buf, "am335xevm") || strstr(buf, "AM33X")) {
 			/* Alekto2 */
 			*model = ALEKTO2;
 			serial_mode_first_pin = 208;
@@ -347,6 +348,30 @@ int onrisc_get_model(int *model)
 
 	fclose(fp);
 
+	/* get model from device tree */
+	if (*model == ALEKTO2)
+	{
+		FILE *fp = fopen("/proc/device-tree/model", "r");
+		/* Alekto2 doesn't have this entry, so leave type as is */
+		if (fp == NULL)
+			goto error;
+
+		if (!fgets(buf, sizeof(buf), fp)) {
+			perror("fgets");
+			fclose(fp);
+			*model = 0;
+			goto error;
+		}
+
+		if (strstr(buf, "Balios iR 5221")) {
+			*model = BALIOS_IR_5221;
+			serial_mode_first_pin = 504;
+		}
+
+		fclose(fp);
+	}
+
+error:
 	return *model?EXIT_SUCCESS:EXIT_FAILURE;
 }
 
@@ -397,6 +422,7 @@ int onrisc_restore_leds(blink_led_t *blinker)
 			close(blinker->fd);
 			break;
 		case  ALEKTO2:
+		case  BALIOS_IR_5221:
 			libsoc_gpio_set_direction(blinker->led, INPUT);
 			if (libsoc_gpio_free(blinker->led) == EXIT_FAILURE)
 			{
@@ -428,7 +454,6 @@ void onrisc_switch_led(blink_led_t *led, uint8_t state, unsigned long leds_old)
 				ioctl(led->fd, GPIO_CMD_SET_LEDS, &val);
 			}
 			break;
-
 		case ALEKTO2:
 			if (state)
 			{
@@ -437,10 +462,23 @@ void onrisc_switch_led(blink_led_t *led, uint8_t state, unsigned long leds_old)
 			}
 			else
 			{
-
 				/* LOW phase */
 				libsoc_gpio_set_direction(led->led, OUTPUT);
 				libsoc_gpio_set_level(led->led, LOW);
+			}
+			break;
+		case BALIOS_IR_5221:
+			if (state)
+			{
+				/* HIGH phase */
+				libsoc_gpio_set_direction(led->led, OUTPUT);
+				libsoc_gpio_set_level(led->led, LOW);
+			}
+			else
+			{
+				/* LOW phase */
+				libsoc_gpio_set_direction(led->led, OUTPUT);
+				libsoc_gpio_set_level(led->led, HIGH);
 			}
 			break;
 	}
@@ -528,6 +566,15 @@ int onrisc_blink_led_start(blink_led_t *blinker)
 			break;
 		case ALEKTO2:
 			pwr_gpio = onrisc_gpio_init_sysfs(217);
+			if(pwr_gpio == NULL)
+			{
+				return EXIT_FAILURE;
+			}
+
+			blinker->led = pwr_gpio;
+			break;
+		case BALIOS_IR_5221:
+			pwr_gpio = onrisc_gpio_init_sysfs(96);
 			if(pwr_gpio == NULL)
 			{
 				return EXIT_FAILURE;
@@ -630,6 +677,7 @@ int onrisc_init(onrisc_system_t *data)
 			}
 			break;
 		case ALEKTO2:
+		case BALIOS_IR_5221:
 		case VS860:
 			if (onrisc_get_hw_params_eeprom(&hw_eeprom, model) == EXIT_FAILURE)
 			{
