@@ -12,6 +12,33 @@ void print_usage(char *prg)
 	fprintf(stderr, "\n%s: OnRISC Tool\n\n", prg);
 }
 
+int set_macs()
+{
+	char cmd[128];
+
+	sprintf(cmd, "ifconfig eth0 hw ether %02x:%02x:%02x:%02x:%02x:%02x",
+			onrisc_system.mac1[0],
+			onrisc_system.mac1[1],
+			onrisc_system.mac1[2],
+			onrisc_system.mac1[3],
+			onrisc_system.mac1[4],
+			onrisc_system.mac1[5]
+			);
+
+	system(cmd);
+	sprintf(cmd, "ifconfig eth1 hw ether %02x:%02x:%02x:%02x:%02x:%02x",
+			onrisc_system.mac2[0],
+			onrisc_system.mac2[1],
+			onrisc_system.mac2[2],
+			onrisc_system.mac2[3],
+			onrisc_system.mac2[4],
+			onrisc_system.mac2[5]
+			);
+	system(cmd);
+
+	return 0;
+}
+
 int main(int argc, char **argv)
 {
 	int opt;
@@ -28,7 +55,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "d:p:t:erh?")) != -1) {
+	while ((opt = getopt(argc, argv, "d:p:t:erhm?")) != -1) {
 		switch (opt) {
 
 		case 'd':
@@ -43,6 +70,9 @@ int main(int argc, char **argv)
 			break;
 		case 'p':
 			port = atoi(optarg);
+			break;
+		case 'm':
+			set_macs();
 			break;
 		case 't':
 			if (!strcmp(optarg, "rs232")) {
