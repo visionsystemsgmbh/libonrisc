@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "d:p:t:erhm?")) != -1) {
+	while ((opt = getopt(argc, argv, "d:p:t:erhms?")) != -1) {
 		switch (opt) {
 
 		case 'd':
@@ -73,6 +73,9 @@ int main(int argc, char **argv)
 			break;
 		case 'm':
 			set_macs();
+			break;
+		case 's':
+			onrisc_print_hw_params();
 			break;
 		case 't':
 			if (!strcmp(optarg, "rs232")) {
