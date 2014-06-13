@@ -109,7 +109,9 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 	}
 
 	/* handle RS-modes */
-	onrisc_setup_uart_gpios(OUTPUT);
+	if (onrisc_setup_uart_gpios(OUTPUT) == EXIT_FAILURE) {
+		return EXIT_FAILURE;
+	}
 	switch (mode->rs_mode) {
 		case TYPE_RS232:
 			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], HIGH);
