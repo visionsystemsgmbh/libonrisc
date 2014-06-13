@@ -7,9 +7,23 @@
 
 onrisc_system_t onrisc_system;
 
-void print_usage(char *prg)
+void print_usage()
 {
-	fprintf(stderr, "\n%s: OnRISC Tool\n\n", prg);
+	fprintf(stderr, "\nOnRISC Tool\n\n");
+	fprintf(stderr, "Usage: onrisctool -s\n");
+	fprintf(stderr, "       onrisctool -m\n");
+	fprintf(stderr, "       onrisctool -p <num> -t <type> -r -d <dirctl> -e\n");
+	fprintf(stderr, "Options: -s          show hardware parameter\n");
+	fprintf(stderr, "         -m          set MAC addresses\n");
+	fprintf(stderr, "         -p <num>    onboard serial port number\n");
+	fprintf(stderr, "         -t <type>   RS232/422/485, DIP or loopback mode:\n");
+	fprintf(stderr, "                     rs232, rs422, rs485-fd, rs485-hd, dip, loop\n");
+	fprintf(stderr, "         -r          enable termination for serial port\n");
+	fprintf(stderr, "         -d <dirctl> direction control for RS485: art or rts\n");
+	fprintf(stderr, "         -e          enable echo\n");
+	fprintf(stderr, "Examples:\n");
+	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
+	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
 }
 
 int set_macs()
@@ -104,7 +118,7 @@ int main(int argc, char **argv)
 		case '?':
 		case 'h':
 		default:
-			print_usage(basename(argv[0]));
+			print_usage();
 			return 1;
 			break;
 		}
