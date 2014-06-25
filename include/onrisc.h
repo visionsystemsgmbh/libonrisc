@@ -234,6 +234,14 @@ int onrisc_blink_led_start(blink_led_t *blinker);
 int onrisc_blink_led_stop(blink_led_t *blinker);
 
 /**
+ * @brief turn LED on/off
+ * @param led blink_led structure
+ * @param state 0 - off, 1 - on
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_switch_led(blink_led_t *led, uint8_t state);
+
+/**
  * @brief set UART's mode like RS232/RS422/RS485 and termination
  * @param port_nr port number, i.e. 1 - for /dev/ttyS1 or /dev/sertest0
  * @param mode pointer to onrisc_uart_mode_t describing UART's mode: RS-modes

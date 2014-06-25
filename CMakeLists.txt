@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 2.6)
 
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include) 
 
-set(SRCS src/onrisc.c)
+set(SRCS src/onrisc.c src/leds.c)
 
 # library
 add_library(onrisc SHARED ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
