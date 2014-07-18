@@ -177,7 +177,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM *hw_params, int model)
 	if (model == VS860) {
 		eeprom_file = VS860_EEPROM;
 	}
-	else  if (model == ALEKTO2 || model == BALIOS_IR_5221) {
+	else  if (model == ALEKTO2 || model == BALIOS_IR_5221 || model == NETCON3) {
 		eeprom_file = ALEKTO2_EEPROM;
 	}
 
@@ -361,6 +361,10 @@ int onrisc_get_model(int *model)
 			serial_mode_first_pin = 504;
 		}
 
+		if (strstr(buf, "NetCON 3")) {
+			*model = NETCON3;
+		}
+
 		fclose(fp);
 	}
 
@@ -431,6 +435,7 @@ int onrisc_init(onrisc_system_t *data)
 			break;
 		case ALEKTO2:
 		case BALIOS_IR_5221:
+		case NETCON3:
 		case VS860:
 			if (onrisc_get_hw_params_eeprom(&hw_eeprom, model) == EXIT_FAILURE)
 			{
