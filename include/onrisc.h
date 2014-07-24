@@ -86,8 +86,8 @@ typedef struct _BSP_VS_HWPARAM    // v1.0
 /* Definition for KS8695 based devices */
 
 #define LED_POWER				0x01	//!< power LED red
-#define LED_BLUE				0x02	//!< WLAN LED blue
-#define LED_GREEN				0x04	//!< LED green
+#define LED_WLAN				0x02	//!< WLAN LED blue
+#define LED_APP					0x04	//!< LED green
 #define LED_BTN_WLAN				0x08	//!< LED button wlan (Arete)
 
 #define TIOCGEPLD	0x5470

@@ -65,6 +65,11 @@ int onrisc_switch_led(blink_led_t *led, uint8_t state)
 {
 	unsigned long val;
 
+	if (onrisc_led_init(led) == EXIT_FAILURE)
+	{
+		return EXIT_FAILURE;
+	}
+
 	switch(onrisc_system.model)
 	{
 		case ALEKTO:
@@ -99,17 +104,36 @@ int onrisc_switch_led(blink_led_t *led, uint8_t state)
 			}
 			break;
 		case BALIOS_IR_5221:
+		case NETCON3:
 			if (state)
 			{
 				/* HIGH phase */
-				libsoc_gpio_set_direction(led->led, OUTPUT);
-				libsoc_gpio_set_level(led->led, LOW);
+				switch(led->led_type)
+				{
+					case LED_POWER:
+						libsoc_gpio_set_direction(led->led, OUTPUT);
+						libsoc_gpio_set_level(led->led, LOW);
+						break;
+					default:
+						libsoc_gpio_set_direction(led->led, OUTPUT);
+						libsoc_gpio_set_level(led->led, HIGH);
+						break;
+				}
 			}
 			else
 			{
 				/* LOW phase */
-				libsoc_gpio_set_direction(led->led, OUTPUT);
-				libsoc_gpio_set_level(led->led, HIGH);
+				switch(led->led_type)
+				{
+					case LED_POWER:
+						libsoc_gpio_set_direction(led->led, OUTPUT);
+						libsoc_gpio_set_level(led->led, HIGH);
+						break;
+					default:
+						libsoc_gpio_set_direction(led->led, OUTPUT);
+						libsoc_gpio_set_level(led->led, LOW);
+						break;
+				}
 			}
 			break;
 	}
@@ -169,17 +193,10 @@ void onrisc_blink_create(blink_led_t *blinker)
 	blinker->led_type = LED_POWER;
 }
 
-int onrisc_blink_led_start(blink_led_t *blinker)
+int onrisc_led_init(blink_led_t *blinker)
 {
+	int led_gpio = 0;
 	gpio* pwr_gpio;
-	int rc;
-	struct timeval tmp, tmp_res;
-
-	assert( init_flag == 1);
-
-	tmp.tv_sec = blinker->high_phase.tv_sec;
-	tmp.tv_usec = blinker->high_phase.tv_usec;
-	assert(timeval_subtract(&tmp_res, &blinker->interval, &tmp) == 0);
 
 	switch(onrisc_system.model)
 	{
@@ -197,16 +214,37 @@ int onrisc_blink_led_start(blink_led_t *blinker)
 			}
 			break;
 		case ALEKTO2:
-			pwr_gpio = onrisc_gpio_init_sysfs(217);
-			if(pwr_gpio == NULL)
+			if (blinker->led_type == LED_POWER)
 			{
-				return EXIT_FAILURE;
-			}
+				pwr_gpio = onrisc_gpio_init_sysfs(217);
+				if(pwr_gpio == NULL)
+				{
+					return EXIT_FAILURE;
+				}
 
-			blinker->led = pwr_gpio;
+				blinker->led = pwr_gpio;
+			}
+			else
+				return EXIT_FAILURE;
 			break;
 		case BALIOS_IR_5221:
-			pwr_gpio = onrisc_gpio_init_sysfs(96);
+			switch (blinker->led_type)
+			{
+				case LED_POWER:
+					led_gpio = 96;
+					break;
+				case LED_WLAN:
+					led_gpio = 16;
+					break;
+				case LED_APP:
+					led_gpio = 17;
+					break;
+				default:
+					printf("Unknown LED\n");
+					return EXIT_FAILURE;
+
+			}
+			pwr_gpio = onrisc_gpio_init_sysfs(led_gpio);
 			if(pwr_gpio == NULL)
 			{
 				return EXIT_FAILURE;
@@ -214,6 +252,46 @@ int onrisc_blink_led_start(blink_led_t *blinker)
 
 			blinker->led = pwr_gpio;
 			break;
+		case NETCON3:
+			switch (blinker->led_type)
+			{
+				case LED_POWER:
+					led_gpio = 96;
+					break;
+				case LED_APP:
+					led_gpio = 17;
+					break;
+				default:
+					printf("Unknown LED\n");
+					return EXIT_FAILURE;
+
+			}
+			pwr_gpio = onrisc_gpio_init_sysfs(led_gpio);
+			if(pwr_gpio == NULL)
+			{
+				return EXIT_FAILURE;
+			}
+
+			blinker->led = pwr_gpio;
+			break;
+	}
+	return EXIT_SUCCESS;
+}
+
+int onrisc_blink_led_start(blink_led_t *blinker)
+{
+	int rc;
+	struct timeval tmp, tmp_res;
+
+	assert( init_flag == 1);
+
+	tmp.tv_sec = blinker->high_phase.tv_sec;
+	tmp.tv_usec = blinker->high_phase.tv_usec;
+	assert(timeval_subtract(&tmp_res, &blinker->interval, &tmp) == 0);
+
+	if (onrisc_led_init(blinker) == EXIT_FAILURE)
+	{
+		return EXIT_FAILURE;
 	}
 
 	/* create blinking thread */

@@ -13,17 +13,64 @@ void print_usage()
 	fprintf(stderr, "Usage: onrisctool -s\n");
 	fprintf(stderr, "       onrisctool -m\n");
 	fprintf(stderr, "       onrisctool -p <num> -t <type> -r -d <dirctl> -e\n");
-	fprintf(stderr, "Options: -s          show hardware parameter\n");
-	fprintf(stderr, "         -m          set MAC addresses\n");
-	fprintf(stderr, "         -p <num>    onboard serial port number\n");
-	fprintf(stderr, "         -t <type>   RS232/422/485, DIP or loopback mode:\n");
-	fprintf(stderr, "                     rs232, rs422, rs485-fd, rs485-hd, dip, loop\n");
-	fprintf(stderr, "         -r          enable termination for serial port\n");
-	fprintf(stderr, "         -d <dirctl> direction control for RS485: art or rts\n");
-	fprintf(stderr, "         -e          enable echo\n");
+	fprintf(stderr, "Options: -s                 show hardware parameter\n");
+	fprintf(stderr, "         -m                 set MAC addresses\n");
+	fprintf(stderr, "         -p <num>           onboard serial port number\n");
+	fprintf(stderr, "         -t <type>          RS232/422/485, DIP or loopback mode:\n");
+	fprintf(stderr, "                            rs232, rs422, rs485-fd, rs485-hd, dip, loop\n");
+	fprintf(stderr, "         -r                 enable termination for serial port\n");
+	fprintf(stderr, "         -d <dirctl>        direction control for RS485: art or rts\n");
+	fprintf(stderr, "         -e                 enable echo\n");
+	fprintf(stderr, "         -l <name:[0|1]>    turn led [pwr, app, wln] on/off: 0 - off, 1 - on\n");
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
 	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
+}
+
+int handle_leds(char *str)
+{
+	char name[16];
+	blink_led_t led;
+	uint8_t led_state = 0;
+
+	if (sscanf(str, "%3s:%d", name, &led_state) < 0)
+	{
+		fprintf(stderr, "error parsing LEDs\n");
+		return EXIT_FAILURE;
+	}
+
+	/* parse LED name */
+	if (!strcmp(name, "pwr"))
+	{
+		led.led_type = LED_POWER;
+	}
+	else if (!strcmp(name, "app"))
+	{
+		led.led_type = LED_APP;
+	}
+	else if (!strcmp(name, "wln"))
+	{
+		led.led_type = LED_WLAN;
+	}
+	else
+	{
+		fprintf(stderr, "unknown LED: %s\n", name);
+		return EXIT_FAILURE;
+	}
+
+	/* check on/off state */
+	if (led_state < 0 || led_state > 1)
+	{
+		fprintf(stderr, "unknown LED state: %d\n", led_state);
+		return EXIT_FAILURE;
+	}
+
+	if (onrisc_switch_led(&led, led_state) == EXIT_FAILURE)
+	{
+		fprintf(stderr, "failed to switch %s LED\n", name);
+	}
+
+	return EXIT_SUCCESS;
 }
 
 int set_macs()
@@ -63,13 +110,19 @@ int main(int argc, char **argv)
 	int dir_ctrl = DIR_ART;
 	onrisc_uart_mode_t onrisc_uart_mode;
 
+	if (argc == 1)
+	{
+		print_usage();
+		return 1;
+	}
+
 	if (onrisc_init(&onrisc_system) == EXIT_FAILURE) {
 		printf("Failed to init\n");
 		goto error;
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "d:p:t:erhms?")) != -1) {
+	while ((opt = getopt(argc, argv, "d:l:p:t:erhms?")) != -1) {
 		switch (opt) {
 
 		case 'd':
@@ -111,6 +164,12 @@ int main(int argc, char **argv)
 			break;
 		case 'e':
 			echo = 1;
+			break;
+		case 'l':
+			if (handle_leds(optarg) == EXIT_FAILURE)
+			{
+				goto error;
+			}
 			break;
 		case 'r':
 			termination = 1;
