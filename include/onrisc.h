@@ -90,6 +90,11 @@ typedef struct _BSP_VS_HWPARAM    // v1.0
 #define LED_APP					0x04	//!< LED green
 #define LED_BTN_WLAN				0x08	//!< LED button wlan (Arete)
 
+#define DIP_S1					0x01
+#define DIP_S2					0x02
+#define DIP_S3					0x04
+#define DIP_S4					0x08
+
 #define TIOCGEPLD	0x5470
 #define TIOCSEPLD	0x5471
 
@@ -250,6 +255,13 @@ int onrisc_switch_led(blink_led_t *led, uint8_t state);
  * @return EXIT_SUCCES or EXIT_FAILURE
  */
 int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t *mode);
+
+/**
+ * @brief get DIP switches values
+ * @param dips variable to hold the DIP switches value
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_get_dips(uint32_t *dips);
 
 #ifdef __cplusplus
 }

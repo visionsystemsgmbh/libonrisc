@@ -8,6 +8,53 @@ int init_uart_modes_flag = 0;
 int serial_mode_first_pin = 200;
 gpio *mode_gpios[8];
 
+int onrisc_get_dips(uint32_t *dips) {
+	int rc = EXIT_SUCCESS;
+	gpio *dip_gpios[4];
+	gpio_level level;
+	int i;
+
+	assert( init_flag == 1);
+
+	*dips = 0;
+
+	if (onrisc_system.model != NETCON3) {
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+
+	for (i = 0; i < 4; i++) {
+
+		/* export GPIO */
+		dip_gpios[i] = libsoc_gpio_request(44 + i, LS_SHARED);
+		if (dip_gpios[i] == NULL) {
+			rc = EXIT_FAILURE;
+			goto error;
+		}
+
+		/* set direction to input */
+		if (libsoc_gpio_set_direction(dip_gpios[i], INPUT) == EXIT_FAILURE) {
+			rc = EXIT_FAILURE;
+			goto error;
+		}
+
+		/* get level */
+		level = libsoc_gpio_get_level(dip_gpios[i]);
+		if (level == LEVEL_ERROR) {
+			rc = EXIT_FAILURE;
+			goto error;
+		}
+
+		/* set DIP status variable. DIPs are low active */
+		if (level == LOW) {
+			*dips |= DIP_S1 << i;
+		}
+	}
+
+error:
+	return rc;
+}
+
 int onrisc_setup_uart_gpios(int dir) {
 	int i, rc = EXIT_SUCCESS;
 

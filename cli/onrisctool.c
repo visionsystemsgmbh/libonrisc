@@ -22,6 +22,7 @@ void print_usage()
 	fprintf(stderr, "         -d <dirctl>        direction control for RS485: art or rts\n");
 	fprintf(stderr, "         -e                 enable echo\n");
 	fprintf(stderr, "         -l <name:[0|1]>    turn led [pwr, app, wln] on/off: 0 - off, 1 - on\n");
+	fprintf(stderr, "         -S                 show DIP switch settings\n");
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
 	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
@@ -108,6 +109,7 @@ int main(int argc, char **argv)
 	int termination = 0;
 	int echo = 0;
 	int dir_ctrl = DIR_ART;
+	uint32_t dips;
 	onrisc_uart_mode_t onrisc_uart_mode;
 
 	if (argc == 1)
@@ -122,7 +124,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "d:l:p:t:erhms?")) != -1) {
+	while ((opt = getopt(argc, argv, "d:l:p:t:erhmsS?")) != -1) {
 		switch (opt) {
 
 		case 'd':
@@ -143,6 +145,18 @@ int main(int argc, char **argv)
 			break;
 		case 's':
 			onrisc_print_hw_params();
+			break;
+		case 'S':
+			if (onrisc_get_dips(&dips) == EXIT_FAILURE) {
+				fprintf(stderr, "Failed to get DIP switch setting\n");
+				goto error;
+			}
+
+			printf("DIP S1: %s\n", dips & DIP_S1?"on":"off");
+			printf("DIP S2: %s\n", dips & DIP_S2?"on":"off");
+			printf("DIP S3: %s\n", dips & DIP_S3?"on":"off");
+			printf("DIP S4: %s\n", dips & DIP_S4?"on":"off");
+
 			break;
 		case 't':
 			if (!strcmp(optarg, "rs232")) {
