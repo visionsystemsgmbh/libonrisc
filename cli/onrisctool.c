@@ -34,7 +34,7 @@ int handle_leds(char *str)
 	blink_led_t led;
 	uint8_t led_state = 0;
 
-	if (sscanf(str, "%3s:%d", name, &led_state) < 0)
+	if (sscanf(str, "%3[^:]:%hhu", name, &led_state) < 0)
 	{
 		fprintf(stderr, "error parsing LEDs\n");
 		return EXIT_FAILURE;
