@@ -50,8 +50,13 @@ int onrisc_restore_leds(blink_led_t *blinker)
 			close(blinker->fd);
 			break;
 		case  ALEKTO2:
+		case  NETCON3:
 		case  BALIOS_IR_5221:
 			if (libsoc_gpio_set_direction(blinker->led, INPUT) == EXIT_FAILURE)
+			{
+				rc = EXIT_FAILURE;
+			}
+			if (libsoc_gpio_free(blinker->led) == EXIT_FAILURE)
 			{
 				rc = EXIT_FAILURE;
 			}
@@ -64,6 +69,8 @@ int onrisc_restore_leds(blink_led_t *blinker)
 int onrisc_switch_led(blink_led_t *led, uint8_t state)
 {
 	unsigned long val;
+
+	assert( init_flag == 1);
 
 	if (onrisc_led_init(led) == EXIT_FAILURE)
 	{
@@ -182,8 +189,6 @@ void *blink_thread(void *data)
 			run = 0;
 		}
 	}
-
-	onrisc_restore_leds(led);
 }
 
 void onrisc_blink_create(blink_led_t *blinker)
@@ -191,6 +196,8 @@ void onrisc_blink_create(blink_led_t *blinker)
 	blinker->count = -1;
 	blinker->thread_id = -1;
 	blinker->led_type = LED_POWER;
+	blinker->led = NULL;
+	blinker->fd = -1;
 }
 
 int onrisc_led_init(blink_led_t *blinker)
@@ -203,6 +210,12 @@ int onrisc_led_init(blink_led_t *blinker)
 		case ALEKTO:
 		case ALENA:
 		case ALEKTO_LAN:
+			/* check, if LED was already initialized */
+			if (blinker->fd == -1)
+			{
+				break;
+			}
+
 			blinker->fd = open("/dev/gpio", O_RDWR);
 			if (blinker->fd <= 0)
 			{
@@ -214,6 +227,12 @@ int onrisc_led_init(blink_led_t *blinker)
 			}
 			break;
 		case ALEKTO2:
+			/* check, if LED was already initialized */
+			if (blinker->led != NULL)
+			{
+				break;
+			}
+
 			if (blinker->led_type == LED_POWER)
 			{
 				pwr_gpio = onrisc_gpio_init_sysfs(217);
@@ -228,6 +247,12 @@ int onrisc_led_init(blink_led_t *blinker)
 				return EXIT_FAILURE;
 			break;
 		case BALIOS_IR_5221:
+			/* check, if LED was already initialized */
+			if (blinker->led != NULL)
+			{
+				break;
+			}
+
 			switch (blinker->led_type)
 			{
 				case LED_POWER:
@@ -253,6 +278,12 @@ int onrisc_led_init(blink_led_t *blinker)
 			blinker->led = pwr_gpio;
 			break;
 		case NETCON3:
+			/* check, if LED was already initialized */
+			if (blinker->led != NULL)
+			{
+				break;
+			}
+
 			switch (blinker->led_type)
 			{
 				case LED_POWER:
