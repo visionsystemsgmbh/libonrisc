@@ -206,6 +206,21 @@ void onrisc_blink_create(blink_led_t *blinker)
 	blinker->fd = -1;
 }
 
+void onrisc_blink_destroy(blink_led_t *blinker)
+{
+	blinker->count = -1;
+	blinker->thread_id = -1;
+	blinker->led_type = LED_POWER;
+	if (blinker->led != NULL)
+	{
+		libsoc_gpio_free(blinker->led);
+	}
+	if (blinker->fd != -1)
+	{
+		close(blinker->fd);
+	}
+}
+
 int onrisc_led_init(blink_led_t *blinker)
 {
 	int led_gpio = 0;

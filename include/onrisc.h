@@ -226,6 +226,12 @@ void onrisc_print_hw_params();
 void onrisc_blink_create(blink_led_t *blinker);
 
 /**
+ * @brief free blinker's internal elements
+ * @param blinker blink_led structure
+ */
+void onrisc_blink_destroy(blink_led_t *blinker);
+
+/**
  * @brief start blinking thread
  * @param blinker blink_led structure
  * @return EXIT_SUCCES or EXIT_FAILURE

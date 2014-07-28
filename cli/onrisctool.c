@@ -72,6 +72,8 @@ int handle_leds(char *str)
 				fprintf(stderr, "failed to switch %s LED\n", name);
 			}
 
+			onrisc_blink_destroy(&led);
+
 			break;
 		case 2:
 			led.count = -1; /* blinking continuously */
