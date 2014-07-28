@@ -189,6 +189,12 @@ void *blink_thread(void *data)
 			run = 0;
 		}
 	}
+
+	/* restore LED status and free GPIO,
+	 * when counter is expired. If thread will be
+	 * canceled, then cancelling task will restore
+	 * LEDs */
+	onrisc_restore_leds(led);
 }
 
 void onrisc_blink_create(blink_led_t *blinker)
