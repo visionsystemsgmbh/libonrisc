@@ -49,6 +49,13 @@ int onrisc_get_dips(uint32_t *dips) {
 		if (level == LOW) {
 			*dips |= DIP_S1 << i;
 		}
+
+		/* free GPIO */
+		if (libsoc_gpio_free(dip_gpios[i]) == EXIT_FAILURE)
+		{
+			rc = EXIT_FAILURE;
+			goto error;
+		}
 	}
 
 error:
