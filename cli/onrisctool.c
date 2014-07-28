@@ -21,7 +21,7 @@ void print_usage()
 	fprintf(stderr, "         -r                 enable termination for serial port\n");
 	fprintf(stderr, "         -d <dirctl>        direction control for RS485: art or rts\n");
 	fprintf(stderr, "         -e                 enable echo\n");
-	fprintf(stderr, "         -l <name:[0|1]>    turn led [pwr, app, wln] on/off: 0 - off, 1 - on\n");
+	fprintf(stderr, "         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
 	fprintf(stderr, "         -S                 show DIP switch settings\n");
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
@@ -39,6 +39,9 @@ int handle_leds(char *str)
 		fprintf(stderr, "error parsing LEDs\n");
 		return EXIT_FAILURE;
 	}
+
+	/* init LED */
+	onrisc_blink_create(&led);
 
 	/* parse LED name */
 	if (!strcmp(name, "pwr"))
@@ -60,16 +63,43 @@ int handle_leds(char *str)
 	}
 
 	/* check on/off state */
-	if (led_state < 0 || led_state > 1)
+	switch(led_state)
 	{
-		fprintf(stderr, "unknown LED state: %d\n", led_state);
-		return EXIT_FAILURE;
+		case 0:
+		case 1:
+			if (onrisc_switch_led(&led, led_state) == EXIT_FAILURE)
+			{
+				fprintf(stderr, "failed to switch %s LED\n", name);
+			}
+
+			break;
+		case 2:
+			led.count = -1; /* blinking continuously */
+			led.interval.tv_sec = 1;
+			led.interval.tv_usec = 0;
+			led.high_phase.tv_sec = 0;
+			led.high_phase.tv_usec = 500000;
+
+			if (onrisc_blink_led_start(&led) == EXIT_FAILURE)
+			{
+				fprintf(stderr, "failed to start %s LED\n", name);
+				return EXIT_FAILURE;
+			}
+
+			sleep(5);
+
+			if (onrisc_blink_led_stop(&led) == EXIT_FAILURE)
+			{
+				fprintf(stderr, "failed to stop %s LED\n", name);
+				return EXIT_FAILURE;
+			}
+
+			break;
+		default:
+			fprintf(stderr, "unknown LED state: %d\n", led_state);
+			return EXIT_FAILURE;
 	}
 
-	if (onrisc_switch_led(&led, led_state) == EXIT_FAILURE)
-	{
-		fprintf(stderr, "failed to switch %s LED\n", name);
-	}
 
 	return EXIT_SUCCESS;
 }
