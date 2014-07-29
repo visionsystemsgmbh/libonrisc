@@ -48,6 +48,7 @@ int onrisc_restore_leds(blink_led_t *blinker)
 			}
 
 			close(blinker->fd);
+			blinker->fd = -1;
 			break;
 		case  ALEKTO2:
 		case  NETCON3:
@@ -60,6 +61,8 @@ int onrisc_restore_leds(blink_led_t *blinker)
 			{
 				rc = EXIT_FAILURE;
 			}
+
+			blinker->led = NULL;
 			break;
 	}
 
@@ -219,6 +222,8 @@ void onrisc_blink_destroy(blink_led_t *blinker)
 	{
 		close(blinker->fd);
 	}
+	blinker->led = NULL;
+	blinker->fd = -1;
 }
 
 int onrisc_led_init(blink_led_t *blinker)
