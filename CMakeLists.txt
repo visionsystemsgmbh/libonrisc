@@ -1,7 +1,7 @@
 project (libonrisc C)
 
 if(NOT VSOR_ARCH)
-	SET (VSOR_ARCH "armel")
+	SET (VSOR_ARCH "armhf")
 endif(NOT VSOR_ARCH)
 
 #CPack stuff
