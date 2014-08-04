@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -23,6 +24,9 @@ void print_usage()
 	fprintf(stderr, "         -e                 enable echo\n");
 	fprintf(stderr, "         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
 	fprintf(stderr, "         -S                 show DIP switch settings\n");
+	fprintf(stderr, "         -a                 GPIO mask\n");
+	fprintf(stderr, "         -b                 GPIO value\n");
+	fprintf(stderr, "         -g                 get GPIO values\n");
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
 	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
@@ -161,6 +165,8 @@ int main(int argc, char **argv)
 	int dir_ctrl = DIR_ART;
 	uint32_t dips;
 	onrisc_uart_mode_t onrisc_uart_mode;
+	uint32_t mask = 0, value = 0;
+	bool set_gpio = false;
 
 	if (argc == 1)
 	{
@@ -174,9 +180,17 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "d:l:p:t:erhmsS?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:d:l:p:t:egrhmsS?")) != -1) {
 		switch (opt) {
 
+		case 'a':
+			mask = strtol(optarg, NULL, 16);
+			set_gpio = true;
+			break;
+		case 'b':
+			value = strtol(optarg, NULL, 16);
+			set_gpio = true;
+			break;
 		case 'd':
 			if (!strcmp(optarg, "art")) {
 				dir_ctrl = DIR_ART;
@@ -189,6 +203,18 @@ int main(int argc, char **argv)
 			break;
 		case 'p':
 			port = atoi(optarg);
+			break;
+		case 'g':
+			{
+				onrisc_gpios_t gpios;
+
+				if (onrisc_gpio_get_value(&gpios) == EXIT_FAILURE) {
+					fprintf(stderr, "Failed to get GPIO values\n");
+					goto error;
+				}
+
+				printf("0x%08x\n", gpios.value);
+			}
 			break;
 		case 'm':
 			set_macs();
@@ -257,6 +283,26 @@ int main(int argc, char **argv)
 			fprintf(stderr, "Failed to set UART mode\n");
 			goto error;
 		}
+	}
+
+	if (set_gpio) {
+		onrisc_gpios_t gpios;
+
+		gpios.mask = mask;
+		gpios.value = value;
+
+		if (onrisc_gpio_set_value(&gpios) == EXIT_FAILURE) {
+			fprintf(stderr, "Failed to set GPIOs\n");
+			goto error;
+		}
+
+		if (onrisc_gpio_get_value(&gpios) == EXIT_FAILURE) {
+			fprintf(stderr, "Failed to get GPIO values\n");
+			goto error;
+		}
+
+		printf("0x%08x\n", gpios.value);
+
 	}
 
 	return 0;

@@ -261,7 +261,13 @@ int onrisc_led_init(blink_led_t *blinker)
 
 			if (blinker->led_type == LED_POWER)
 			{
-				pwr_gpio = onrisc_gpio_init_sysfs(217);
+				int base;
+
+				if (onrisc_get_tca6416_base(&base, 0x21) == EXIT_FAILURE) {
+					return EXIT_FAILURE;
+				}
+
+				pwr_gpio = onrisc_gpio_init_sysfs(base + 8 + 1);
 				if(pwr_gpio == NULL)
 				{
 					return EXIT_FAILURE;

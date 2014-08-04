@@ -21,13 +21,13 @@ cmake_minimum_required(VERSION 2.6)
 
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include) 
 
-set(SRCS src/onrisc.c src/leds.c)
+set(SRCS src/onrisc.c src/leds.c src/gpios.c src/system.c src/uarts.c)
 
 # library
 add_library(onrisc SHARED ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
 set_target_properties(onrisc PROPERTIES
 	PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/include/onrisc.h")
-target_link_libraries(onrisc soc pthread)
+target_link_libraries(onrisc soc pthread udev)
 
 # cli
 add_executable(onrisctool ${PROJECT_SOURCE_DIR}/cli/onrisctool.c)

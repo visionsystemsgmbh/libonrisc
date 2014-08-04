@@ -205,6 +205,27 @@ typedef struct
 	unsigned long leds_old;
 } blink_led_t;
 
+#define ONRISC_MAX_GPIOS        32
+
+typedef struct {
+	uint8_t direction;
+	uint8_t value;
+	uint8_t dir_fixed;
+	gpio *pin;
+} __attribute__ ((packed)) onrisc_gpio_t;
+
+typedef struct {
+	int ngpio;
+	int base;
+	onrisc_gpio_t gpios[ONRISC_MAX_GPIOS];
+} __attribute__ ((packed)) onrisc_gpios_int_t;
+
+
+typedef struct  {
+	uint32_t mask;
+	uint32_t value;
+} __attribute__ ((packed)) onrisc_gpios_t;
+
 /* prototypes */
 
 /**
@@ -268,6 +289,20 @@ int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t *mode);
  * @return EXIT_SUCCES or EXIT_FAILURE
  */
 int onrisc_get_dips(uint32_t *dips);
+
+/**
+ * @brief change GPIO direction
+ * @param gpio_dir pointer to a structure holding mask and direction values for all GPIOs
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir);
+
+/**
+ * @brief change GPIO output value
+ * @param gpio_dir pointer to a structure holding mask and values for all outputs
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val);
 
 #ifdef __cplusplus
 }
