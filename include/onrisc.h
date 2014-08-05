@@ -304,6 +304,13 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir);
  */
 int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val);
 
+/**
+ * @brief get GPIO value for both inputs and outputs
+ * @param gpio_dir pointer to a structure, that will return GPIO value in the value field
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val);
+
 #ifdef __cplusplus
 }
 #endif
