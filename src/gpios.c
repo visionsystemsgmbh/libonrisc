@@ -2,25 +2,167 @@
 
 onrisc_gpios_int_t onrisc_gpios;
 
+int onrisc_gpio_init_alekto2()
+{
+	int i, rc = EXIT_FAILURE;
+	int base = onrisc_gpios.base;
+	gpio_direction cur_dir;
+
+	for (i = 0; i < onrisc_gpios.ngpio / 2; i++) {
+		onrisc_gpios.gpios[i].direction = INPUT;
+		onrisc_gpios.gpios[i].dir_fixed = 0;
+	}
+
+	/* init driver control pins */
+
+	/* group 0 */
+	onrisc_gpios.gpios_ctrl[0].pin = libsoc_gpio_request(base, LS_SHARED);
+	if (onrisc_gpios.gpios_ctrl[0].pin == NULL) {
+		goto error;
+	}
+	onrisc_gpios.gpios_ctrl[1].pin =
+	    libsoc_gpio_request(base + 1, LS_SHARED);
+	if (onrisc_gpios.gpios_ctrl[1].pin == NULL) {
+		goto error;
+	}
+
+	/* group 1 */
+	onrisc_gpios.gpios_ctrl[2].pin =
+	    libsoc_gpio_request(base + 4, LS_SHARED);
+	if (onrisc_gpios.gpios_ctrl[2].pin == NULL) {
+		goto error;
+	}
+	onrisc_gpios.gpios_ctrl[3].pin =
+	    libsoc_gpio_request(base + 5, LS_SHARED);
+	if (onrisc_gpios.gpios_ctrl[3].pin == NULL) {
+		goto error;
+	}
+
+	/* group 2 */
+	onrisc_gpios.gpios_ctrl[4].pin =
+	    libsoc_gpio_request(base + 6, LS_SHARED);
+	if (onrisc_gpios.gpios_ctrl[4].pin == NULL) {
+		goto error;
+	}
+	onrisc_gpios.gpios_ctrl[5].pin =
+	    libsoc_gpio_request(base + 7, LS_SHARED);
+	if (onrisc_gpios.gpios_ctrl[5].pin == NULL) {
+		goto error;
+	}
+
+	for (i = 0; i < 3; i++) {
+		cur_dir =
+		    libsoc_gpio_get_direction(onrisc_gpios.gpios[2 * i].pin);
+		if (cur_dir != OUTPUT) {
+			if (libsoc_gpio_set_direction
+			    (onrisc_gpios.gpios_ctrl[2 * i].pin, OUTPUT) == EXIT_FAILURE) {
+				goto error;
+			}
+		}
+		cur_dir =
+		    libsoc_gpio_get_direction(onrisc_gpios.gpios[2 * i + 1].pin);
+		if (cur_dir != OUTPUT) {
+			if (libsoc_gpio_set_direction
+			    (onrisc_gpios.gpios_ctrl[2 * i + 1].pin,
+			     OUTPUT) == EXIT_FAILURE) {
+				goto error;
+			}
+		}
+
+		if (libsoc_gpio_set_level
+		    (onrisc_gpios.gpios_ctrl[2 * i].pin, LOW) == EXIT_FAILURE) {
+			goto error;
+		}
+		if (libsoc_gpio_set_level
+		    (onrisc_gpios.gpios_ctrl[2 * i + 1].pin,
+		     HIGH) == EXIT_FAILURE) {
+			goto error;
+		}
+	}
+
+	rc = EXIT_SUCCESS;
+
+ error:
+	return rc;
+}
+
+int onrisc_gpio_init_balios()
+{
+	int i, rc = EXIT_FAILURE;
+
+	for (i = 0; i < onrisc_gpios.ngpio / 2; i++) {
+		gpio_direction cur_dir;
+		int offset = i + onrisc_gpios.ngpio / 2;
+		int base = onrisc_gpios.base;
+
+		onrisc_gpios.gpios[i].direction = INPUT;
+		onrisc_gpios.gpios[i].dir_fixed = 1;
+		onrisc_gpios.gpios[offset].direction = OUTPUT;
+		onrisc_gpios.gpios[offset].dir_fixed = 1;
+
+		/* init inputs */
+		onrisc_gpios.gpios[i].pin =
+		    libsoc_gpio_request(i + base, LS_SHARED);
+		if (onrisc_gpios.gpios[i].pin == NULL) {
+			goto error;
+		}
+
+		/* get current direction and set desired one */
+		cur_dir = libsoc_gpio_get_direction(onrisc_gpios.gpios[i].pin);
+		if (cur_dir != onrisc_gpios.gpios[i].direction) {
+			/* set direction */
+			if (libsoc_gpio_set_direction
+			    (onrisc_gpios.gpios[i].pin,
+			     onrisc_gpios.gpios[i].direction) == EXIT_FAILURE) {
+				goto error;
+			}
+		}
+
+		/* init outputs */
+		onrisc_gpios.gpios[offset].pin =
+		    libsoc_gpio_request(offset + base, LS_SHARED);
+		if (onrisc_gpios.gpios[offset].pin == NULL) {
+			goto error;
+		}
+
+		/* get current direction and set desired one */
+		cur_dir =
+		    libsoc_gpio_get_direction(onrisc_gpios.gpios[offset].pin);
+		if (cur_dir != onrisc_gpios.gpios[offset].direction) {
+			/* set direction */
+			if (libsoc_gpio_set_direction
+			    (onrisc_gpios.gpios[offset].pin,
+			     onrisc_gpios.gpios[offset].direction) ==
+			    EXIT_FAILURE) {
+				goto error;
+			}
+		}
+	}
+
+	rc = EXIT_SUCCESS;
+
+ error:
+	return rc;
+}
+
 int onrisc_gpio_init()
 {
-	int i, base, ngpio = 0, rc = EXIT_FAILURE;
+	int i, rc = EXIT_FAILURE;
 
 	assert(init_flag == 1);
-
-	base = onrisc_gpios.base;
 
 	switch (onrisc_system.model) {
 	case ALEKTO:
 	case ALEKTO_LAN:
-		ngpio = 8;
-		for (i = 0; i < ngpio; i++) {
+		onrisc_gpios.ngpio = 8;
+
+		for (i = 0; i < onrisc_gpios.ngpio; i++) {
 			onrisc_gpios.gpios[i].direction = INPUT;
 			onrisc_gpios.gpios[i].dir_fixed = 0;
 		}
 		break;
 	case ALENA:
-		ngpio = 8;
+		onrisc_gpios.ngpio = 8;
 
 		/* inputs */
 		onrisc_gpios.gpios[0].direction = INPUT;
@@ -42,80 +184,25 @@ int onrisc_gpio_init()
 
 		break;
 	case ALEKTO2:
-		/* init onrisc_gpios_int_t */
-		ngpio = 8;
-		/*if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) == EXIT_FAILURE) {
-			goto error;
-		}*/
+		onrisc_gpios.ngpio = 8;
 
-		for (i = 0; i < ngpio; i++) {
-			onrisc_gpios.gpios[i].direction = INPUT;
-			onrisc_gpios.gpios[i].dir_fixed = 0;
+		/*TODO implement initialization for Alekto 2 */
+		return EXIT_SUCCESS;
+
+		if (onrisc_gpio_init_alekto2() == EXIT_FAILURE) {
+			goto error;
 		}
+
 		break;
 	case BALIOS_IR_5221:
-		/* init onrisc_gpios_int_t */
-		ngpio = 8;
-		/*if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) == EXIT_FAILURE) {
+		onrisc_gpios.ngpio = 8;
+		if (onrisc_gpio_init_balios() == EXIT_FAILURE) {
 			goto error;
-		}*/
-
-
-		for (i = 0; i < ngpio / 2; i++) {
-			gpio_direction cur_dir;
-			int offset = i + ngpio / 2;
-
-			onrisc_gpios.gpios[i].direction = INPUT;
-			onrisc_gpios.gpios[i].dir_fixed = 1;
-			onrisc_gpios.gpios[offset].direction = OUTPUT;
-			onrisc_gpios.gpios[offset].dir_fixed = 1;
-
-			/* init inputs */
-			onrisc_gpios.gpios[i].pin =
-			    libsoc_gpio_request(i + base, LS_SHARED);
-			if (onrisc_gpios.gpios[i].pin == NULL) {
-				goto error;
-			}
-
-			/* get current direction and set desired one */
-			cur_dir =
-			    libsoc_gpio_get_direction(onrisc_gpios.gpios[i].
-						      pin);
-			if (cur_dir != onrisc_gpios.gpios[i].direction) {
-				/* set direction */
-				if (libsoc_gpio_set_direction
-				    (onrisc_gpios.gpios[i].pin,
-				     onrisc_gpios.gpios[i].direction) ==
-				    EXIT_FAILURE) {
-					goto error;
-				}
-			}
-
-			/* init outputs */
-			onrisc_gpios.gpios[offset].pin =
-			    libsoc_gpio_request(offset + base, LS_SHARED);
-			if (onrisc_gpios.gpios[offset].pin == NULL) {
-				goto error;
-			}
-
-			/* get current direction and set desired one */
-			cur_dir =
-			    libsoc_gpio_get_direction(onrisc_gpios.
-						      gpios[offset].pin);
-			if (cur_dir != onrisc_gpios.gpios[offset].direction) {
-				/* set direction */
-				if (libsoc_gpio_set_direction
-				    (onrisc_gpios.gpios[offset].pin,
-				     onrisc_gpios.gpios[offset].direction) ==
-				    EXIT_FAILURE) {
-					goto error;
-				}
-			}
 		}
+
 		break;
 	}
 
-	onrisc_gpios.ngpio = ngpio;
 	rc = EXIT_SUCCESS;
  error:
 	return rc;
@@ -155,6 +242,7 @@ int onrisc_gpio_set_value_sysfs(onrisc_gpio_t * gpio)
 	case ALENA:
 		break;
 	case ALEKTO2:
+		break;
 	case BALIOS_IR_5221:
 		if (libsoc_gpio_set_level(gpio->pin, gpio->value) ==
 		    EXIT_FAILURE) {
@@ -250,9 +338,8 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 	case BALIOS_IR_5221:
 		for (i = 0; i < onrisc_gpios.ngpio; i++) {
 			if ((level =
-			     libsoc_gpio_get_level(onrisc_gpios.
-						   gpios[i].pin)) ==
-			    LEVEL_ERROR) {
+			     libsoc_gpio_get_level(onrisc_gpios.gpios[i].
+						   pin)) == LEVEL_ERROR) {
 				goto error;
 			}
 

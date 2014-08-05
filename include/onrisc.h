@@ -218,8 +218,8 @@ typedef struct {
 	int ngpio;
 	int base;
 	onrisc_gpio_t gpios[ONRISC_MAX_GPIOS];
+	onrisc_gpio_t gpios_ctrl[6];
 } __attribute__ ((packed)) onrisc_gpios_int_t;
-
 
 typedef struct  {
 	uint32_t mask;
