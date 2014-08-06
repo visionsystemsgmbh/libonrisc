@@ -22,7 +22,7 @@ depends on **libsoc** and **libudev** libraries.
 4. `make`
 5. `make install`
 
-On **Debian** on can skip the last step and create/install deb package:
+On **Debian** one can skip the last step and create/install deb package:
 
 1. `cpack`
 2. `dpkg -i *.deb`
@@ -33,6 +33,16 @@ API
 All routines and data structures are described in `include/onrisc.h` using **Doxygen** syntax. It is mandatory to invoke `onrisc_init()` before you use any other API calls otherwise you'll get assertion triggered. `cli/onrisctool.c` provides usage example to the most API calls.
 
 ### Get system information
+
+    typedef struct {
+	    uint16_t model;
+	    uint32_t hw_rev;
+	    uint32_t ser_nr;
+	    char prd_date[11];
+	    uint8_t mac1[6];
+	    uint8_t mac2[6];
+	    uint8_t mac3[6];
+    } __attribute__ ((packed)) onrisc_system_t;
 
     int onrisc_init(onrisc_system_t *data);
 
