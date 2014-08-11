@@ -24,8 +24,10 @@ void print_usage()
 	fprintf(stderr, "         -e                 enable echo\n");
 	fprintf(stderr, "         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
 	fprintf(stderr, "         -S                 show DIP switch settings\n");
-	fprintf(stderr, "         -a                 GPIO mask\n");
+	fprintf(stderr, "         -a                 GPIO data mask\n");
+	fprintf(stderr, "         -c                 GPIO direction mask\n");
 	fprintf(stderr, "         -b                 GPIO value\n");
+	fprintf(stderr, "         -f                 GPIO direction value\n");
 	fprintf(stderr, "         -g                 get GPIO values\n");
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
@@ -165,8 +167,9 @@ int main(int argc, char **argv)
 	int dir_ctrl = DIR_ART;
 	uint32_t dips;
 	onrisc_uart_mode_t onrisc_uart_mode;
-	uint32_t mask = 0, value = 0;
-	bool set_gpio = false;
+	uint32_t mask = 0, value = 0, dir_mask = 0, dir_value = 0;
+	onrisc_gpios_t gpios;
+	bool set_gpio = false, set_dir_gpio = false;
 
 	if (argc == 1)
 	{
@@ -180,7 +183,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:d:l:p:t:egrhmsS?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:egrhmsS?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -190,6 +193,10 @@ int main(int argc, char **argv)
 		case 'b':
 			value = strtol(optarg, NULL, 16);
 			set_gpio = true;
+			break;
+		case 'c':
+			dir_mask = strtol(optarg, NULL, 16);
+			set_dir_gpio = true;
 			break;
 		case 'd':
 			if (!strcmp(optarg, "art")) {
@@ -201,13 +208,15 @@ int main(int argc, char **argv)
 				goto error;
 			}
 			break;
+		case 'f':
+			dir_value = strtol(optarg, NULL, 16);
+			set_dir_gpio = true;
+			break;
 		case 'p':
 			port = atoi(optarg);
 			break;
 		case 'g':
 			{
-				onrisc_gpios_t gpios;
-
 				if (onrisc_gpio_get_value(&gpios) == EXIT_FAILURE) {
 					fprintf(stderr, "Failed to get GPIO values\n");
 					goto error;
@@ -285,9 +294,17 @@ int main(int argc, char **argv)
 		}
 	}
 
-	if (set_gpio) {
-		onrisc_gpios_t gpios;
+	if (set_dir_gpio) {
+		gpios.mask = dir_mask;
+		gpios.value = dir_value;
 
+		if (onrisc_gpio_set_direction(&gpios) == EXIT_FAILURE) {
+			fprintf(stderr, "Failed to set GPIO direction\n");
+			goto error;
+		}
+	}
+
+	if (set_gpio) {
 		gpios.mask = mask;
 		gpios.value = value;
 
