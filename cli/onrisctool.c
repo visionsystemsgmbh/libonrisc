@@ -32,6 +32,9 @@ void print_usage()
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
 	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
+	fprintf(stderr, "onrisctool -l pwr:0 (turn power LED off)\n");
+	fprintf(stderr, "onrisctool -c 0x0f -f 0x0f (set first 4 IOs to output)\n");
+	fprintf(stderr, "onrisctool -a 0x07 -b 0x05 (turn pins 0 and 2 to high and clear pin 1)\n");
 }
 
 int handle_leds(char *str)
