@@ -79,14 +79,14 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM *hw_params, int model)
 	}
 
 	fd = open(eeprom_file, O_RDONLY);
-	if (fd <= 0)
-	{
+	if (fd <= 0) {
+		fprintf(stderr, "failed to open EEPROM (%s)\n", eeprom_file);
 		rc = EXIT_FAILURE;
 		goto error;
 	}
 	rv = read(fd, hw_params, sizeof(struct _BSP_VS_HWPARAM));
-	if (rv != sizeof(struct _BSP_VS_HWPARAM))
-	{
+	if (rv != sizeof(struct _BSP_VS_HWPARAM)) {
+		fprintf(stderr, "failed to read EEPROM\n");
 		rc = EXIT_FAILURE;
 		goto error;
 	}
@@ -306,6 +306,7 @@ int onrisc_init(onrisc_system_t *data)
 
 	if (onrisc_get_model(&model) == EXIT_FAILURE)
 	{
+		fprintf(stderr, "failed to get model\n");
 		return EXIT_FAILURE;
 	}
 

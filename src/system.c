@@ -16,7 +16,7 @@ int onrisc_get_i2c_address(const char *path)
 	}
 
 	if (sscanf(ptr2, "-%4x/", &addr) != 1) {
-		printf("i2c addres not found\n");
+		fprintf(stderr, "i2c addres not found\n");
 		goto error;
 	}
 
@@ -35,14 +35,14 @@ int onrisc_get_tca6416_base(int *base, int addr)
 
 	*base = 0;
 
-	/* Create the udev object */
+	/* create the udev object */
 	udev = udev_new();
 	if (!udev) {
-		printf("Can't create udev\n");
+		fprintf(stderr, "can't create udev object\n");
 		goto error;
 	}
 
-	/* Create a list of the devices in the 'hidraw' subsystem. */
+	/* create a list of the devices in the 'gpio' subsystem. */
 	enumerate = udev_enumerate_new(udev);
 	udev_enumerate_add_match_subsystem(enumerate, "gpio");
 	udev_enumerate_add_match_sysattr(enumerate, "label", "tca6416");
@@ -53,12 +53,14 @@ int onrisc_get_tca6416_base(int *base, int addr)
 		const char *path, *value;
 		int addr_tmp;
 
-		/* Get the filename of the /sys entry for the device
+		/* get the filename of the /sys entry for the device
 		   and create a udev_device object (dev) representing it */
 		path = udev_list_entry_get_name(dev_list_entry);
 
+		/* extract i2c address from /sys path */
 		addr_tmp = onrisc_get_i2c_address(path);
 		if (addr_tmp == -1) {
+			fprintf(stderr, "failed to get i2c address for tca6416\n");
 			goto error;
 		}
 
@@ -68,13 +70,13 @@ int onrisc_get_tca6416_base(int *base, int addr)
 
 		dev = udev_device_new_from_syspath(udev, path);
 		if (dev == NULL) {
-			printf("failed to create udev device\n");
+			fprintf(stderr, "failed to create udev device\n");
 			goto error;
 		}
 
 		value = udev_device_get_sysattr_value(dev, "base");
 		if (value == NULL) {
-			printf("failed to get tca6416 GPOI base\n");
+			fprintf(stderr, "failed to get tca6416 GPIO base\n");
 			udev_device_unref(dev);
 			goto error;
 		}
@@ -84,12 +86,12 @@ int onrisc_get_tca6416_base(int *base, int addr)
 		udev_device_unref(dev);
 	}
 
-	/* Free the enumerator object */
+	/* clean up */
 	udev_enumerate_unref(enumerate);
-
 	udev_unref(udev);
 
 	if (*base == 0) {
+		fprintf(stderr, "tca6416 wasn't found\n");
 		goto error;
 	}
 

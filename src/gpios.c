@@ -257,6 +257,7 @@ int onrisc_gpio_init()
 		onrisc_gpios.ngpio = 8;
 
 		if (onrisc_gpio_init_balios() == EXIT_FAILURE) {
+			fprintf(stderr, "failed to init gpios\n");
 			goto error;
 		}
 
