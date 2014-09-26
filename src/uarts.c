@@ -18,8 +18,7 @@ int onrisc_setup_uart_gpios(int dir) {
 			}
 			serial_mode_first_pin = base;
 			break;
-		case VS860:
-		case BALIOS_IR_5221:
+		default:
 			if (onrisc_get_tca6416_base(&base, 0x20) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
@@ -167,8 +166,13 @@ int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 			break;
 		case VS860:
 		case ALEKTO2:
+		case BALIOS_IR_3220:
 		case BALIOS_IR_5221:
 			rc = onrisc_set_uart_mode_omap3(port_nr, mode);
+			break;
+		default:
+			rc = EXIT_FAILURE;
+			fprintf(stderr, "thin device doesn't support UART mode switching\n");
 			break;
 	}
 

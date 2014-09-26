@@ -6,17 +6,19 @@ onrisc_system_t onrisc_system;
 /* UART mode variables */
 int serial_mode_first_pin = 200;
 
-int onrisc_get_dips(uint32_t *dips) {
+int onrisc_get_dips(uint32_t * dips)
+{
 	int rc = EXIT_SUCCESS;
 	gpio *dip_gpios[4];
 	gpio_level level;
 	int i;
 
-	assert( init_flag == 1);
+	assert(init_flag == 1);
 
 	*dips = 0;
 
-	if (onrisc_system.model != NETCON3) {
+	if (onrisc_system.model != NETCON3
+	    || onrisc_system.model != BALIOS_DIO_1080) {
 		rc = EXIT_FAILURE;
 		goto error;
 	}
@@ -31,7 +33,8 @@ int onrisc_get_dips(uint32_t *dips) {
 		}
 
 		/* set direction to input */
-		if (libsoc_gpio_set_direction(dip_gpios[i], INPUT) == EXIT_FAILURE) {
+		if (libsoc_gpio_set_direction(dip_gpios[i], INPUT) ==
+		    EXIT_FAILURE) {
 			rc = EXIT_FAILURE;
 			goto error;
 		}
@@ -49,14 +52,13 @@ int onrisc_get_dips(uint32_t *dips) {
 		}
 
 		/* free GPIO */
-		if (libsoc_gpio_free(dip_gpios[i]) == EXIT_FAILURE)
-		{
+		if (libsoc_gpio_free(dip_gpios[i]) == EXIT_FAILURE) {
 			rc = EXIT_FAILURE;
 			goto error;
 		}
 	}
 
-error:
+ error:
 	return rc;
 }
 
@@ -66,16 +68,18 @@ error:
  * @param model OnRISC model
  * @return EXIT_SUCCES or EXIT_FAILURE
  */
-int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM *hw_params, int model)
+int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params, int model)
 {
 	int fd, rv, rc = EXIT_SUCCESS;
 	char *eeprom_file = NULL;
 
-	if (model == VS860) {
+	switch (model) {
+	case VS860:
 		eeprom_file = VS860_EEPROM;
-	}
-	else  if (model == ALEKTO2 || model == BALIOS_IR_5221 || model == NETCON3) {
+		break;
+	default:
 		eeprom_file = ALEKTO2_EEPROM;
+		break;
 	}
 
 	fd = open(eeprom_file, O_RDONLY);
@@ -91,7 +95,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM *hw_params, int model)
 		goto error;
 	}
 
-error:
+ error:
 	if (fd > 0)
 		close(fd);
 	return rc;
@@ -103,7 +107,7 @@ error:
  * @param size partition size to return
  * @return EXIT_SUCCES or EXIT_FAILURE
  */
-int get_partition_size(char *name, ulong *size)
+int get_partition_size(char *name, ulong * size)
 {
 	FILE *fp = NULL;
 	char buf[64], final_buf[10], *tmp_ptr;
@@ -118,21 +122,18 @@ int get_partition_size(char *name, ulong *size)
 
 	/* open /proc/mtd to get the list of available partitions */
 	fp = fopen("/proc/mtd", "r");
-	if (!fp)
-	{
+	if (!fp) {
 		rc = EXIT_FAILURE;
 		perror("fopen");
 		goto error;
 	}
 
-	while (fgets(buf, sizeof buf, fp))
-	{
-		if((tmp_ptr = strstr(buf, final_buf)))
+	while (fgets(buf, sizeof buf, fp)) {
+		if ((tmp_ptr = strstr(buf, final_buf)))
 			break;
 	}
-	
-	if(!tmp_ptr)
-	{
+
+	if (!tmp_ptr) {
 		rc = EXIT_FAILURE;
 		goto error;
 	}
@@ -163,35 +164,30 @@ int onrisc_get_hw_params_nor(struct _param_hw *hw_params)
 	ulong offset, size;
 	int rv, ret = EXIT_SUCCESS, fd = 0;
 
-	if(get_partition_size(PARTITION_REDBOOT, &size))
-	{
+	if (get_partition_size(PARTITION_REDBOOT, &size)) {
 		ret = EXIT_FAILURE;
 		goto error;
 	}
 
 	fd = open(PARTITION_REDBOOT, O_RDONLY);
-	if (fd == -1)
-	{
+	if (fd == -1) {
 		ret = EXIT_FAILURE;
 		goto error;
 	}
 
 	offset = size - sizeof(struct _param_hw);
-	if (lseek(fd, offset, SEEK_SET) != offset)
-	{
+	if (lseek(fd, offset, SEEK_SET) != offset) {
 		ret = EXIT_FAILURE;
 		goto error;
 	}
 
 	rv = read(fd, hw_params, sizeof(struct _param_hw));
-	if (rv != sizeof(struct _param_hw))
-	{
+	if (rv != sizeof(struct _param_hw)) {
 		ret = EXIT_FAILURE;
 		goto error;
 	}
 
-	if (hw_params->magic != GLOBAL_MAGIC)
-	{
+	if (hw_params->magic != GLOBAL_MAGIC) {
 		ret = EXIT_FAILURE;
 		goto error;
 	}
@@ -217,7 +213,8 @@ int onrisc_get_model(int *model)
 		return EXIT_FAILURE;
 
 	while (fgets(buf, sizeof(buf), fp)) {
-		if (strstr(buf, "Alekto2") || strstr(buf, "am335xevm") || strstr(buf, "AM33X")) {
+		if (strstr(buf, "Alekto2") || strstr(buf, "am335xevm")
+		    || strstr(buf, "AM33X")) {
 			/* Alekto2 */
 			*model = ALEKTO2;
 			break;
@@ -237,8 +234,7 @@ int onrisc_get_model(int *model)
 	fclose(fp);
 
 	/* get model from device tree */
-	if (*model == ALEKTO2)
-	{
+	if (*model == ALEKTO2) {
 		FILE *fp = fopen("/proc/device-tree/model", "r");
 		/* Alekto2 doesn't have this entry, so leave type as is */
 		if (fp == NULL)
@@ -255,6 +251,14 @@ int onrisc_get_model(int *model)
 			*model = BALIOS_IR_5221;
 		}
 
+		if (strstr(buf, "Balios iR 3220")) {
+			*model = BALIOS_IR_3220;
+		}
+
+		if (strstr(buf, "Balios DIO 1080")) {
+			*model = BALIOS_DIO_1080;
+		}
+
 		if (strstr(buf, "NetCON 3")) {
 			*model = NETCON3;
 		}
@@ -262,99 +266,94 @@ int onrisc_get_model(int *model)
 		fclose(fp);
 	}
 
-error:
-	return *model?EXIT_SUCCESS:EXIT_FAILURE;
+ error:
+	return *model ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 void onrisc_print_hw_params()
 {
 	int i;
 
-	assert( init_flag == 1);
+	assert(init_flag == 1);
 
 	printf("Hardware Parameters\n");
 	printf("===================\n");
 	printf("Model: %d\n", onrisc_system.model);
-	printf("HW Revision: %d.%d\n", onrisc_system.hw_rev >> 16, onrisc_system.hw_rev & 0xff);
+	printf("HW Revision: %d.%d\n", onrisc_system.hw_rev >> 16,
+	       onrisc_system.hw_rev & 0xff);
 	printf("Serial Number: %d\n", onrisc_system.ser_nr);
 	printf("Production date: %s\n", onrisc_system.prd_date);
 	printf("MAC1: ");
-	for(i = 0; i < 6; i++)
-	{
+	for (i = 0; i < 6; i++) {
 		printf("%02x", onrisc_system.mac1[i]);
 	}
 	printf("\n");
 	printf("MAC2: ");
-	for(i = 0; i < 6; i++)
-	{
+	for (i = 0; i < 6; i++) {
 		printf("%02x", onrisc_system.mac2[i]);
 	}
 	printf("\n");
 	printf("MAC3: ");
-	for(i = 0; i < 6; i++)
-	{
+	for (i = 0; i < 6; i++) {
 		printf("%02x", onrisc_system.mac3[i]);
 	}
 	printf("\n");
 }
 
-int onrisc_init(onrisc_system_t *data)
+int onrisc_init(onrisc_system_t * data)
 {
 	int model, i;
 	struct _param_hw hw_nor;
 	BSP_VS_HWPARAM hw_eeprom;
 
-	if (onrisc_get_model(&model) == EXIT_FAILURE)
-	{
+	if (onrisc_get_model(&model) == EXIT_FAILURE) {
 		fprintf(stderr, "failed to get model\n");
 		return EXIT_FAILURE;
 	}
 
-	switch (model)
-	{
-		case ALEKTO:
-			if (onrisc_get_hw_params_nor(&hw_nor) == EXIT_FAILURE)
-			{
-				return EXIT_FAILURE;
-			}
-			onrisc_system.model = hw_nor.biosid;
-			onrisc_system.hw_rev = hw_nor.hwrev;
-			onrisc_system.ser_nr = hw_nor.serialnr;
-			strncpy(onrisc_system.prd_date, hw_nor.prddate, 11);
-			for (i = 0; i < 6; i++)
-			{
-				onrisc_system.mac1[i] = hw_nor.mac1[i];
-				onrisc_system.mac2[i] = hw_nor.mac2[i];
-				onrisc_system.mac3[i] = 0xff;
-			}
-			break;
-		case ALEKTO2:
-		case BALIOS_IR_5221:
-		case NETCON3:
-		case VS860:
-			if (onrisc_get_hw_params_eeprom(&hw_eeprom, model) == EXIT_FAILURE)
-			{
-				return EXIT_FAILURE;
-			}
-			onrisc_system.model = hw_eeprom.SystemId;
-			onrisc_system.hw_rev = hw_eeprom.HwRev;
-			onrisc_system.ser_nr = hw_eeprom.SerialNumber;
-			strncpy(onrisc_system.prd_date, hw_eeprom.PrdDate, 11);
-			for (i = 0; i < 6; i++)
-			{
-				onrisc_system.mac1[i] = hw_eeprom.MAC1[i];
-				onrisc_system.mac2[i] = hw_eeprom.MAC2[i];
-				onrisc_system.mac3[i] = hw_eeprom.MAC3[i];
-			}
+	switch (model) {
+	case ALEKTO:
+		if (onrisc_get_hw_params_nor(&hw_nor) == EXIT_FAILURE) {
+			return EXIT_FAILURE;
+		}
+		onrisc_system.model = hw_nor.biosid;
+		onrisc_system.hw_rev = hw_nor.hwrev;
+		onrisc_system.ser_nr = hw_nor.serialnr;
+		strncpy(onrisc_system.prd_date, hw_nor.prddate, 11);
+		for (i = 0; i < 6; i++) {
+			onrisc_system.mac1[i] = hw_nor.mac1[i];
+			onrisc_system.mac2[i] = hw_nor.mac2[i];
+			onrisc_system.mac3[i] = 0xff;
+		}
+		break;
+	case ALEKTO2:
+	case BALIOS_IR_5221:
+	case BALIOS_IR_3220:
+	case BALIOS_DIO_1080:
+	case NETCON3:
+	case VS860:
+		if (onrisc_get_hw_params_eeprom(&hw_eeprom, model) ==
+		    EXIT_FAILURE) {
+			return EXIT_FAILURE;
+		}
+		onrisc_system.model = hw_eeprom.SystemId;
+		onrisc_system.hw_rev = hw_eeprom.HwRev;
+		onrisc_system.ser_nr = hw_eeprom.SerialNumber;
+		strncpy(onrisc_system.prd_date, hw_eeprom.PrdDate, 11);
+		for (i = 0; i < 6; i++) {
+			onrisc_system.mac1[i] = hw_eeprom.MAC1[i];
+			onrisc_system.mac2[i] = hw_eeprom.MAC2[i];
+			onrisc_system.mac3[i] = hw_eeprom.MAC3[i];
+		}
 
-			if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) == EXIT_FAILURE) {
-				return EXIT_FAILURE;
-			}
-			break;
+		if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) ==
+		    EXIT_FAILURE) {
+			return EXIT_FAILURE;
+		}
+		break;
 	}
 
-	if (data != NULL)
-	{
+	if (data != NULL) {
 		memcpy(data, &onrisc_system, sizeof(onrisc_system_t));
 	}
 

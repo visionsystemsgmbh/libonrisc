@@ -249,10 +249,12 @@ int onrisc_gpio_init()
 		onrisc_gpios.ngpio = 8;
 
 		if (onrisc_gpio_init_alekto2() == EXIT_FAILURE) {
+			fprintf(stderr, "failed to init gpios\n");
 			goto error;
 		}
 
 		break;
+	case BALIOS_IR_3220:
 	case BALIOS_IR_5221:
 		onrisc_gpios.ngpio = 8;
 
@@ -279,7 +281,7 @@ int onrisc_gpio_set_value_sysfs(onrisc_gpio_t * gpio)
 	case ALENA:
 		break;
 	case ALEKTO2:
-		break;
+	case BALIOS_IR_3220:
 	case BALIOS_IR_5221:
 		if (libsoc_gpio_set_level(gpio->pin, gpio->value) ==
 		    EXIT_FAILURE) {
@@ -395,12 +397,12 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val)
 
 	for (i = 0; i < onrisc_gpios.ngpio; i++) {
 		if (gpio_val->mask & (1 << i)) {
-			/* check, if it is a fixed GPIO */
+			/* check, if it is OUTPUT */
 			if (onrisc_gpios.gpios[i].direction == INPUT) {
 				continue;
 			}
 
-			/* get direction */
+			/* get value */
 			onrisc_gpios.gpios[i].value =
 			    gpio_val->value & (1 << i) ? HIGH : LOW;
 
@@ -432,6 +434,7 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 	case ALENA:
 		break;
 	case ALEKTO2:
+	case BALIOS_IR_3220:
 	case BALIOS_IR_5221:
 		for (i = 0; i < onrisc_gpios.ngpio; i++) {
 			if ((level =
