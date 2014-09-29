@@ -243,6 +243,13 @@ int onrisc_init(onrisc_system_t *data);
 void onrisc_print_hw_params();
 
 /**
+ * @brief write content of onrisc_system_t structure back to EEPROM/NOR
+ * @param data pointer to the structure, where system data is stored
+ * @return EXIT_SUCCES or EXIT_FAILURE
+ */
+int onrisc_write_hw_params(onrisc_system_t * data);
+
+/**
  * @brief init blinker structure
  * @param blinker blink_led structure
  */
