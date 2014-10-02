@@ -264,6 +264,15 @@ int onrisc_gpio_init()
 		}
 
 		break;
+	case NETCON3:
+		onrisc_gpios.ngpio = 16;
+
+		if (onrisc_gpio_init_balios() == EXIT_FAILURE) {
+			fprintf(stderr, "failed to init gpios\n");
+			goto error;
+		}
+
+		break;
 	}
 
 	rc = EXIT_SUCCESS;
@@ -283,6 +292,7 @@ int onrisc_gpio_set_value_sysfs(onrisc_gpio_t * gpio)
 	case ALEKTO2:
 	case BALIOS_IR_3220:
 	case BALIOS_IR_5221:
+	case NETCON3:
 		if (libsoc_gpio_set_level(gpio->pin, gpio->value) ==
 		    EXIT_FAILURE) {
 			goto error;
@@ -436,6 +446,7 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 	case ALEKTO2:
 	case BALIOS_IR_3220:
 	case BALIOS_IR_5221:
+	case NETCON3:
 		for (i = 0; i < onrisc_gpios.ngpio; i++) {
 			if ((level =
 			     libsoc_gpio_get_level(onrisc_gpios.gpios[i].
