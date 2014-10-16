@@ -1,0 +1,17 @@
+*.cmake
+tags
+*.so
+onrisctool
+*.c~
+.built
+.built_check
+.configured_
+.dep_files
+.prepared*
+CMakeCache.txt
+/CMakeFiles/
+/build/
+install_manifest.txt
+/ipkg*
+Makefile
+Headers/
