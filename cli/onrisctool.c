@@ -29,6 +29,7 @@ void print_usage()
 	fprintf(stderr, "         -b                 GPIO value\n");
 	fprintf(stderr, "         -f                 GPIO direction value\n");
 	fprintf(stderr, "         -g                 get GPIO values\n");
+	fprintf(stderr, "         -i                 turn network switch off\n");
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
 	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
@@ -186,7 +187,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:egrhmsS?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:iegrhmsS?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -266,6 +267,30 @@ int main(int argc, char **argv)
 			break;
 		case 'e':
 			echo = 1;
+			break;
+		case 'i':
+			{
+				int i, nr_swithes = 4;
+
+				if (onrisc_system.model == BALIOS_IR_3220) {
+					nr_swithes = 2;
+				}
+
+				for(i = 1; i < nr_swithes; i++) {
+					int ctrl_reg;
+
+					if (onrisc_read_mdio_reg(i, 0, &ctrl_reg)) {
+						goto error;
+					}
+
+					ctrl_reg |= (1 << 11);
+
+					if (onrisc_write_mdio_reg(i, 0, ctrl_reg)) {
+						goto error;
+					}
+				}
+
+			}
 			break;
 		case 'l':
 			if (handle_leds(optarg) == EXIT_FAILURE)

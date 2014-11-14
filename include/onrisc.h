@@ -233,7 +233,7 @@ typedef struct  {
 /**
  * @brief get system, hardware parameters etc.
  * @param data pointer to the structure, where system data will be stored
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_init(onrisc_system_t *data);
 
@@ -245,7 +245,7 @@ void onrisc_print_hw_params();
 /**
  * @brief write content of onrisc_system_t structure back to EEPROM/NOR
  * @param data pointer to the structure, where system data is stored
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_write_hw_params(onrisc_system_t * data);
 
@@ -264,7 +264,7 @@ void onrisc_blink_destroy(blink_led_t *blinker);
 /**
  * @brief start blinking thread
  * @param blinker blink_led structure
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_blink_led_start(blink_led_t *blinker);
 
@@ -279,7 +279,7 @@ int onrisc_blink_led_stop(blink_led_t *blinker);
  * @brief turn LED on/off
  * @param led blink_led structure
  * @param state 0 - off, 1 - on
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_switch_led(blink_led_t *led, uint8_t state);
 
@@ -288,37 +288,55 @@ int onrisc_switch_led(blink_led_t *led, uint8_t state);
  * @param port_nr port number, i.e. 1 - for /dev/ttyS1 or /dev/sertest0
  * @param mode pointer to onrisc_uart_mode_t describing UART's mode: RS-modes
  * termination, echo and direction control
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t *mode);
 
 /**
  * @brief get DIP switches values
  * @param dips variable to hold the DIP switches value
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_get_dips(uint32_t *dips);
 
 /**
  * @brief change GPIO direction
  * @param gpio_dir pointer to a structure holding mask and direction values for all GPIOs
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir);
 
 /**
  * @brief change GPIO output value
  * @param gpio_dir pointer to a structure holding mask and values for all outputs
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val);
 
 /**
  * @brief get GPIO value for both inputs and outputs
  * @param gpio_dir pointer to a structure, that will return GPIO value in the value field
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val);
+
+/**
+ * @brief write to MDIO register
+ * @param phy_id PHY ID
+ * @param reg PHY's register
+ * @param val value to write to the register
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_write_mdio_reg(int phy_id, int reg, int val);
+
+/**
+ * @brief read from MDIO register
+ * @param phy_id PHY ID
+ * @param reg PHY's register
+ * @param val value to read from the register
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_read_mdio_reg(int phy_id, int reg, int *val);
 
 #ifdef __cplusplus
 }

@@ -7,6 +7,14 @@
 #include <string.h>
 #include <assert.h>
 #include <libudev.h>
+#include <net/if.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+/* Linux header */
+#include <linux/sockios.h>
+#include <linux/mii.h>
+#include <linux/ethtool.h>
 
 #include "onrisc.h"
 

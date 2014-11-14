@@ -6,6 +6,82 @@ onrisc_system_t onrisc_system;
 /* UART mode variables */
 int serial_mode_first_pin = 200;
 
+int onrisc_write_mdio_reg(int phy_id, int reg, int val)
+{
+	int rc = EXIT_FAILURE;
+	int fd;
+	int err;
+	struct ifreq ifr;
+	memset(&ifr, 0, sizeof(ifr));
+	strcpy(ifr.ifr_name, "eth0"); //set to whatever your ethernet device is
+
+	struct mii_ioctl_data* mii = (struct mii_ioctl_data*)(&ifr.ifr_data);
+	mii->phy_id = phy_id; //set to your phy's ID
+	mii->reg_num = reg; //the register you want to read
+	mii->val_in = val;
+	mii->val_out = 0;
+
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (fd <= 0)
+	{
+		fprintf(stderr, "failed to create MDIO write socket\n");
+		goto error;
+	}
+	err = ioctl(fd, SIOCSMIIREG, &ifr);
+	if (err)
+	{
+		fprintf(stderr, "failed to perform SIOCSMIIREG\n");
+		goto error;
+	}
+	
+	rc = EXIT_SUCCESS;
+error:
+	if (fd > 0) {
+		close(fd);
+	}
+
+	return rc;
+}
+
+int onrisc_read_mdio_reg(int phy_id, int reg, int *val)
+{
+	int rc = EXIT_FAILURE;
+	int fd;
+	int err;
+	struct ifreq ifr;
+	memset(&ifr, 0, sizeof(ifr));
+	strcpy(ifr.ifr_name, "eth0"); //set to whatever your ethernet device is
+
+	struct mii_ioctl_data* mii = (struct mii_ioctl_data*)(&ifr.ifr_data);
+	mii->phy_id = phy_id; //set to your phy's ID
+	mii->reg_num = reg; //the register you want to read
+	mii->val_in = 0;
+	mii->val_out = 0;
+
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if (fd <= 0)
+	{
+		fprintf(stderr, "failed to create MDIO read socket\n");
+		goto error;
+	}
+	err = ioctl(fd, SIOCGMIIREG, &ifr);
+	if (err)
+	{
+		fprintf(stderr, "failed to perform SIOCGMIIREG\n");
+		goto error;
+	}
+	
+	*val = mii->val_out;
+
+	rc = EXIT_SUCCESS;
+error:
+	if (fd > 0) {
+		close(fd);
+	}
+
+	return rc;
+}
+
 int onrisc_get_dips(uint32_t * dips)
 {
 	int rc = EXIT_SUCCESS;
@@ -247,15 +323,15 @@ int onrisc_get_model(int *model)
 			goto error;
 		}
 
-		if (strstr(buf, "Balios iR 5221")) {
+		if (strstr(buf, "Balios iR 5221") || strstr(buf, "Baltos iR 5221")) {
 			*model = BALIOS_IR_5221;
 		}
 
-		if (strstr(buf, "Balios iR 3220")) {
+		if (strstr(buf, "Balios iR 3220") || strstr(buf, "Baltos iR 3220")) {
 			*model = BALIOS_IR_3220;
 		}
 
-		if (strstr(buf, "Balios DIO 1080")) {
+		if (strstr(buf, "Balios DIO 1080") || strstr(buf, "Baltos DIO 1080")) {
 			*model = BALIOS_DIO_1080;
 		}
 
