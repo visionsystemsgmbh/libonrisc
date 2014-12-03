@@ -94,7 +94,8 @@ int onrisc_get_dips(uint32_t * dips)
 	*dips = 0;
 
 	if (onrisc_system.model != NETCON3
-	    && onrisc_system.model != BALIOS_DIO_1080) {
+	    && onrisc_system.model != BALIOS_DIO_1080
+	    && onrisc_system.model != NETCOM_PLUS) {
 		rc = EXIT_FAILURE;
 		goto error;
 	}
@@ -339,6 +340,10 @@ int onrisc_get_model(int *model)
 			*model = NETCON3;
 		}
 
+		if (strstr(buf, "NetCom Plus")) {
+			*model = NETCOM_PLUS;
+		}
+
 		fclose(fp);
 	}
 
@@ -354,6 +359,7 @@ int onrisc_write_hw_params(onrisc_system_t * data)
 	switch (onrisc_system.model) {
 	case ALEKTO2:
 	case NETCON3:
+	case NETCOM_PLUS:
 	case BALIOS_IR_5221:
 	case BALIOS_IR_3220:
 	case BALIOS_DIO_1080:
@@ -453,6 +459,7 @@ int onrisc_init(onrisc_system_t * data)
 	case BALIOS_IR_3220:
 	case BALIOS_DIO_1080:
 	case NETCON3:
+	case NETCOM_PLUS:
 	case VS860:
 		if (onrisc_get_hw_params_eeprom(&hw_eeprom, model) ==
 		    EXIT_FAILURE) {
@@ -468,9 +475,11 @@ int onrisc_init(onrisc_system_t * data)
 			onrisc_system.mac3[i] = hw_eeprom.MAC3[i];
 		}
 
-		if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) ==
-		    EXIT_FAILURE) {
-			return EXIT_FAILURE;
+		if (model != NETCOM_PLUS) {
+			if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) ==
+			    EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
 		}
 		break;
 	}
@@ -481,10 +490,19 @@ int onrisc_init(onrisc_system_t * data)
 
 	init_flag = 1;
 
-	/* initialize GPIO */
-	if (onrisc_gpio_init() == EXIT_FAILURE) {
-		init_flag = 0;
-		return EXIT_FAILURE;
+	switch (model) {
+	case ALEKTO:
+	case ALEKTO2:
+	case BALIOS_IR_5221:
+	case BALIOS_IR_3220:
+	case BALIOS_DIO_1080:
+	case NETCON3:
+	case VS860:
+		/* initialize GPIO */
+		if (onrisc_gpio_init() == EXIT_FAILURE) {
+			init_flag = 0;
+			return EXIT_FAILURE;
+		}
 	}
 
 	return EXIT_SUCCESS;

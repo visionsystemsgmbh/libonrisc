@@ -50,6 +50,7 @@ int onrisc_restore_leds(blink_led_t * blinker)
 		break;
 	case ALEKTO2:
 	case NETCON3:
+	case NETCOM_PLUS:
 	case BALIOS_IR_5221:
 	case BALIOS_IR_3220:
 	case BALIOS_DIO_1080:
@@ -105,6 +106,7 @@ int onrisc_switch_led(blink_led_t * led, uint8_t state)
 		}
 		break;
 	case NETCON3:
+	case NETCOM_PLUS:
 	case BALIOS_IR_5221:
 	case BALIOS_IR_3220:
 	case BALIOS_DIO_1080:
@@ -285,6 +287,7 @@ int onrisc_led_init(blink_led_t * blinker)
 		blinker->led = pwr_gpio;
 		break;
 	case NETCON3:
+	case NETCOM_PLUS:
 	case BALIOS_DIO_1080:
 		/* check, if LED was already initialized */
 		if (blinker->led != NULL) {
