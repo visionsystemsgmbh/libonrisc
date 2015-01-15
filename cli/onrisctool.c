@@ -30,6 +30,7 @@ void print_usage()
 	fprintf(stderr, "         -f                 GPIO direction value\n");
 	fprintf(stderr, "         -g                 get GPIO values\n");
 	fprintf(stderr, "         -i                 turn network switch off\n");
+	fprintf(stderr, "         -w                 set wlan0 MAC\n");
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
 	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
@@ -134,6 +135,23 @@ int handle_leds(char *str)
 	return EXIT_SUCCESS;
 }
 
+int set_wlan_mac()
+{
+	char cmd[128];
+
+	sprintf(cmd, "ifconfig wlan0 hw ether %02x:%02x:%02x:%02x:%02x:%02x",
+			onrisc_system.mac3[0],
+			onrisc_system.mac3[1],
+			onrisc_system.mac3[2],
+			onrisc_system.mac3[3],
+			onrisc_system.mac3[4],
+			onrisc_system.mac3[5]
+			);
+
+	system(cmd);
+
+	return 0;
+}
 int set_macs()
 {
 	char cmd[128];
@@ -187,7 +205,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:iegrhmsS?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:iegrhmsSw?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -231,6 +249,9 @@ int main(int argc, char **argv)
 			break;
 		case 'm':
 			set_macs();
+			break;
+		case 'w':
+			set_wlan_mac();
 			break;
 		case 's':
 			onrisc_print_hw_params();
