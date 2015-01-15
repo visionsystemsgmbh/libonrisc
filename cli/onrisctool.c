@@ -23,7 +23,7 @@ void print_usage()
 	fprintf(stderr, "         -d <dirctl>        direction control for RS485: art or rts\n");
 	fprintf(stderr, "         -e                 enable echo\n");
 	fprintf(stderr, "         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
-	fprintf(stderr, "         -S                 show DIP switch settings\n");
+	fprintf(stderr, "         -S                 show DIP switch settings (Baltos 1080 only)\n");
 	fprintf(stderr, "         -a                 GPIO data mask\n");
 	fprintf(stderr, "         -c                 GPIO direction mask\n");
 	fprintf(stderr, "         -b                 GPIO value\n");
