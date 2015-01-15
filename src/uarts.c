@@ -3,7 +3,7 @@
 gpio *mode_gpios[8];
 int init_uart_modes_flag = 0;
 
-int onrisc_setup_uart_gpios(int dir) {
+int onrisc_setup_uart_gpios(int dir, int port_nr) {
 	int i, rc = EXIT_SUCCESS;
 	int base;
 
@@ -26,14 +26,15 @@ int onrisc_setup_uart_gpios(int dir) {
 			break;
 	}
 
-	for (i = 0; i < 8; i++) {
-		mode_gpios[i] = libsoc_gpio_request(serial_mode_first_pin + i, LS_SHARED);
-		if (mode_gpios[i] == NULL) {
+	for (i = 0; i < 4; i++) {
+		int idx = i + 4 * (port_nr - 1);
+		mode_gpios[idx] = libsoc_gpio_request(serial_mode_first_pin + idx, LS_SHARED);
+		if (mode_gpios[idx] == NULL) {
 			rc = EXIT_FAILURE;
 			goto error;
 		}
 
-		if (libsoc_gpio_set_direction(mode_gpios[i], dir) == EXIT_FAILURE) {
+		if (libsoc_gpio_set_direction(mode_gpios[idx], dir) == EXIT_FAILURE) {
 			rc = EXIT_FAILURE;
 			goto error;
 		}
@@ -107,11 +108,11 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 {
 	/* special handling for TYPE_DIP */
 	if (mode->rs_mode == TYPE_DIP) {
-		return onrisc_setup_uart_gpios(INPUT);
+		return onrisc_setup_uart_gpios(INPUT, port_nr);
 	}
 
 	/* handle RS-modes */
-	if (onrisc_setup_uart_gpios(OUTPUT) == EXIT_FAILURE) {
+	if (onrisc_setup_uart_gpios(OUTPUT, port_nr) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
 	}
 	switch (mode->rs_mode) {
