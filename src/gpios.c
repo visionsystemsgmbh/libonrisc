@@ -403,7 +403,7 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 
 			/* get direction */
 			onrisc_gpios.gpios[i].direction =
-			    gpio_dir->value & (1 << i);
+			    !!(gpio_dir->value & (1 << i));
 
 			switch (onrisc_system.model) {
 			case ALEKTO:
