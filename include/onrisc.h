@@ -308,6 +308,13 @@ int onrisc_get_dips(uint32_t *dips);
 int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir);
 
 /**
+ * @brief get GPIO direction
+ * @param gpio_dir pointer to a structure holding dir_fixed as mask and direction values for all GPIOs
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_gpio_get_direction(onrisc_gpios_t * gpio_dir);
+
+/**
  * @brief change GPIO output value
  * @param gpio_dir pointer to a structure holding mask and values for all outputs
  * @return EXIT_SUCCESS or EXIT_FAILURE

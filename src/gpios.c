@@ -360,6 +360,31 @@ error:
 
 }
 
+int onrisc_gpio_get_direction(onrisc_gpios_t * gpio_dir)
+{
+	int i, rc = EXIT_FAILURE;
+
+	assert(init_flag == 1);
+
+	gpio_dir->mask = 0;
+	gpio_dir->value = 0;
+
+	for (i = 0; i < onrisc_gpios.ngpio; i++) {
+		if (onrisc_gpios.gpios[i].dir_fixed) {
+			gpio_dir->mask |= (1 << i);
+			gpio_dir->value |= (onrisc_gpios.gpios[i].direction) ? (1 << i) : 0;
+		} else {
+			int dir = libsoc_gpio_get_direction(onrisc_gpios.gpios[i].pin);
+			onrisc_gpios.gpios[i].direction = dir;
+			gpio_dir->value |= (dir) ? (1 << i) : 0;
+		}
+	}
+
+	rc = EXIT_SUCCESS;
+ error:
+	return rc;
+}
+
 int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 {
 	int i, rc = EXIT_FAILURE;
@@ -412,7 +437,7 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val)
 				continue;
 			}
 
-			/* get value */
+			/* set value */
 			onrisc_gpios.gpios[i].value =
 			    gpio_val->value & (1 << i) ? HIGH : LOW;
 
