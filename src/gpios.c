@@ -489,7 +489,7 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 		break;
 	}
 
-	rc = EXIT_SUCCESS;
- error:
-	return rc;
+int onrisc_gpio_get_number()
+{
+	return onrisc_gpios.ngpio;
 }

@@ -329,6 +329,12 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val);
 int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val);
 
 /**
+ * @brief get the number of GPIOs
+ * @return number of GPIOs
+ */
+int onrisc_gpio_get_number();
+
+/**
  * @brief write to MDIO register
  * @param phy_id PHY ID
  * @param reg PHY's register
