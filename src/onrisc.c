@@ -324,6 +324,10 @@ int onrisc_get_model(int *model)
 			goto error;
 		}
 
+		if (strstr(buf, "Alekto 2")) {
+			*model = ALEKTO2;
+		}
+
 		if (strstr(buf, "Balios iR 5221") || strstr(buf, "Baltos iR 5221")) {
 			*model = BALIOS_IR_5221;
 		}
