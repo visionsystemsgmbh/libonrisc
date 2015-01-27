@@ -3,7 +3,59 @@
 gpio *mode_gpios[8];
 int init_uart_modes_flag = 0;
 
-int onrisc_setup_uart_gpios(int dir, int port_nr) {
+int onrisc_set_sr485_ioctl(int port_nr, int on)
+{
+	int rc = EXIT_SUCCESS;
+	int fd = 0;
+	char port[16];
+	struct serial_rs485 rs485conf ;
+
+	if ((onrisc_system.model != BALIOS_IR_3220) && (onrisc_system.model != BALIOS_IR_5221)) {
+		goto error;
+	}
+
+	sprintf(port, "/dev/ttyO%d", port_nr);
+
+	fd = open(port, O_RDWR);
+	if (fd <= 0) {
+		fprintf(stderr, "failed to open /dev/ttyO%d\n", port_nr);
+		rc = EXIT_FAILURE;
+		goto error ;
+	}
+	/* get current RS485 settings */
+	if (ioctl(fd , TIOCGRS485, &rs485conf ) < 0) {
+		fprintf(stderr, "failed to invoke TIOCGRS485\n");
+		rc = EXIT_FAILURE;
+		goto error ;
+	}
+
+	if (on) {
+		/* enable RS485 mode */
+		rs485conf . flags |= SER_RS485_ENABLED;
+		rs485conf . flags &= ~(SER_RS485_RTS_ON_SEND) ;
+		rs485conf . flags |= SER_RS485_RTS_AFTER_SEND;
+	}
+	else {
+		/* disable RS485 mode */
+		rs485conf . flags &= ~(SER_RS485_ENABLED);
+	}
+
+	/* set new RS485 mode */
+	if (ioctl(fd , TIOCSRS485, &rs485conf ) < 0) {
+		fprintf(stderr, "failed to invoke TIOCSRS485\n");
+		rc = EXIT_FAILURE;
+		goto error ;
+	}
+
+error:
+	if (fd > 0) {
+		close(fd);
+	}
+	return rc;
+}
+
+int onrisc_setup_uart_gpios(int dir, int port_nr)
+{
 	int i, rc = EXIT_SUCCESS;
 	int base;
 
@@ -120,26 +172,41 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], HIGH);
 			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], LOW);
 			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], LOW);
+			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
 			break;
 		case TYPE_RS422:
 			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], HIGH);
 			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], HIGH);
 			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], HIGH);
+			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
 			break;
 		case TYPE_RS485_FD:
 			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], HIGH);
 			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], HIGH);
 			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], LOW);
+			if (onrisc_set_sr485_ioctl(port_nr, 1) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
 			break;
 		case TYPE_RS485_HD:
 			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], LOW);
 			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], HIGH);
 			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], LOW);
+			if (onrisc_set_sr485_ioctl(port_nr, 1) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
 			break;
 		case TYPE_LOOPBACK:
 			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], LOW);
 			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], LOW);
 			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], LOW);
+			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
 			break;
 		default:
 			return EXIT_FAILURE;
