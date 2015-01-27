@@ -8,6 +8,7 @@ extern "C" {
 #include <pthread.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include <linux/serial.h>
 #include <libsoc_gpio.h>
 
 #define ALEKTO2_EEPROM	"/sys/bus/i2c/devices/1-0050/eeprom"

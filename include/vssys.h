@@ -18,6 +18,10 @@
 
 #include "onrisc.h"
 
+/* driver−specific ioctls : */
+#define TIOCGRS485 0x542E
+#define TIOCSRS485 0x542F
+
 extern int init_flag;
 extern onrisc_system_t onrisc_system;
 extern onrisc_gpios_int_t onrisc_gpios;
