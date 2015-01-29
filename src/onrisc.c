@@ -1,6 +1,7 @@
 #include "vssys.h"
 
 int init_flag = 0;
+int tca_found = 1;
 onrisc_system_t onrisc_system;
 
 /* UART mode variables */
@@ -480,9 +481,8 @@ int onrisc_init(onrisc_system_t * data)
 		}
 
 		if (model != NETCOM_PLUS) {
-			if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) ==
-			    EXIT_FAILURE) {
-				return EXIT_FAILURE;
+			if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) == EXIT_FAILURE) {
+				tca_found = 0;
 			}
 		}
 		break;
@@ -502,10 +502,12 @@ int onrisc_init(onrisc_system_t * data)
 	case BALIOS_DIO_1080:
 	case NETCON3:
 	case VS860:
-		/* initialize GPIO */
-		if (onrisc_gpio_init() == EXIT_FAILURE) {
-			init_flag = 0;
-			return EXIT_FAILURE;
+		if (tca_found) {
+			/* initialize GPIO */
+			if (onrisc_gpio_init() == EXIT_FAILURE) {
+				init_flag = 0;
+				return EXIT_FAILURE;
+			}
 		}
 	}
 
