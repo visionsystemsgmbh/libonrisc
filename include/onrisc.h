@@ -31,6 +31,9 @@ extern "C" {
 #define BALIOS_DIO_1080	214
 #define NETCON3		215
 #define NETCOM_PLUS	220
+#define NETCOM_PLUS_811	222
+
+#define DEV_HAS_DIPS	(1<<0)
 
 enum rs_mode {TYPE_UNKNOWN, TYPE_RS232, TYPE_RS422, TYPE_RS485_FD, TYPE_RS485_HD, TYPE_LOOPBACK, TYPE_DIP, TYPE_CAN};
 
@@ -52,6 +55,7 @@ typedef struct
 	uint8_t mac1[6];
 	uint8_t mac2[6];
 	uint8_t mac3[6];
+	uint32_t caps;
 } __attribute__ ((packed)) onrisc_system_t;
 
 //! @brief Hardware parameter stored in flash

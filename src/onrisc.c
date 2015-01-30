@@ -96,7 +96,8 @@ int onrisc_get_dips(uint32_t * dips)
 
 	if (onrisc_system.model != NETCON3
 	    && onrisc_system.model != BALIOS_DIO_1080
-	    && onrisc_system.model != NETCOM_PLUS) {
+	    && onrisc_system.model != NETCOM_PLUS
+	    && onrisc_system.model != NETCOM_PLUS_811) {
 		rc = EXIT_FAILURE;
 		goto error;
 	}
@@ -365,6 +366,7 @@ int onrisc_write_hw_params(onrisc_system_t * data)
 	case ALEKTO2:
 	case NETCON3:
 	case NETCOM_PLUS:
+	case NETCOM_PLUS_811:
 	case BALIOS_IR_5221:
 	case BALIOS_IR_3220:
 	case BALIOS_DIO_1080:
@@ -465,12 +467,14 @@ int onrisc_init(onrisc_system_t * data)
 	case BALIOS_DIO_1080:
 	case NETCON3:
 	case NETCOM_PLUS:
+	case NETCOM_PLUS_811:
 	case VS860:
 		if (onrisc_get_hw_params_eeprom(&hw_eeprom, model) ==
 		    EXIT_FAILURE) {
 			return EXIT_FAILURE;
 		}
-		onrisc_system.model = model;
+
+		onrisc_system.model = hw_eeprom.SystemId;
 		onrisc_system.hw_rev = hw_eeprom.HwRev;
 		onrisc_system.ser_nr = hw_eeprom.SerialNumber;
 		strncpy(onrisc_system.prd_date, hw_eeprom.PrdDate, 11);
@@ -480,7 +484,7 @@ int onrisc_init(onrisc_system_t * data)
 			onrisc_system.mac3[i] = hw_eeprom.MAC3[i];
 		}
 
-		if (model != NETCOM_PLUS) {
+		if (model != NETCOM_PLUS && model != NETCOM_PLUS_811) {
 			if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) == EXIT_FAILURE) {
 				tca_found = 0;
 			}
