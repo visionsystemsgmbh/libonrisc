@@ -25,18 +25,20 @@ set(SRCS src/onrisc.c src/leds.c src/gpios.c src/system.c src/uarts.c src/device
 
 # swig 
 
-FIND_PACKAGE(SWIG REQUIRED)
-INCLUDE(${SWIG_USE_FILE})
+if (PYTHON_WRAP)
+	FIND_PACKAGE(SWIG REQUIRED)
+	INCLUDE(${SWIG_USE_FILE})
 
-FIND_PACKAGE(PythonLibs)
-INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+	FIND_PACKAGE(PythonLibs)
+	INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
-SET(CMAKE_SWIG_FLAGS "")
+	SET(CMAKE_SWIG_FLAGS "")
 
-SWIG_ADD_MODULE(onrisc python onrisc.i ${SRCS})
-SWIG_LINK_LIBRARIES(onrisc ${PYTHON_LIBRARIES} soc pthread udev)
+	SWIG_ADD_MODULE(onrisc python onrisc.i ${SRCS})
+	SWIG_LINK_LIBRARIES(onrisc ${PYTHON_LIBRARIES} soc pthread udev)
+endif (PYTHON_WRAP)
 
 # library
 add_library(onrisc SHARED ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
