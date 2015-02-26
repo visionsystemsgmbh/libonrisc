@@ -10,7 +10,7 @@ int onrisc_set_sr485_ioctl(int port_nr, int on)
 	char port[16];
 	struct serial_rs485 rs485conf ;
 
-	if ((onrisc_system.model != BALIOS_IR_3220) && (onrisc_system.model != BALIOS_IR_5221)) {
+	if (~(onrisc_system.caps.uarts->ctrl[port_nr - 1].flags & RS_HAS_485_SW)) {
 		goto error;
 	}
 
@@ -31,9 +31,9 @@ int onrisc_set_sr485_ioctl(int port_nr, int on)
 
 	if (on) {
 		/* enable RS485 mode */
-		rs485conf . flags |= SER_RS485_ENABLED;
-		rs485conf . flags &= ~(SER_RS485_RTS_ON_SEND) ;
-		rs485conf . flags |= SER_RS485_RTS_AFTER_SEND;
+		rs485conf.flags |= SER_RS485_ENABLED;
+		rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND) ;
+		rs485conf.flags |= SER_RS485_RTS_AFTER_SEND;
 	}
 	else {
 		/* disable RS485 mode */
@@ -57,36 +57,28 @@ error:
 int onrisc_setup_uart_gpios(int dir, int port_nr)
 {
 	int i, rc = EXIT_SUCCESS;
-	int base;
+	int base = 0;
+	onrisc_dip_switch_t *ctrl = &onrisc_system.caps.uarts->ctrl[port_nr - 1];
 
 	if (init_uart_modes_flag) {
 		return rc;
 	}
 
-	switch(onrisc_system.model) {
-		case ALEKTO2:
-			if (onrisc_get_tca6416_base(&base, 0x21) == EXIT_FAILURE) {
-				return EXIT_FAILURE;
-			}
-			serial_mode_first_pin = base;
-			break;
-		default:
-			if (onrisc_get_tca6416_base(&base, 0x20) == EXIT_FAILURE) {
-				return EXIT_FAILURE;
-			}
-			serial_mode_first_pin = base + 8;
-			break;
+	if (ctrl->flags & RS_NEEDS_I2C_ADDR) {
+		if (onrisc_get_tca6416_base(&base, ctrl->i2c_id) == EXIT_FAILURE) {
+			return EXIT_FAILURE;
+		}
 	}
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < ctrl->num; i++) {
 		int idx = i + 4 * (port_nr - 1);
-		mode_gpios[idx] = libsoc_gpio_request(serial_mode_first_pin + idx, LS_SHARED);
-		if (mode_gpios[idx] == NULL) {
+		ctrl->gpio[i] = libsoc_gpio_request(base + ctrl->pin[i], LS_SHARED);
+		if (NULL == ctrl->gpio[i]) {
 			rc = EXIT_FAILURE;
 			goto error;
 		}
 
-		if (libsoc_gpio_set_direction(mode_gpios[idx], dir) == EXIT_FAILURE) {
+		if (libsoc_gpio_set_direction(ctrl->gpio[i], dir) == EXIT_FAILURE) {
 			rc = EXIT_FAILURE;
 			goto error;
 		}
@@ -158,6 +150,8 @@ int onrisc_set_uart_mode_ks8695(int port_nr, onrisc_uart_mode_t *mode)
 
 int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 {
+	onrisc_dip_switch_t *ctrl = &onrisc_system.caps.uarts->ctrl[port_nr - 1];
+
 	/* special handling for TYPE_DIP */
 	if (mode->rs_mode == TYPE_DIP) {
 		return onrisc_setup_uart_gpios(INPUT, port_nr);
@@ -169,41 +163,41 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 	}
 	switch (mode->rs_mode) {
 		case TYPE_RS232:
-			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], HIGH);
-			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], LOW);
-			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[0], HIGH);
+			libsoc_gpio_set_level(ctrl->gpio[1], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
 			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
 		case TYPE_RS422:
-			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], HIGH);
-			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], HIGH);
-			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], HIGH);
+			libsoc_gpio_set_level(ctrl->gpio[0], HIGH);
+			libsoc_gpio_set_level(ctrl->gpio[1], HIGH);
+			libsoc_gpio_set_level(ctrl->gpio[2], HIGH);
 			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
 		case TYPE_RS485_FD:
-			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], HIGH);
-			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], HIGH);
-			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[0], HIGH);
+			libsoc_gpio_set_level(ctrl->gpio[1], HIGH);
+			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
 			if (onrisc_set_sr485_ioctl(port_nr, 1) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
 		case TYPE_RS485_HD:
-			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], LOW);
-			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], HIGH);
-			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[0], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[1], HIGH);
+			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
 			if (onrisc_set_sr485_ioctl(port_nr, 1) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
 		case TYPE_LOOPBACK:
-			libsoc_gpio_set_level(mode_gpios[0 + 4 * (port_nr - 1)], LOW);
-			libsoc_gpio_set_level(mode_gpios[1 + 4 * (port_nr - 1)], LOW);
-			libsoc_gpio_set_level(mode_gpios[2 + 4 * (port_nr - 1)], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[0], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[1], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
 			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
@@ -214,9 +208,9 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 
 	/* handle termination */
 	if (mode->termination) {
-		libsoc_gpio_set_level(mode_gpios[3 + 4 * (port_nr - 1)], HIGH);
+		libsoc_gpio_set_level(ctrl->gpio[3], HIGH);
 	} else {
-		libsoc_gpio_set_level(mode_gpios[3 + 4 * (port_nr - 1)], LOW);
+		libsoc_gpio_set_level(ctrl->gpio[3], LOW);
 	}
 
 	return EXIT_SUCCESS;
@@ -226,23 +220,19 @@ int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 {
 	int rc = EXIT_SUCCESS;
 
-	switch (onrisc_system.model) {
-		case ALEKTO:
-		case ALENA:
-		case ALEKTO_LAN:
-			rc = onrisc_set_uart_mode_ks8695(port_nr, mode);
-			break;
-		case VS860:
-		case ALEKTO2:
-		case BALIOS_IR_3220:
-		case BALIOS_IR_5221:
-			rc = onrisc_set_uart_mode_omap3(port_nr, mode);
-			break;
-		default:
-			rc = EXIT_FAILURE;
-			fprintf(stderr, "thin device doesn't support UART mode switching\n");
-			break;
+	if (NULL == onrisc_system.caps.uarts) {
+		fprintf(stderr, "device has no switchable UARTs\n");
+		rc = EXIT_FAILURE;
+		goto error;
 	}
 
+	if (onrisc_system.caps.uarts->ctrl[port_nr - 1].flags & RS_IS_GPIO_BASED) {
+		rc = onrisc_set_uart_mode_omap3(port_nr, mode);
+	}
+	else {
+		rc = onrisc_set_uart_mode_ks8695(port_nr, mode);
+	}
+
+error:
 	return rc;
 }

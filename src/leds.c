@@ -34,27 +34,10 @@ struct timeval *result, *x, *y;
 int onrisc_restore_leds(blink_led_t * blinker)
 {
 	int rc = EXIT_SUCCESS;
+	uint8_t led_flags =
+	    onrisc_system.caps.leds->led[blinker->led_type].flags;
 
-	switch (onrisc_system.model) {
-	case ALEKTO:
-	case ALENA:
-	case ALEKTO_LAN:
-		if (ioctl(blinker->fd, GPIO_CMD_SET_LEDS, &blinker->leds_old) <
-		    0) {
-			perror("ioctl: GPIO_CMD_SET_LEDS");
-			rc = EXIT_FAILURE;
-		}
-
-		close(blinker->fd);
-		blinker->fd = -1;
-		break;
-	case ALEKTO2:
-	case NETCON3:
-	case NETCOM_PLUS:
-	case NETCOM_PLUS_811:
-	case BALIOS_IR_5221:
-	case BALIOS_IR_3220:
-	case BALIOS_DIO_1080:
+	if (led_flags & LED_IS_GPIO_BASED) {
 		if (libsoc_gpio_set_direction(blinker->led, INPUT) ==
 		    EXIT_FAILURE) {
 			rc = EXIT_FAILURE;
@@ -64,7 +47,15 @@ int onrisc_restore_leds(blink_led_t * blinker)
 		}
 
 		blinker->led = NULL;
-		break;
+	} else {
+		if (ioctl(blinker->fd, GPIO_CMD_SET_LEDS, &blinker->leds_old) <
+		    0) {
+			perror("ioctl: GPIO_CMD_SET_LEDS");
+			rc = EXIT_FAILURE;
+		}
+
+		close(blinker->fd);
+		blinker->fd = -1;
 	}
 
 	return rc;
@@ -73,6 +64,7 @@ int onrisc_restore_leds(blink_led_t * blinker)
 int onrisc_switch_led(blink_led_t * led, uint8_t state)
 {
 	unsigned long val;
+	uint8_t led_flags = onrisc_system.caps.leds->led[led->led_type].flags;
 
 	assert(init_flag == 1);
 
@@ -80,10 +72,30 @@ int onrisc_switch_led(blink_led_t * led, uint8_t state)
 		return EXIT_FAILURE;
 	}
 
-	switch (onrisc_system.model) {
-	case ALEKTO:
-	case ALENA:
-	case ALEKTO_LAN:
+	if (led_flags & LED_IS_GPIO_BASED) {
+		libsoc_gpio_set_direction(led->led, OUTPUT);
+		if (state) {
+			/* HIGH phase */
+			if (led_flags & LED_IS_HIGH_ACTIVE) {
+				if (ALEKTO2 == onrisc_system.model) {
+					libsoc_gpio_set_direction(led->led,
+								  INPUT);
+				} else {
+					libsoc_gpio_set_level(led->led, HIGH);
+				}
+			} else {
+				libsoc_gpio_set_level(led->led, LOW);
+			}
+		} else {
+			/* LOW phase */
+			if (led_flags & LED_IS_HIGH_ACTIVE) {
+				libsoc_gpio_set_level(led->led, LOW);
+			} else {
+				libsoc_gpio_set_level(led->led, HIGH);
+			}
+		}
+
+	} else {
 		if (state) {
 			/* HIGH phase */
 			ioctl(led->fd, GPIO_CMD_GET_LEDS, &val);
@@ -95,49 +107,6 @@ int onrisc_switch_led(blink_led_t * led, uint8_t state)
 			val &= (~led->led_type);
 			ioctl(led->fd, GPIO_CMD_SET_LEDS, &val);
 		}
-		break;
-	case ALEKTO2:
-		if (state) {
-			/* HIGH phase */
-			libsoc_gpio_set_direction(led->led, INPUT);
-		} else {
-			/* LOW phase */
-			libsoc_gpio_set_direction(led->led, OUTPUT);
-			libsoc_gpio_set_level(led->led, LOW);
-		}
-		break;
-	case NETCON3:
-	case NETCOM_PLUS:
-	case NETCOM_PLUS_811:
-	case BALIOS_IR_5221:
-	case BALIOS_IR_3220:
-	case BALIOS_DIO_1080:
-		if (state) {
-			/* HIGH phase */
-			switch (led->led_type) {
-			case LED_POWER:
-				libsoc_gpio_set_direction(led->led, OUTPUT);
-				libsoc_gpio_set_level(led->led, LOW);
-				break;
-			default:
-				libsoc_gpio_set_direction(led->led, OUTPUT);
-				libsoc_gpio_set_level(led->led, HIGH);
-				break;
-			}
-		} else {
-			/* LOW phase */
-			switch (led->led_type) {
-			case LED_POWER:
-				libsoc_gpio_set_direction(led->led, OUTPUT);
-				libsoc_gpio_set_level(led->led, HIGH);
-				break;
-			default:
-				libsoc_gpio_set_direction(led->led, OUTPUT);
-				libsoc_gpio_set_level(led->led, LOW);
-				break;
-			}
-		}
-		break;
 	}
 
 	return EXIT_SUCCESS;
@@ -216,15 +185,53 @@ void onrisc_blink_destroy(blink_led_t * blinker)
 int onrisc_led_init(blink_led_t * blinker)
 {
 	int led_gpio = 0;
-	gpio *pwr_gpio;
+	gpio *libsoc_gpio;
+	uint8_t led_flags;
+	uint32_t pin;
 
-	switch (onrisc_system.model) {
-	case ALEKTO:
-	case ALENA:
-	case ALEKTO_LAN:
+	assert(blinker->led_type < ONRISC_MAX_LEDS);
+
+	led_flags = onrisc_system.caps.leds->led[blinker->led_type].flags;
+	pin = onrisc_system.caps.leds->led[blinker->led_type].pin;
+
+	if (!(led_flags & LED_IS_AVAILABLE)) {
+		fprintf(stderr, "LED (%d) is not available on this device\n",
+			blinker->led_type);
+		return EXIT_FAILURE;
+	}
+
+	if (led_flags & LED_IS_GPIO_BASED) {
+		/* check, if LED was already initialized */
+		if (blinker->led != NULL) {
+			return EXIT_SUCCESS;
+		}
+
+		/* handle I2C GPIO expander based LEDs */
+		if (led_flags & LED_NEEDS_I2C_ADDR) {
+			int base;
+			uint8_t i2c_id =
+			    onrisc_system.caps.leds->led[blinker->led_type].
+			    i2c_id;
+
+			if (onrisc_get_tca6416_base(&base, i2c_id) ==
+			    EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
+
+			pin += base;
+		}
+
+		/* initialize libsoc gpio structure with required pin */
+		libsoc_gpio = onrisc_gpio_init_sysfs(pin);
+		if (libsoc_gpio == NULL) {
+			return EXIT_FAILURE;
+		}
+
+		blinker->led = libsoc_gpio;
+	} else {
 		/* check, if LED was already initialized */
 		if (blinker->fd == -1) {
-			break;
+			return EXIT_SUCCESS;
 		}
 
 		blinker->fd = open("/dev/gpio", O_RDWR);
@@ -235,88 +242,8 @@ int onrisc_led_init(blink_led_t * blinker)
 		    0) {
 			perror("ioctl: GPIO_CMD_GET_LEDS");
 		}
-		break;
-	case ALEKTO2:
-		/* check, if LED was already initialized */
-		if (blinker->led != NULL) {
-			break;
-		}
-
-		if (blinker->led_type == LED_POWER) {
-			int base;
-
-			if (onrisc_get_tca6416_base(&base, 0x21) ==
-			    EXIT_FAILURE) {
-				return EXIT_FAILURE;
-			}
-
-			pwr_gpio = onrisc_gpio_init_sysfs(base + 8 + 1);
-			if (pwr_gpio == NULL) {
-				return EXIT_FAILURE;
-			}
-
-			blinker->led = pwr_gpio;
-		} else
-			return EXIT_FAILURE;
-		break;
-	case BALIOS_IR_3220:
-	case BALIOS_IR_5221:
-	case NETCOM_PLUS:
-	case NETCOM_PLUS_811:
-	case BALIOS_DIO_1080:
-		/* check, if LED was already initialized */
-		if (blinker->led != NULL) {
-			break;
-		}
-
-		switch (blinker->led_type) {
-		case LED_POWER:
-			led_gpio = 96;
-			break;
-		case LED_WLAN:
-			led_gpio = 16;
-			break;
-		case LED_APP:
-			led_gpio = 17;
-			break;
-		default:
-			printf("Unknown LED\n");
-			return EXIT_FAILURE;
-
-		}
-		pwr_gpio = onrisc_gpio_init_sysfs(led_gpio);
-		if (pwr_gpio == NULL) {
-			return EXIT_FAILURE;
-		}
-
-		blinker->led = pwr_gpio;
-		break;
-	case NETCON3:
-		/* check, if LED was already initialized */
-		if (blinker->led != NULL) {
-			break;
-		}
-
-		switch (blinker->led_type) {
-		case LED_POWER:
-			led_gpio = 96;
-			break;
-		case LED_APP:
-			led_gpio = 17;
-			break;
-		default:
-			printf("Unknown LED\n");
-			return EXIT_FAILURE;
-
-		}
-		pwr_gpio = onrisc_gpio_init_sysfs(led_gpio);
-		if (pwr_gpio == NULL) {
-			return EXIT_FAILURE;
-		}
-
-		blinker->led = pwr_gpio;
-		break;
 	}
+
 	return EXIT_SUCCESS;
 }
 

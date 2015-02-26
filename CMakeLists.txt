@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 2.6)
 
 include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include) 
 
-set(SRCS src/onrisc.c src/leds.c src/gpios.c src/system.c src/uarts.c)
+set(SRCS src/onrisc.c src/leds.c src/gpios.c src/system.c src/uarts.c src/devices.c)
 
 # swig 
 

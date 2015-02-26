@@ -89,23 +89,22 @@ int onrisc_get_dips(uint32_t * dips)
 	gpio *dip_gpios[4];
 	gpio_level level;
 	int i;
+	onrisc_dip_caps_t *dip_caps = onrisc_system.caps.dips;
 
 	assert(init_flag == 1);
 
 	*dips = 0;
 
-	if (onrisc_system.model != NETCON3
-	    && onrisc_system.model != BALIOS_DIO_1080
-	    && onrisc_system.model != NETCOM_PLUS
-	    && onrisc_system.model != NETCOM_PLUS_811) {
+	if (NULL == dip_caps) {
 		rc = EXIT_FAILURE;
 		goto error;
 	}
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < dip_caps->dip_switch[0].num; i++) {
+		uint32_t pin = dip_caps->dip_switch[0].pin[i];
 
 		/* export GPIO */
-		dip_gpios[i] = libsoc_gpio_request(44 + i, LS_SHARED);
+		dip_gpios[i] = libsoc_gpio_request(pin, LS_SHARED);
 		if (dip_gpios[i] == NULL) {
 			rc = EXIT_FAILURE;
 			goto error;
@@ -435,6 +434,7 @@ void onrisc_print_hw_params()
 	printf("\n");
 }
 
+
 int onrisc_init(onrisc_system_t * data)
 {
 	int model, i;
@@ -495,6 +495,9 @@ int onrisc_init(onrisc_system_t * data)
 	if (data != NULL) {
 		memcpy(data, &onrisc_system, sizeof(onrisc_system_t));
 	}
+
+	/* initialize devices specific capabilities */
+	onrisc_init_caps();
 
 	init_flag = 1;
 

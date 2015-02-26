@@ -14,6 +14,11 @@ extern "C" {
 #define ALEKTO2_EEPROM	"/sys/bus/i2c/devices/1-0050/eeprom"
 #define VS860_EEPROM	"/sys/bus/i2c/devices/2-0054/eeprom"
 
+#define ONRISC_MAX_GPIOS        32
+#define ONRISC_MAX_UARTS        64
+#define ONRISC_MAX_LEDS        	64
+#define ONRISC_MAX_DIPS	        32
+
 /** @name Hardware parameter stuff */
 /*@{*/
 #define PARTITION_REDBOOT	"/dev/mtdblock1"	//!< RedBoot partition device
@@ -31,9 +36,90 @@ extern "C" {
 #define BALIOS_DIO_1080	214
 #define NETCON3		215
 #define NETCOM_PLUS	220
+#define NETCOM_PLUS_413	221
 #define NETCOM_PLUS_811	222
+#define NETCOM_PLUS_813	223
+#define NETCOM_PLUS_111	224
+#define NETCOM_PLUS_113	225
+#define NETCOM_PLUS_211	226
+#define NETCOM_PLUS_213	227
+#define NETCAN		230
 
 #define DEV_HAS_DIPS	(1<<0)
+
+#define RS_HAS_485_SW (1 << 0)
+#define RS_HAS_TERMINATION (1 << 1)
+#define RS_HAS_DIR_CTRL (1 << 2)
+#define RS_HAS_ECHO (1 << 3)
+#define RS_IS_GPIO_BASED (1 << 4)
+#define RS_NEEDS_I2C_ADDR (1 << 5)
+
+/** @name DIP switch structure */
+/*@{*/
+typedef struct {
+	uint8_t num; /*!< number of pins in one switch */
+	gpio *gpio[32]; /*!< libsoc GPIO array for each pin */
+	uint32_t pin[32]; /*!< an array with pin numbers for each pin */
+	uint32_t flags; /*!< DIP switch flags */
+	uint8_t i2c_id; /*!< I2C ID for I2C GPIO expander attached switches */
+} __attribute__ ((packed)) onrisc_dip_switch_t;
+/*@}*/
+
+typedef struct {
+	uint32_t num;
+	onrisc_dip_switch_t ctrl[ONRISC_MAX_UARTS];
+} __attribute__ ((packed)) onrisc_uart_caps_t;
+
+
+typedef struct {
+	uint32_t num;
+	onrisc_dip_switch_t dip_switch[ONRISC_MAX_DIPS];
+} __attribute__ ((packed)) onrisc_dip_caps_t;
+
+#define LED_IS_HIGH_ACTIVE (1 << 0)
+#define LED_IS_GPIO_BASED (1 << 1)
+#define LED_IS_AVAILABLE (1 << 2)
+#define LED_NEEDS_I2C_ADDR (1 << 3)
+
+/** @name LED hardware control structure */
+/*@{*/
+typedef struct {
+	uint32_t pin; /*!< LED related IO pin */
+	uint32_t flags; /*!< LED flags */
+	uint8_t i2c_id; /*!< I2C ID for I2C GPIO expander attached LEDs */
+} __attribute__ ((packed)) onrisc_led_t;
+/*@}*/
+
+typedef struct {
+	uint32_t num;
+	onrisc_led_t led[ONRISC_MAX_LEDS];
+} __attribute__ ((packed)) onrisc_led_caps_t;
+
+typedef struct {
+	uint8_t direction;
+	uint8_t value;
+	uint8_t dir_fixed;
+	gpio *pin;
+} __attribute__ ((packed)) onrisc_gpio_t;
+
+typedef struct {
+	int ngpio;
+	int base;
+	onrisc_gpio_t gpios[ONRISC_MAX_GPIOS];
+	onrisc_gpio_t gpios_ctrl[6];
+} __attribute__ ((packed)) onrisc_gpios_int_t;
+
+typedef struct  {
+	uint32_t mask;
+	uint32_t value;
+} __attribute__ ((packed)) onrisc_gpios_t;
+
+typedef struct {
+	onrisc_gpios_int_t *gpios;
+	onrisc_uart_caps_t *uarts;
+	onrisc_dip_caps_t *dips;
+	onrisc_led_caps_t *leds;
+} __attribute__ ((packed)) onrisc_capabilities_t;
 
 enum rs_mode {TYPE_UNKNOWN, TYPE_RS232, TYPE_RS422, TYPE_RS485_FD, TYPE_RS485_HD, TYPE_LOOPBACK, TYPE_DIP, TYPE_CAN};
 
@@ -46,8 +132,7 @@ typedef struct {
 	uint32_t echo;
 } __attribute__ ((packed)) onrisc_uart_mode_t;
 
-typedef struct 
-{
+typedef struct {
 	uint16_t model;	
 	uint32_t hw_rev;
 	uint32_t ser_nr;
@@ -55,7 +140,7 @@ typedef struct
 	uint8_t mac1[6];
 	uint8_t mac2[6];
 	uint8_t mac3[6];
-	uint32_t caps;
+	onrisc_capabilities_t caps;
 } __attribute__ ((packed)) onrisc_system_t;
 
 //! @brief Hardware parameter stored in flash
@@ -212,27 +297,6 @@ typedef struct
 	int fd;
 	unsigned long leds_old;
 } blink_led_t;
-
-#define ONRISC_MAX_GPIOS        32
-
-typedef struct {
-	uint8_t direction;
-	uint8_t value;
-	uint8_t dir_fixed;
-	gpio *pin;
-} __attribute__ ((packed)) onrisc_gpio_t;
-
-typedef struct {
-	int ngpio;
-	int base;
-	onrisc_gpio_t gpios[ONRISC_MAX_GPIOS];
-	onrisc_gpio_t gpios_ctrl[6];
-} __attribute__ ((packed)) onrisc_gpios_int_t;
-
-typedef struct  {
-	uint32_t mask;
-	uint32_t value;
-} __attribute__ ((packed)) onrisc_gpios_t;
 
 /* prototypes */
 
