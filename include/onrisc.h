@@ -138,7 +138,6 @@ typedef struct {
 	uint8_t mac1[6];
 	uint8_t mac2[6];
 	uint8_t mac3[6];
-	onrisc_capabilities_t caps;
 } __attribute__ ((packed)) onrisc_system_t;
 
 //! @brief Hardware parameter stored in flash

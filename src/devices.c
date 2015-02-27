@@ -207,9 +207,9 @@ int onrisc_init_caps()
 			break;
 	}
 
-	onrisc_system.caps.dips = dips;
-	onrisc_system.caps.uarts = uarts;
-	onrisc_system.caps.leds = leds;
+	onrisc_capabilities.dips = dips;
+	onrisc_capabilities.uarts = uarts;
+	onrisc_capabilities.leds = leds;
 
 	rc = EXIT_SUCCESS;
 error:

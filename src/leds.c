@@ -35,7 +35,7 @@ int onrisc_restore_leds(blink_led_t * blinker)
 {
 	int rc = EXIT_SUCCESS;
 	uint8_t led_flags =
-	    onrisc_system.caps.leds->led[blinker->led_type].flags;
+	    onrisc_capabilities.leds->led[blinker->led_type].flags;
 
 	if (led_flags & LED_IS_GPIO_BASED) {
 		if (libsoc_gpio_set_direction(blinker->led, INPUT) ==
@@ -64,7 +64,7 @@ int onrisc_restore_leds(blink_led_t * blinker)
 int onrisc_switch_led(blink_led_t * led, uint8_t state)
 {
 	unsigned long val;
-	uint8_t led_flags = onrisc_system.caps.leds->led[led->led_type].flags;
+	uint8_t led_flags = onrisc_capabilities.leds->led[led->led_type].flags;
 
 	assert(init_flag == 1);
 
@@ -190,8 +190,8 @@ int onrisc_led_init(blink_led_t * blinker)
 
 	assert(blinker->led_type < ONRISC_MAX_LEDS);
 
-	led_flags = onrisc_system.caps.leds->led[blinker->led_type].flags;
-	pin = onrisc_system.caps.leds->led[blinker->led_type].pin;
+	led_flags = onrisc_capabilities.leds->led[blinker->led_type].flags;
+	pin = onrisc_capabilities.leds->led[blinker->led_type].pin;
 
 	if (!(led_flags & LED_IS_AVAILABLE)) {
 		fprintf(stderr, "LED (%d) is not available on this device\n",
@@ -209,7 +209,7 @@ int onrisc_led_init(blink_led_t * blinker)
 		if (led_flags & LED_NEEDS_I2C_ADDR) {
 			int base;
 			uint8_t i2c_id =
-			    onrisc_system.caps.leds->led[blinker->led_type].
+			    onrisc_capabilities.leds->led[blinker->led_type].
 			    i2c_id;
 
 			if (onrisc_get_tca6416_base(&base, i2c_id) ==

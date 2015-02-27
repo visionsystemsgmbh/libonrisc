@@ -10,7 +10,7 @@ int onrisc_set_sr485_ioctl(int port_nr, int on)
 	char port[16];
 	struct serial_rs485 rs485conf ;
 
-	if (~(onrisc_system.caps.uarts->ctrl[port_nr - 1].flags & RS_HAS_485_SW)) {
+	if (~(onrisc_capabilities.uarts->ctrl[port_nr - 1].flags & RS_HAS_485_SW)) {
 		goto error;
 	}
 
@@ -58,7 +58,7 @@ int onrisc_setup_uart_gpios(int dir, int port_nr)
 {
 	int i, rc = EXIT_SUCCESS;
 	int base = 0;
-	onrisc_dip_switch_t *ctrl = &onrisc_system.caps.uarts->ctrl[port_nr - 1];
+	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
 
 	if (init_uart_modes_flag) {
 		return rc;
@@ -150,7 +150,7 @@ int onrisc_set_uart_mode_ks8695(int port_nr, onrisc_uart_mode_t *mode)
 
 int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 {
-	onrisc_dip_switch_t *ctrl = &onrisc_system.caps.uarts->ctrl[port_nr - 1];
+	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
 
 	/* special handling for TYPE_DIP */
 	if (mode->rs_mode == TYPE_DIP) {
@@ -220,13 +220,13 @@ int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 {
 	int rc = EXIT_SUCCESS;
 
-	if (NULL == onrisc_system.caps.uarts) {
+	if (NULL == onrisc_capabilities.uarts) {
 		fprintf(stderr, "device has no switchable UARTs\n");
 		rc = EXIT_FAILURE;
 		goto error;
 	}
 
-	if (onrisc_system.caps.uarts->ctrl[port_nr - 1].flags & RS_IS_GPIO_BASED) {
+	if (onrisc_capabilities.uarts->ctrl[port_nr - 1].flags & RS_IS_GPIO_BASED) {
 		rc = onrisc_set_uart_mode_omap3(port_nr, mode);
 	}
 	else {

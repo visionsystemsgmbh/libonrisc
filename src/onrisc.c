@@ -3,6 +3,7 @@
 int init_flag = 0;
 int tca_found = 1;
 onrisc_system_t onrisc_system;
+onrisc_capabilities_t onrisc_capabilities;
 
 /* UART mode variables */
 int serial_mode_first_pin = 200;
@@ -89,7 +90,7 @@ int onrisc_get_dips(uint32_t * dips)
 	gpio *dip_gpios[4];
 	gpio_level level;
 	int i;
-	onrisc_dip_caps_t *dip_caps = onrisc_system.caps.dips;
+	onrisc_dip_caps_t *dip_caps = onrisc_capabilities.dips;
 
 	assert(init_flag == 1);
 
