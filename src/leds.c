@@ -184,7 +184,6 @@ void onrisc_blink_destroy(blink_led_t * blinker)
 
 int onrisc_led_init(blink_led_t * blinker)
 {
-	int led_gpio = 0;
 	gpio *libsoc_gpio;
 	uint8_t led_flags;
 	uint32_t pin;
