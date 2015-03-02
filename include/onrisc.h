@@ -51,6 +51,7 @@ extern "C" {
 #define RS_HAS_ECHO (1 << 3)
 #define RS_IS_GPIO_BASED (1 << 4)
 #define RS_NEEDS_I2C_ADDR (1 << 5)
+#define RS_IS_SETUP (1 << 6)
 
 /** @name DIP switch structure */
 /*@{*/
@@ -220,6 +221,12 @@ typedef struct
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_init(onrisc_system_t *data);
+
+/**
+ * @brief get device capabilities structure
+ * @return device capabilities structure
+ */
+onrisc_capabilities_t *onrisc_get_dev_caps(void);
 
 /**
  * @brief show content of the internal onrisc_system_t structure

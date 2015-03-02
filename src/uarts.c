@@ -1,7 +1,6 @@
 #include "vssys.h"
 
 gpio *mode_gpios[8];
-int init_uart_modes_flag = 0;
 
 int onrisc_set_sr485_ioctl(int port_nr, int on)
 {
@@ -60,7 +59,7 @@ int onrisc_setup_uart_gpios(int dir, int port_nr)
 	int base = 0;
 	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
 
-	if (init_uart_modes_flag) {
+	if (ctrl->flags & RS_IS_SETUP) {
 		return rc;
 	}
 
@@ -71,7 +70,6 @@ int onrisc_setup_uart_gpios(int dir, int port_nr)
 	}
 
 	for (i = 0; i < ctrl->num; i++) {
-		int idx = i + 4 * (port_nr - 1);
 		ctrl->gpio[i] = libsoc_gpio_request(base + ctrl->pin[i], LS_SHARED);
 		if (NULL == ctrl->gpio[i]) {
 			rc = EXIT_FAILURE;
@@ -84,7 +82,7 @@ int onrisc_setup_uart_gpios(int dir, int port_nr)
 		}
 	}
 
-	init_uart_modes_flag = 1;
+	ctrl->flags |= RS_IS_SETUP;
 
 error:
 	return rc;

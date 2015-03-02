@@ -8,6 +8,13 @@ onrisc_capabilities_t onrisc_capabilities;
 /* UART mode variables */
 int serial_mode_first_pin = 200;
 
+onrisc_capabilities_t *onrisc_get_dev_caps(void)
+{
+	assert(init_flag == 1);
+
+	return &onrisc_capabilities;
+}
+
 int onrisc_write_mdio_reg(int phy_id, int reg, int val)
 {
 	int rc = EXIT_FAILURE;
