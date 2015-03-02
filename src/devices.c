@@ -181,8 +181,22 @@ int onrisc_init_caps()
 				uarts->num = 8;
 			}
 
-			for (i = 0; i < uarts->num; i++) {
-				uarts->ctrl[i].flags = (RS_HAS_TERMINATION | RS_IS_GPIO_BASED);
+			for (i = 0; i < 4; i++) {
+				onrisc_config_switch(&uarts->ctrl[i],
+					(RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
+					4,
+					4 * i,
+					0x20);
+			}
+
+			if (NETCOM_PLUS_813 == onrisc_system.model) {
+				for (i = 0; i < 4; i++) {
+					onrisc_config_switch(&uarts->ctrl[i],
+						(RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
+						4,
+						4 * i,
+						0x21);
+				}
 			}
 
 			break;
