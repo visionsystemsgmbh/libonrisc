@@ -26,18 +26,19 @@ set(SRCS src/onrisc.c src/leds.c src/gpios.c src/system.c src/uarts.c src/device
 # swig 
 
 if (PYTHON_WRAP)
-	FIND_PACKAGE(SWIG REQUIRED)
-	INCLUDE(${SWIG_USE_FILE})
+	find_package(SWIG REQUIRED)
+	include(${SWIG_USE_FILE})
 
-	FIND_PACKAGE(PythonLibs)
-	INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+	find_package(PythonInterp REQUIRED)
+	find_package(PythonLibs REQUIRED)
+	include_directories(${PYTHON_INCLUDE_PATH})
 
-	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-	SET(CMAKE_SWIG_FLAGS "")
+	set(CMAKE_SWIG_FLAGS "")
 
-	SWIG_ADD_MODULE(onrisc python onrisc.i ${SRCS})
-	SWIG_LINK_LIBRARIES(onrisc ${PYTHON_LIBRARIES} soc pthread udev)
+	swig_add_module(onrisc python onrisc.i ${SRCS})
+	swig_link_libraries(onrisc ${PYTHON_LIBRARIES} soc pthread udev)
 endif (PYTHON_WRAP)
 
 # library
@@ -55,3 +56,26 @@ install(TARGETS onrisc
 	PUBLIC_HEADER DESTINATION include COMPONENT dev
 	)
 install(TARGETS onrisctool RUNTIME DESTINATION bin)
+
+if (PYTHON_WRAP)
+	execute_process (
+	   COMMAND ${PYTHON_EXECUTABLE} -c
+		 "import site, sys; sys.stdout.write(site.PREFIXES[-1])"
+	   OUTPUT_VARIABLE PYTHON_PREFIX
+	)
+	 file ( TO_CMAKE_PATH "${PYTHON_PREFIX}" PYTHON_PREFIX )
+	 execute_process (
+	   COMMAND ${PYTHON_EXECUTABLE} -c
+		 "import site, sys; sys.stdout.write(site.getsitepackages()[-1])"
+	   OUTPUT_VARIABLE PYTHON_SITE_DIR
+	 )
+	file ( TO_CMAKE_PATH "${PYTHON_SITE_DIR}" PYTHON_SITE_DIR )
+	 string ( REGEX REPLACE "^${PYTHON_PREFIX}/" ""
+	   PYTHON_SITE_DIR "${PYTHON_SITE_DIR}"
+	)
+
+	install ( FILES ${CMAKE_CURRENT_BINARY_DIR}/onrisc.py ${CMAKE_CURRENT_BINARY_DIR}/_onrisc.so
+	   DESTINATION ${PYTHON_SITE_DIR}
+	   COMPONENT library
+	)
+endif (PYTHON_WRAP)
