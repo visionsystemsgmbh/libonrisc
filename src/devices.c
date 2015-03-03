@@ -153,6 +153,20 @@ int onrisc_init_caps()
 			break;
 		case NETCOM_PLUS_413:
 		case NETCOM_PLUS_813:
+			/* initialize DIP caps */
+			dips = malloc(sizeof(onrisc_dip_caps_t));
+			if (NULL == dips) {
+				goto error;
+			}
+			memset(dips, 0, sizeof(onrisc_dip_caps_t));
+
+			dips->num = 1;
+			dips->dip_switch[0].num = 4;
+			dips->dip_switch[0].pin[0] = 114;
+			dips->dip_switch[0].pin[1] = 115;
+			dips->dip_switch[0].pin[2] = 137;
+			dips->dip_switch[0].pin[3] = 138;
+
 			/* initialize LED caps */
 			leds = malloc(sizeof(onrisc_led_caps_t));
 			if (NULL == leds) {
@@ -204,6 +218,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_113:
 		case NETCOM_PLUS_211:
 		case NETCOM_PLUS_213:
+		case NETCAN:
 			/* initialize DIP caps */
 			dips = malloc(sizeof(onrisc_dip_caps_t));
 			if (NULL == dips) {
@@ -217,6 +232,52 @@ int onrisc_init_caps()
 			dips->dip_switch[0].pin[1] = 115;
 			dips->dip_switch[0].pin[2] = 137;
 			dips->dip_switch[0].pin[3] = 138;
+
+			/* initialize LED caps */
+			leds = malloc(sizeof(onrisc_led_caps_t));
+			if (NULL == leds) {
+				goto error;
+			}
+			memset(leds, 0, sizeof(onrisc_led_caps_t));
+
+			leds->num = 3;
+			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
+			leds->led[LED_POWER].pin = 96;
+			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
+			leds->led[LED_WLAN].pin = 16;
+			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
+			leds->led[LED_APP].pin = 17;
+
+			if (NETCAN == onrisc_system.model) {
+				break;
+			}
+
+			/* initialize UART caps */
+			uarts = malloc(sizeof(onrisc_uart_caps_t));
+			if (NULL == uarts) {
+				goto error;
+			}
+			memset(uarts, 0, sizeof(onrisc_uart_caps_t));
+
+			if (NETCOM_PLUS_111 == onrisc_system.model || NETCOM_PLUS_113 == onrisc_system.model) {
+				uarts->num = 1;
+			} else {
+				uarts->num = 2;
+			}
+
+			onrisc_config_switch(&uarts->ctrl[i],
+				(RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED),
+				4,
+				32 * 3 + 14,
+				0);
+
+			if (NETCOM_PLUS_211 == onrisc_system.model || NETCOM_PLUS_213 == onrisc_system.model) {
+				onrisc_config_switch(&uarts->ctrl[i],
+					(RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED),
+					4,
+					32 * 3 + 18,
+					0);
+			}
 
 			break;
 	}
