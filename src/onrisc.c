@@ -4,6 +4,7 @@ int init_flag = 0;
 int tca_found = 1;
 onrisc_system_t onrisc_system;
 onrisc_capabilities_t onrisc_capabilities;
+onrisc_eeprom_t eeprom;
 
 /* UART mode variables */
 int serial_mode_first_pin = 200;
@@ -157,20 +158,10 @@ int onrisc_get_dips(uint32_t * dips)
 int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params, int model)
 {
 	int fd, rv, rc = EXIT_SUCCESS;
-	char *eeprom_file = NULL;
 
-	switch (model) {
-	case VS860:
-		eeprom_file = VS860_EEPROM;
-		break;
-	default:
-		eeprom_file = ALEKTO2_EEPROM;
-		break;
-	}
-
-	fd = open(eeprom_file, O_RDONLY);
+	fd = open(eeprom.path, O_RDONLY);
 	if (fd <= 0) {
-		fprintf(stderr, "failed to open EEPROM (%s)\n", eeprom_file);
+		fprintf(stderr, "failed to open EEPROM (%s)\n", eeprom.path);
 		rc = EXIT_FAILURE;
 		goto error;
 	}
@@ -369,41 +360,38 @@ int onrisc_write_hw_params(onrisc_system_t * data)
 	int i, fd, rv, rc = EXIT_SUCCESS;
 	BSP_VS_HWPARAM hw_eeprom;
 
-	switch (onrisc_system.model) {
-	case ALEKTO2:
-	case NETCON3:
-	case NETCOM_PLUS:
-	case NETCOM_PLUS_811:
-	case BALIOS_IR_5221:
-	case BALIOS_IR_3220:
-	case BALIOS_DIO_1080:
-		if (data->model == 0xffff) {
-			memset(&hw_eeprom, 0xff, sizeof(hw_eeprom));
-		} else {
-			hw_eeprom.Magic = 0xDEADBEEF;
-			hw_eeprom.SystemId = data->model;
-			hw_eeprom.HwRev = data->hw_rev;
-			hw_eeprom.SerialNumber = data->ser_nr;
-			strncpy(hw_eeprom.PrdDate, data->prd_date, 11);
-			for (i = 0; i < 6; i++) {
-				hw_eeprom.MAC1[i] = data->mac1[i];
-				hw_eeprom.MAC2[i] = data->mac2[i];
-				hw_eeprom.MAC3[i] = data->mac3[i];
-			}
-		}
+	if (ALEKTO == onrisc_system.model
+		|| ALENA ==onrisc_system.model
+		|| ALEKTO_LAN ==onrisc_system.model) {
+		return rc;
+	}
 
-		fd = open(ALEKTO2_EEPROM, O_WRONLY);
-		if (fd <= 0) {
-			fprintf(stderr, "failed to open EEPROM (%s)\n", ALEKTO2_EEPROM);
-			rc = EXIT_FAILURE;
-			goto error;
+	if (data->model == 0xffff) {
+		memset(&hw_eeprom, 0xff, sizeof(hw_eeprom));
+	} else {
+		hw_eeprom.Magic = 0xDEADBEEF;
+		hw_eeprom.SystemId = data->model;
+		hw_eeprom.HwRev = data->hw_rev;
+		hw_eeprom.SerialNumber = data->ser_nr;
+		strncpy(hw_eeprom.PrdDate, data->prd_date, 11);
+		for (i = 0; i < 6; i++) {
+			hw_eeprom.MAC1[i] = data->mac1[i];
+			hw_eeprom.MAC2[i] = data->mac2[i];
+			hw_eeprom.MAC3[i] = data->mac3[i];
 		}
-		rv = write(fd, &hw_eeprom, sizeof(struct _BSP_VS_HWPARAM));
-		if (rv != sizeof(struct _BSP_VS_HWPARAM)) {
-			fprintf(stderr, "failed to write EEPROM\n");
-			rc = EXIT_FAILURE;
-			goto error;
-		}
+	}
+
+	fd = open(eeprom.path, O_WRONLY);
+	if (fd <= 0) {
+		fprintf(stderr, "failed to open EEPROM (%s)\n", eeprom.path);
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+	rv = write(fd, &hw_eeprom, sizeof(struct _BSP_VS_HWPARAM));
+	if (rv != sizeof(struct _BSP_VS_HWPARAM)) {
+		fprintf(stderr, "failed to write EEPROM\n");
+		rc = EXIT_FAILURE;
+		goto error;
 	}
 
 error:
@@ -454,8 +442,15 @@ int onrisc_init(onrisc_system_t * data)
 		return EXIT_FAILURE;
 	}
 
-	switch (model) {
-	case ALEKTO:
+	/* find EEPROM */
+	eeprom.flags = 0;
+	eeprom.path = NULL;
+	if (onrisc_get_eeprom(&eeprom) == EXIT_FAILURE && ALEKTO != model) {
+		fprintf(stderr, "failed to find EEPROM\n");
+		return EXIT_FAILURE;
+	}
+
+	if (ALEKTO == model) {
 		if (onrisc_get_hw_params_nor(&hw_nor) == EXIT_FAILURE) {
 			return EXIT_FAILURE;
 		}
@@ -468,15 +463,7 @@ int onrisc_init(onrisc_system_t * data)
 			onrisc_system.mac2[i] = hw_nor.mac2[i];
 			onrisc_system.mac3[i] = 0xff;
 		}
-		break;
-	case ALEKTO2:
-	case BALIOS_IR_5221:
-	case BALIOS_IR_3220:
-	case BALIOS_DIO_1080:
-	case NETCON3:
-	case NETCOM_PLUS:
-	case NETCOM_PLUS_811:
-	case VS860:
+	} else {
 		if (onrisc_get_hw_params_eeprom(&hw_eeprom, model) ==
 		    EXIT_FAILURE) {
 			return EXIT_FAILURE;
@@ -497,9 +484,9 @@ int onrisc_init(onrisc_system_t * data)
 				tca_found = 0;
 			}
 		}
-		break;
 	}
 
+	/* copy onrisc_system_t to user space */
 	if (data != NULL) {
 		memcpy(data, &onrisc_system, sizeof(onrisc_system_t));
 	}

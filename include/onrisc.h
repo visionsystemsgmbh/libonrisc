@@ -11,9 +11,6 @@ extern "C" {
 #include <linux/serial.h>
 #include <libsoc_gpio.h>
 
-#define ALEKTO2_EEPROM	"/sys/bus/i2c/devices/1-0050/eeprom"
-#define VS860_EEPROM	"/sys/bus/i2c/devices/2-0054/eeprom"
-
 #define ONRISC_MAX_GPIOS        32
 #define ONRISC_MAX_UARTS        64
 #define ONRISC_MAX_LEDS        	64
@@ -44,6 +41,11 @@ extern "C" {
 #define NETCOM_PLUS_211	226
 #define NETCOM_PLUS_213	227
 #define NETCAN		230
+
+typedef struct {
+	uint32_t flags;
+	char *path;
+} __attribute__ ((packed)) onrisc_eeprom_t;
 
 #define RS_HAS_485_SW (1 << 0)
 #define RS_HAS_TERMINATION (1 << 1)

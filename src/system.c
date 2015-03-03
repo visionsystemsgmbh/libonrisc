@@ -1,5 +1,51 @@
 #include "vssys.h"
 
+int onrisc_get_eeprom(onrisc_eeprom_t *eeprom)
+{
+	int rc = EXIT_FAILURE;
+	struct udev *udev;
+	struct udev_enumerate *enumerate;
+	struct udev_list_entry *devices, *dev_list_entry;
+	struct udev_device *dev;
+
+	/* create the udev object */
+	udev = udev_new();
+	if (!udev) {
+		fprintf(stderr, "can't create udev object\n");
+		goto error;
+	}
+
+	/* create a list of the devices in the 'i2c' subsystem. */
+	enumerate = udev_enumerate_new(udev);
+	udev_enumerate_add_match_subsystem(enumerate, "i2c");
+	udev_enumerate_add_match_sysattr(enumerate, "eeprom", NULL);
+	udev_enumerate_scan_devices(enumerate);
+	devices = udev_enumerate_get_list_entry(enumerate);
+
+	udev_list_entry_foreach(dev_list_entry, devices) {
+		const char *path;
+
+		/* get the filename of the /sys entry for the device
+		   and create a udev_device object (dev) representing it */
+		path = udev_list_entry_get_name(dev_list_entry);
+		eeprom->path = malloc(strlen(path) + 10);
+		if (NULL == eeprom->path) {
+			fprintf(stderr, "failed to allocate memory for EEPROM path\n");
+			goto error;
+		}
+		sprintf(eeprom->path, "%s/eeprom", path);
+
+		rc = EXIT_SUCCESS;
+		break;
+	}
+
+	/* clean up */
+	udev_enumerate_unref(enumerate);
+	udev_unref(udev);
+error:
+	return rc;
+}
+
 int onrisc_get_i2c_address(const char *path)
 {
 	int addr = -1;
