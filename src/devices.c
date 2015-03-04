@@ -162,10 +162,10 @@ int onrisc_init_caps()
 
 			dips->num = 1;
 			dips->dip_switch[0].num = 4;
-			dips->dip_switch[0].pin[0] = 114;
-			dips->dip_switch[0].pin[1] = 115;
-			dips->dip_switch[0].pin[2] = 137;
-			dips->dip_switch[0].pin[3] = 138;
+			dips->dip_switch[0].pin[0] = 32 * 2 + 18;
+			dips->dip_switch[0].pin[1] = 32 * 2 + 19;
+			dips->dip_switch[0].pin[2] = 32 * 3 + 9;
+			dips->dip_switch[0].pin[3] = 32 * 3 + 10;
 
 			/* initialize LED caps */
 			leds = malloc(sizeof(onrisc_led_caps_t));
@@ -205,7 +205,7 @@ int onrisc_init_caps()
 
 			if (NETCOM_PLUS_813 == onrisc_system.model) {
 				for (i = 0; i < 4; i++) {
-					onrisc_config_switch(&uarts->ctrl[i],
+					onrisc_config_switch(&uarts->ctrl[i + 4],
 						(RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
 						4,
 						4 * i,
@@ -228,10 +228,10 @@ int onrisc_init_caps()
 
 			dips->num = 1;
 			dips->dip_switch[0].num = 4;
-			dips->dip_switch[0].pin[0] = 114;
-			dips->dip_switch[0].pin[1] = 115;
-			dips->dip_switch[0].pin[2] = 137;
-			dips->dip_switch[0].pin[3] = 138;
+			dips->dip_switch[0].pin[0] = 32 * 2 + 18;
+			dips->dip_switch[0].pin[1] = 32 * 2 + 19;
+			dips->dip_switch[0].pin[2] = 32 * 3 + 9;
+			dips->dip_switch[0].pin[3] = 32 * 3 + 10;
 
 			/* initialize LED caps */
 			leds = malloc(sizeof(onrisc_led_caps_t));
@@ -265,14 +265,14 @@ int onrisc_init_caps()
 				uarts->num = 2;
 			}
 
-			onrisc_config_switch(&uarts->ctrl[i],
+			onrisc_config_switch(&uarts->ctrl[0],
 				(RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED),
 				4,
 				32 * 3 + 14,
 				0);
 
 			if (NETCOM_PLUS_211 == onrisc_system.model || NETCOM_PLUS_213 == onrisc_system.model) {
-				onrisc_config_switch(&uarts->ctrl[i],
+				onrisc_config_switch(&uarts->ctrl[1],
 					(RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED),
 					4,
 					32 * 3 + 18,
