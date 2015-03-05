@@ -15,7 +15,7 @@ int onrisc_set_sr485_ioctl(int port_nr, int on)
 
 	sprintf(port, "/dev/ttyO%d", port_nr);
 
-	fd = open(port, O_RDWR);
+	fd = open(port, O_RDWR | O_NONBLOCK);
 	if (fd <= 0) {
 		fprintf(stderr, "failed to open /dev/ttyO%d\n", port_nr);
 		rc = EXIT_FAILURE;
