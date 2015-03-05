@@ -98,3 +98,9 @@ All routines and data structures are described in `include/onrisc.h` using **Dox
     #define DIP_S2	0x02
     #define DIP_S3	0x04
     #define DIP_S4	0x08
+
+### WLAN switch
+
+    int onrisc_get_wlan_sw_state(gpio_level *state);
+
+`onrisc_get_wlan_sw_state()` returns WLAN switch state, i.e. 1 - on, 0 - off
