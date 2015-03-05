@@ -31,6 +31,7 @@ void print_usage()
 	fprintf(stderr, "         -g                 get GPIO values\n");
 	fprintf(stderr, "         -i                 turn network switch off\n");
 	fprintf(stderr, "         -w                 set wlan0 MAC\n");
+	fprintf(stderr, "         -q                 query WLAN switch state\n");
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
 	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
@@ -192,6 +193,7 @@ int main(int argc, char **argv)
 	uint32_t mask = 0, value = 0, dir_mask = 0, dir_value = 0;
 	onrisc_gpios_t gpios;
 	bool set_gpio = false, set_dir_gpio = false;
+	gpio_level wlan_sw_state;
 
 	if (argc == 1)
 	{
@@ -205,7 +207,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:iegrhmsSw?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:iegrhmsSwq?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -326,6 +328,13 @@ int main(int argc, char **argv)
 			break;
 		case 'r':
 			termination = 1;
+			break;
+		case 'q':
+			if (onrisc_get_wlan_sw_state(&wlan_sw_state) == EXIT_FAILURE){
+				printf("failed to get WLAN swithc state\n");
+			} else {
+				printf("WLAN switch: %s\n", wlan_sw_state ? "on":"off");
+			}
 			break;
 		case '?':
 		case 'h':

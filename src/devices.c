@@ -19,6 +19,7 @@ int onrisc_init_caps()
 	onrisc_led_caps_t *leds = NULL;
 	onrisc_dip_caps_t *dips = NULL;
 	onrisc_uart_caps_t *uarts = NULL;
+	onrisc_wlan_sw_caps_t *wlan_sw = NULL;
 
 	switch(onrisc_system.model) {
 		case ALEKTO:
@@ -85,6 +86,15 @@ int onrisc_init_caps()
 					8 + 4 * i,
 					0x20);
 			}
+
+			/* initialize WLAN switch caps */
+			wlan_sw = malloc(sizeof(onrisc_wlan_sw_caps_t));
+			if (NULL == wlan_sw) {
+				goto error;
+			}
+			memset(wlan_sw, 0, sizeof(onrisc_wlan_sw_caps_t));
+
+			wlan_sw->pin = 6;
 
 			break;
 		case ALEKTO2:
@@ -285,6 +295,7 @@ int onrisc_init_caps()
 	onrisc_capabilities.dips = dips;
 	onrisc_capabilities.uarts = uarts;
 	onrisc_capabilities.leds = leds;
+	onrisc_capabilities.wlan_sw = wlan_sw;
 
 	rc = EXIT_SUCCESS;
 error:

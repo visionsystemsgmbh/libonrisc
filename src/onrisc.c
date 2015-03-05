@@ -16,6 +16,43 @@ onrisc_capabilities_t *onrisc_get_dev_caps(void)
 	return &onrisc_capabilities;
 }
 
+int onrisc_get_wlan_sw_state(gpio_level *state)
+{
+	int rc = EXIT_FAILURE;
+	onrisc_wlan_sw_caps_t *wlan_sw = onrisc_capabilities.wlan_sw;
+
+	if (NULL == wlan_sw) {
+		fprintf(stderr, "Device has no WLAN switch\n");
+		goto error;
+	}
+
+	if (!(wlan_sw->flags & WLAN_SW_IS_SETUP)) {
+		/* request GPIO */
+		wlan_sw->gpio = libsoc_gpio_request(6, LS_SHARED);
+		if (NULL == wlan_sw->gpio) {
+			fprintf(stderr, "failed to register WLAN switch GPIO\n");
+			goto error;
+		}
+
+		/* set direction */
+		if (libsoc_gpio_set_direction(wlan_sw->gpio, INPUT) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to set GPIO dir\n");
+			goto error;
+		}
+
+		wlan_sw->flags |= WLAN_SW_IS_SETUP;
+	}
+
+	if ((*state = libsoc_gpio_get_level(wlan_sw->gpio)) == LEVEL_ERROR) {
+		fprintf(stderr, "failed to set GPIO level\n");
+		goto error;
+	}
+
+	rc = EXIT_SUCCESS;
+error:
+	return rc;
+}
+
 int onrisc_write_mdio_reg(int phy_id, int reg, int val)
 {
 	int rc = EXIT_FAILURE;
@@ -355,6 +392,7 @@ int onrisc_get_model(int *model)
 	return *model ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
+/* TODO: read and compare saved data */
 int onrisc_write_hw_params(onrisc_system_t * data)
 {
 	int i, fd, rv, rc = EXIT_SUCCESS;

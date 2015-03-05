@@ -71,11 +71,18 @@ typedef struct {
 	onrisc_dip_switch_t ctrl[ONRISC_MAX_UARTS];
 } __attribute__ ((packed)) onrisc_uart_caps_t;
 
-
 typedef struct {
 	uint32_t num;
 	onrisc_dip_switch_t dip_switch[ONRISC_MAX_DIPS];
 } __attribute__ ((packed)) onrisc_dip_caps_t;
+
+#define WLAN_SW_IS_SETUP (1 << 0)
+
+typedef struct {
+	uint32_t flags; /*!< WLAN switch flags */
+	uint32_t pin;
+	gpio *gpio;
+} __attribute__ ((packed)) onrisc_wlan_sw_caps_t;
 
 #define LED_IS_HIGH_ACTIVE (1 << 0)
 #define LED_IS_GPIO_BASED (1 << 1)
@@ -120,6 +127,7 @@ typedef struct {
 	onrisc_uart_caps_t *uarts;
 	onrisc_dip_caps_t *dips;
 	onrisc_led_caps_t *leds;
+	onrisc_wlan_sw_caps_t *wlan_sw;
 } __attribute__ ((packed)) onrisc_capabilities_t;
 
 enum rs_mode {TYPE_UNKNOWN, TYPE_RS232, TYPE_RS422, TYPE_RS485_FD, TYPE_RS485_HD, TYPE_LOOPBACK, TYPE_DIP, TYPE_CAN};
@@ -343,6 +351,13 @@ int onrisc_write_mdio_reg(int phy_id, int reg, int val);
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_read_mdio_reg(int phy_id, int reg, int *val);
+
+/**
+ * @brief read WLAN switch level
+ * @param state WLAN switch level: HIGH, LOW or LEVEL_ERROR
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_get_wlan_sw_state(gpio_level *state);
 
 #ifdef __cplusplus
 }
