@@ -9,7 +9,7 @@ int onrisc_set_sr485_ioctl(int port_nr, int on)
 	char port[16];
 	struct serial_rs485 rs485conf ;
 
-	if (~(onrisc_capabilities.uarts->ctrl[port_nr - 1].flags & RS_HAS_485_SW)) {
+	if (!(onrisc_capabilities.uarts->ctrl[port_nr - 1].flags & RS_HAS_485_SW)) {
 		goto error;
 	}
 
