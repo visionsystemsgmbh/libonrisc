@@ -10,7 +10,7 @@ onrisc_system_t onrisc_system;
 
 void print_usage()
 {
-	fprintf(stderr, "\nOnRISC Tool\n\n");
+	fprintf(stderr, "\nOnRISC Tool (Version %s)\n\n", LIBONRISC_VERSION);
 	fprintf(stderr, "Usage: onrisctool -s\n");
 	fprintf(stderr, "       onrisctool -m\n");
 	fprintf(stderr, "       onrisctool -p <num> -t <type> -r -d <dirctl> -e\n");

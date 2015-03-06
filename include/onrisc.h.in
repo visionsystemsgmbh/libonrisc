@@ -11,6 +11,8 @@ extern "C" {
 #include <linux/serial.h>
 #include <libsoc_gpio.h>
 
+#define LIBONRISC_VERSION "@CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@.@CPACK_PACKAGE_VERSION_PATCH@"
+
 #define ONRISC_MAX_GPIOS        32
 #define ONRISC_MAX_UARTS        64
 #define ONRISC_MAX_LEDS        	64

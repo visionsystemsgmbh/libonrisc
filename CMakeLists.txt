@@ -19,8 +19,9 @@ INCLUDE(CPack)
 
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(BEFORE ${PROJECT_SOURCE_DIR}/include) 
+include_directories(BEFORE ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/include) 
 
+configure_file(${PROJECT_SOURCE_DIR}/include/onrisc.h.in ${PROJECT_BINARY_DIR}/onrisc.h @ONLY)
 set(SRCS src/onrisc.c src/leds.c src/gpios.c src/system.c src/uarts.c src/devices.c)
 
 # swig 
@@ -44,7 +45,7 @@ endif (PYTHON_WRAP)
 # library
 add_library(onrisc SHARED ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
 set_target_properties(onrisc PROPERTIES
-	PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/include/onrisc.h")
+	PUBLIC_HEADER "${PROJECT_BINARY_DIR}/onrisc.h")
 target_link_libraries(onrisc soc pthread udev)
 
 # cli
