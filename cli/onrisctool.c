@@ -296,11 +296,11 @@ int main(int argc, char **argv)
 				int i, nr_swithes = 4;
 				
 				/* perform only for devices with network switch chip */
-				if (onrisc_system.model != BALIOS_IR_3220 && onrisc_system.model != BALIOS_IR_5221) {
+				if (onrisc_system.model != BALTOS_IR_3220 && onrisc_system.model != BALTOS_IR_5221) {
 					break;
 				}
 
-				if (onrisc_system.model == BALIOS_IR_3220) {
+				if (onrisc_system.model == BALTOS_IR_3220) {
 					nr_swithes = 2;
 				}
 

@@ -254,8 +254,8 @@ int onrisc_gpio_init()
 		}
 
 		break;
-	case BALIOS_IR_3220:
-	case BALIOS_IR_5221:
+	case BALTOS_IR_3220:
+	case BALTOS_IR_5221:
 		onrisc_gpios.ngpio = 8;
 
 		if (onrisc_gpio_init_balios() == EXIT_FAILURE) {
@@ -264,7 +264,7 @@ int onrisc_gpio_init()
 		}
 
 		break;
-	case BALIOS_DIO_1080:
+	case BALTOS_DIO_1080:
 	case NETCON3:
 		onrisc_gpios.ngpio = 16;
 
@@ -291,9 +291,9 @@ int onrisc_gpio_set_value_sysfs(onrisc_gpio_t * gpio)
 	case ALENA:
 		break;
 	case ALEKTO2:
-	case BALIOS_IR_3220:
-	case BALIOS_IR_5221:
-	case BALIOS_DIO_1080:
+	case BALTOS_IR_3220:
+	case BALTOS_IR_5221:
+	case BALTOS_DIO_1080:
 	case NETCON3:
 		if (libsoc_gpio_set_level(gpio->pin, gpio->value) ==
 		    EXIT_FAILURE) {
@@ -471,9 +471,9 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 	case ALENA:
 		break;
 	case ALEKTO2:
-	case BALIOS_IR_3220:
-	case BALIOS_IR_5221:
-	case BALIOS_DIO_1080:
+	case BALTOS_IR_3220:
+	case BALTOS_IR_5221:
+	case BALTOS_DIO_1080:
 	case NETCON3:
 		for (i = 0; i < onrisc_gpios.ngpio; i++) {
 			if ((level =

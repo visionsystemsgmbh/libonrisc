@@ -366,15 +366,15 @@ int onrisc_get_model(int *model)
 		}
 
 		if (strstr(buf, "Balios iR 5221") || strstr(buf, "Baltos iR 5221")) {
-			*model = BALIOS_IR_5221;
+			*model = BALTOS_IR_5221;
 		}
 
 		if (strstr(buf, "Balios iR 3220") || strstr(buf, "Baltos iR 3220")) {
-			*model = BALIOS_IR_3220;
+			*model = BALTOS_IR_3220;
 		}
 
 		if (strstr(buf, "Balios DIO 1080") || strstr(buf, "Baltos DIO 1080")) {
-			*model = BALIOS_DIO_1080;
+			*model = BALTOS_DIO_1080;
 		}
 
 		if (strstr(buf, "NetCON 3")) {
@@ -537,9 +537,9 @@ int onrisc_init(onrisc_system_t * data)
 	switch (model) {
 	case ALEKTO:
 	case ALEKTO2:
-	case BALIOS_IR_5221:
-	case BALIOS_IR_3220:
-	case BALIOS_DIO_1080:
+	case BALTOS_IR_5221:
+	case BALTOS_IR_3220:
+	case BALTOS_DIO_1080:
 	case NETCON3:
 	case VS860:
 		if (tca_found) {

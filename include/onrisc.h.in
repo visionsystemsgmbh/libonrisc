@@ -30,9 +30,9 @@ extern "C" {
 #define ALEKTO_LAN	3
 #define VS860		100
 #define ALEKTO2		200
-#define BALIOS_IR_5221	210
-#define BALIOS_IR_3220	211
-#define BALIOS_DIO_1080	214
+#define BALTOS_IR_5221	210
+#define BALTOS_IR_3220	211
+#define BALTOS_DIO_1080	214
 #define NETCON3		215
 #define NETCOM_PLUS	220
 #define NETCOM_PLUS_413	221

@@ -54,8 +54,8 @@ int onrisc_init_caps()
 			}
 
 			break;
-		case BALIOS_IR_5221:
-		case BALIOS_IR_3220:
+		case BALTOS_IR_5221:
+		case BALTOS_IR_3220:
 			/* initialize LED caps */
 			leds = malloc(sizeof(onrisc_led_caps_t));
 			if (NULL == leds) {
@@ -127,7 +127,7 @@ int onrisc_init_caps()
 			}
 
 			break;
-		case BALIOS_DIO_1080:
+		case BALTOS_DIO_1080:
 		case NETCON3:
 		case NETCOM_PLUS:
 		case NETCOM_PLUS_811:
