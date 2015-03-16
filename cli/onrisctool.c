@@ -22,6 +22,7 @@ void print_usage()
 	fprintf(stderr, "         -r                 enable termination for serial port\n");
 	fprintf(stderr, "         -d <dirctl>        direction control for RS485: art or rts\n");
 	fprintf(stderr, "         -e                 enable echo\n");
+	fprintf(stderr, "         -j                 get configured RS modes\n");
 	fprintf(stderr, "         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
 	fprintf(stderr, "         -S                 show DIP switch settings (Baltos 1080 only)\n");
 	fprintf(stderr, "         -a                 GPIO data mask\n");
@@ -38,6 +39,46 @@ void print_usage()
 	fprintf(stderr, "onrisctool -l pwr:0 (turn power LED off)\n");
 	fprintf(stderr, "onrisctool -c 0x0f -f 0x0f (set first 4 IOs to output)\n");
 	fprintf(stderr, "onrisctool -a 0x07 -b 0x05 (turn pins 0 and 2 to high and clear pin 1)\n");
+}
+
+int show_rs_modes()
+{
+	int i, rc = EXIT_FAILURE;
+	onrisc_capabilities_t *caps = onrisc_get_dev_caps();
+	if (NULL == caps->uarts) {
+		fprintf(stderr, "device has no RS mode switchable UARTs\n");
+		goto error;
+	}
+
+	for (i = 0; i < caps->uarts->num; i++) {
+		onrisc_uart_mode_t mode;
+		if (onrisc_get_uart_mode(i + 1, &mode)) {
+			fprintf(stderr, "failed to get UART mode\n");
+			goto error;
+		}
+
+		switch(mode.rs_mode) {
+			case TYPE_RS232:
+				printf("Port %d: mode: rs232 termination: %s\n", i + 1, mode.termination?"on":"off");
+				break;
+			case TYPE_RS422:
+				printf("Port %d: mode: rs422 termination: %s\n", i + 1, mode.termination?"on":"off");
+				break;
+			case TYPE_RS485_HD:
+				printf("Port %d: mode: rs485-hd termination: %s\n", i + 1, mode.termination?"on":"off");
+				break;
+			case TYPE_RS485_FD:
+				printf("Port %d: mode: rs485-fd termination: %s\n", i + 1, mode.termination?"on":"off");
+				break;
+			case TYPE_LOOPBACK:
+				printf("Port %d: mode: loopback termination: %s\n", i + 1, mode.termination?"on":"off");
+				break;
+		}
+
+	}
+	rc = EXIT_SUCCESS;
+error:
+	return rc;
 }
 
 int handle_leds(char *str)
@@ -195,8 +236,7 @@ int main(int argc, char **argv)
 	bool set_gpio = false, set_dir_gpio = false;
 	gpio_level wlan_sw_state;
 
-	if (argc == 1)
-	{
+	if (argc == 1) {
 		print_usage();
 		return 1;
 	}
@@ -207,7 +247,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:iegrhmsSwq?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:iegrhmsSwqj?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -334,6 +374,11 @@ int main(int argc, char **argv)
 				printf("failed to get WLAN swithc state\n");
 			} else {
 				printf("WLAN switch: %s\n", wlan_sw_state ? "on":"off");
+			}
+			break;
+		case 'j':
+			if (show_rs_modes() == EXIT_FAILURE) {
+				exit(1);
 			}
 			break;
 		case '?':

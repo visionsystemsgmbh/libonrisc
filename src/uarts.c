@@ -59,8 +59,12 @@ int onrisc_setup_uart_gpios(int dir, int port_nr)
 	int base = 0;
 	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
 
+	/* check, if GPIOs are already initialized */
 	if (ctrl->flags & RS_IS_SETUP) {
-		return rc;
+		/* check GPIO direction settings */
+		if (libsoc_gpio_get_direction(ctrl->gpio[0]) == dir) {
+			return rc;
+		}
 	}
 
 	if (ctrl->flags & RS_NEEDS_I2C_ADDR) {
@@ -70,15 +74,20 @@ int onrisc_setup_uart_gpios(int dir, int port_nr)
 	}
 
 	for (i = 0; i < ctrl->num; i++) {
-		ctrl->gpio[i] = libsoc_gpio_request(base + ctrl->pin[i], LS_SHARED);
-		if (NULL == ctrl->gpio[i]) {
-			rc = EXIT_FAILURE;
-			goto error;
+		/* create new GPIO object only, if not already done */
+		if (!(ctrl->flags & RS_IS_SETUP)) {
+			ctrl->gpio[i] = libsoc_gpio_request(base + ctrl->pin[i], LS_SHARED);
+			if (NULL == ctrl->gpio[i]) {
+				rc = EXIT_FAILURE;
+				goto error;
+			}
 		}
 
-		if (libsoc_gpio_set_direction(ctrl->gpio[i], dir) == EXIT_FAILURE) {
-			rc = EXIT_FAILURE;
-			goto error;
+		if (DIRECTION_ERROR != dir) {
+			if (libsoc_gpio_set_direction(ctrl->gpio[i], dir) == EXIT_FAILURE) {
+				rc = EXIT_FAILURE;
+				goto error;
+			}
 		}
 	}
 
@@ -212,6 +221,77 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 	}
 
 	return EXIT_SUCCESS;
+}
+
+int onrisc_get_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
+{
+	int i,rc = EXIT_FAILURE;
+	gpio_direction dir;
+	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
+	gpio_level val[ctrl->num];
+
+	memset(mode, 0, sizeof(onrisc_uart_mode_t));
+
+	/* check, if GPIOs are already initialized */
+	if (!(ctrl->flags & RS_IS_SETUP)) {
+		if (onrisc_setup_uart_gpios(DIRECTION_ERROR, port_nr) == EXIT_FAILURE) {
+			goto error;
+		}
+	}
+
+	for (i = 0; i < ctrl->num; i++) {
+		val[i] = libsoc_gpio_get_level(ctrl->gpio[i]);
+		if (val[i] == LEVEL_ERROR) {
+			goto error;
+		}
+	}
+
+	/* get termination settings */
+	if (val[3] == HIGH) {
+		mode->termination = 1;
+	}
+
+	/* get RS settings */
+	if (val[0] == HIGH && val[1] == LOW && val[2] == LOW) {
+		mode->rs_mode = TYPE_RS232;
+	} else if (val[0] == HIGH && val[1] == HIGH && val[2] == HIGH) {
+		mode->rs_mode = TYPE_RS422;
+	} else if (val[0] == HIGH && val[1] == HIGH && val[2] == LOW) {
+		mode->rs_mode = TYPE_RS485_FD;
+	} else if (val[0] == LOW && val[1] == HIGH && val[2] == LOW) {
+		mode->rs_mode = TYPE_RS485_HD;
+	} else if (val[0] == LOW && val[1] == LOW && val[2] == LOW) {
+		mode->rs_mode = TYPE_LOOPBACK;
+	} else {
+		fprintf(stderr, "unknown RS mode\n");
+		goto error;
+	}
+
+	rc = EXIT_SUCCESS;
+error:
+	return rc;
+}
+
+int onrisc_get_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
+{
+	int rc = EXIT_SUCCESS;
+
+	if (NULL == onrisc_capabilities.uarts) {
+		fprintf(stderr, "device has no switchable UARTs\n");
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+
+	if (onrisc_capabilities.uarts->ctrl[port_nr - 1].flags & RS_IS_GPIO_BASED) {
+		rc = onrisc_get_uart_mode_omap3(port_nr, mode);
+	}
+	else {
+		rc = EXIT_SUCCESS;
+	}
+
+error:
+	return rc;
+
 }
 
 int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
