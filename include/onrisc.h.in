@@ -246,6 +246,13 @@ onrisc_capabilities_t *onrisc_get_dev_caps(void);
 void onrisc_print_hw_params();
 
 /**
+ * @brief read content of onrisc_system_t structure from EEPROM/NOR
+ * @param data pointer to the structure, where system data will be stored
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_read_hw_params(onrisc_system_t * data);
+
+/**
  * @brief write content of onrisc_system_t structure back to EEPROM/NOR
  * @param data pointer to the structure, where system data is stored
  * @return EXIT_SUCCESS or EXIT_FAILURE

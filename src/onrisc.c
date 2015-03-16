@@ -189,10 +189,9 @@ int onrisc_get_dips(uint32_t * dips)
 /**
  * @brief read hardware parameter from EEPROM
  * @param hw_params structure to put hardware parameters to
- * @param model OnRISC model
  * @return EXIT_SUCCES or EXIT_FAILURE
  */
-int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params, int model)
+int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params)
 {
 	int fd, rv, rc = EXIT_SUCCESS;
 
@@ -392,16 +391,46 @@ int onrisc_get_model(int *model)
 	return *model ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-/* TODO: read and compare saved data */
+int onrisc_read_hw_params(onrisc_system_t * data)
+{
+	int i, rc = EXIT_SUCCESS;
+	BSP_VS_HWPARAM hw_eeprom;
+
+	if (NULL == eeprom.path) {
+		fprintf(stderr, "no EEPROM found\n");
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+
+	if (onrisc_get_hw_params_eeprom(&hw_eeprom) == EXIT_FAILURE) {
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+
+	data->model = hw_eeprom.SystemId;
+	data->hw_rev = hw_eeprom.HwRev;
+	data->ser_nr = hw_eeprom.SerialNumber;
+	strncpy(data->prd_date, hw_eeprom.PrdDate, 11);
+	for (i = 0; i < 6; i++) {
+		data->mac1[i] = hw_eeprom.MAC1[i];
+		data->mac2[i] = hw_eeprom.MAC2[i];
+		data->mac3[i] = hw_eeprom.MAC3[i];
+	}
+
+error:
+	return rc;
+
+}
+
 int onrisc_write_hw_params(onrisc_system_t * data)
 {
 	int i, fd, rv, rc = EXIT_SUCCESS;
-	BSP_VS_HWPARAM hw_eeprom;
+	BSP_VS_HWPARAM hw_eeprom, tmp_eeprom;
 
-	if (ALEKTO == onrisc_system.model
-		|| ALENA ==onrisc_system.model
-		|| ALEKTO_LAN ==onrisc_system.model) {
-		return rc;
+	if (NULL == eeprom.path) {
+		fprintf(stderr, "no EEPROM found\n");
+		rc = EXIT_FAILURE;
+		goto error;
 	}
 
 	if (data->model == 0xffff) {
@@ -428,6 +457,17 @@ int onrisc_write_hw_params(onrisc_system_t * data)
 	rv = write(fd, &hw_eeprom, sizeof(struct _BSP_VS_HWPARAM));
 	if (rv != sizeof(struct _BSP_VS_HWPARAM)) {
 		fprintf(stderr, "failed to write EEPROM\n");
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+
+	if (onrisc_get_hw_params_eeprom(&tmp_eeprom) == EXIT_FAILURE) {
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+
+	if (memcmp(&hw_eeprom, &tmp_eeprom, sizeof(struct _BSP_VS_HWPARAM))) {
+		fprintf(stderr, "wrong EEPROM data saved\n");
 		rc = EXIT_FAILURE;
 		goto error;
 	}
@@ -502,7 +542,7 @@ int onrisc_init(onrisc_system_t * data)
 			onrisc_system.mac3[i] = 0xff;
 		}
 	} else {
-		if (onrisc_get_hw_params_eeprom(&hw_eeprom, model) ==
+		if (onrisc_get_hw_params_eeprom(&hw_eeprom) ==
 		    EXIT_FAILURE) {
 			return EXIT_FAILURE;
 		}
