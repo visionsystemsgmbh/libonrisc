@@ -13,32 +13,48 @@ void print_usage()
 	fprintf(stderr, "\nOnRISC Tool (Version %s)\n\n", LIBONRISC_VERSION);
 	fprintf(stderr, "Usage: onrisctool -s\n");
 	fprintf(stderr, "       onrisctool -m\n");
-	fprintf(stderr, "       onrisctool -p <num> -t <type> -r -d <dirctl> -e\n");
-	fprintf(stderr, "Options: -s                 show hardware parameter\n");
+	fprintf(stderr,
+		"       onrisctool -p <num> -t <type> -r -d <dirctl> -e\n");
+	fprintf(stderr,
+		"Options: -s                 show hardware parameter\n");
 	fprintf(stderr, "         -m                 set MAC addresses\n");
-	fprintf(stderr, "         -p <num>           onboard serial port number\n");
-	fprintf(stderr, "         -t <type>          RS232/422/485, DIP or loopback mode:\n");
-	fprintf(stderr, "                            rs232, rs422, rs485-fd, rs485-hd, dip, loop\n");
-	fprintf(stderr, "         -r                 enable termination for serial port\n");
-	fprintf(stderr, "         -d <dirctl>        direction control for RS485: art or rts\n");
+	fprintf(stderr,
+		"         -p <num>           onboard serial port number\n");
+	fprintf(stderr,
+		"         -t <type>          RS232/422/485, DIP or loopback mode:\n");
+	fprintf(stderr,
+		"                            rs232, rs422, rs485-fd, rs485-hd, dip, loop\n");
+	fprintf(stderr,
+		"         -r                 enable termination for serial port\n");
+	fprintf(stderr,
+		"         -d <dirctl>        direction control for RS485: art or rts\n");
 	fprintf(stderr, "         -e                 enable echo\n");
-	fprintf(stderr, "         -j                 get configured RS modes\n");
-	fprintf(stderr, "         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
-	fprintf(stderr, "         -S                 show DIP switch settings (Baltos 1080 only)\n");
+	fprintf(stderr,
+		"         -j                 get configured RS modes\n");
+	fprintf(stderr,
+		"         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
+	fprintf(stderr,
+		"         -S                 show DIP switch settings (Baltos 1080 only)\n");
 	fprintf(stderr, "         -a                 GPIO data mask\n");
 	fprintf(stderr, "         -c                 GPIO direction mask\n");
 	fprintf(stderr, "         -b                 GPIO value\n");
 	fprintf(stderr, "         -f                 GPIO direction value\n");
 	fprintf(stderr, "         -g                 get GPIO values\n");
-	fprintf(stderr, "         -i                 turn network switch off\n");
+	fprintf(stderr,
+		"         -i                 turn network switch off\n");
 	fprintf(stderr, "         -w                 set wlan0 MAC\n");
-	fprintf(stderr, "         -q                 query WLAN switch state\n");
+	fprintf(stderr,
+		"         -q                 query WLAN switch state\n");
 	fprintf(stderr, "Examples:\n");
-	fprintf(stderr, "onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
-	fprintf(stderr, "onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
+	fprintf(stderr,
+		"onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
+	fprintf(stderr,
+		"onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
 	fprintf(stderr, "onrisctool -l pwr:0 (turn power LED off)\n");
-	fprintf(stderr, "onrisctool -c 0x0f -f 0x0f (set first 4 IOs to output)\n");
-	fprintf(stderr, "onrisctool -a 0x07 -b 0x05 (turn pins 0 and 2 to high and clear pin 1)\n");
+	fprintf(stderr,
+		"onrisctool -c 0x0f -f 0x0f (set first 4 IOs to output)\n");
+	fprintf(stderr,
+		"onrisctool -a 0x07 -b 0x05 (turn pins 0 and 2 to high and clear pin 1)\n");
 }
 
 int show_rs_modes()
@@ -57,27 +73,42 @@ int show_rs_modes()
 			goto error;
 		}
 
-		switch(mode.rs_mode) {
-			case TYPE_RS232:
-				printf("Port %d: mode: rs232 termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
-				break;
-			case TYPE_RS422:
-				printf("Port %d: mode: rs422 termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
-				break;
-			case TYPE_RS485_HD:
-				printf("Port %d: mode: rs485-hd termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
-				break;
-			case TYPE_RS485_FD:
-				printf("Port %d: mode: rs485-fd termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
-				break;
-			case TYPE_LOOPBACK:
-				printf("Port %d: mode: loopback termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
-				break;
+		switch (mode.rs_mode) {
+		case TYPE_RS232:
+			printf
+			    ("Port %d: mode: rs232 termination: %s source: %s\n",
+			     i + 1, mode.termination ? "on" : "off",
+			     mode.src == INPUT ? "DIP" : "software");
+			break;
+		case TYPE_RS422:
+			printf
+			    ("Port %d: mode: rs422 termination: %s source: %s\n",
+			     i + 1, mode.termination ? "on" : "off",
+			     mode.src == INPUT ? "DIP" : "software");
+			break;
+		case TYPE_RS485_HD:
+			printf
+			    ("Port %d: mode: rs485-hd termination: %s source: %s\n",
+			     i + 1, mode.termination ? "on" : "off",
+			     mode.src == INPUT ? "DIP" : "software");
+			break;
+		case TYPE_RS485_FD:
+			printf
+			    ("Port %d: mode: rs485-fd termination: %s source: %s\n",
+			     i + 1, mode.termination ? "on" : "off",
+			     mode.src == INPUT ? "DIP" : "software");
+			break;
+		case TYPE_LOOPBACK:
+			printf
+			    ("Port %d: mode: loopback termination: %s source: %s\n",
+			     i + 1, mode.termination ? "on" : "off",
+			     mode.src == INPUT ? "DIP" : "software");
+			break;
 		}
 
 	}
 	rc = EXIT_SUCCESS;
-error:
+ error:
 	return rc;
 }
 
@@ -87,8 +118,7 @@ int handle_leds(char *str)
 	blink_led_t led;
 	uint8_t led_state = 0;
 
-	if (sscanf(str, "%3[^:]:%1hhu", name, &led_state) != 2)
-	{
+	if (sscanf(str, "%3[^:]:%1hhu", name, &led_state) != 2) {
 		fprintf(stderr, "error parsing LEDs\n");
 		return EXIT_FAILURE;
 	}
@@ -97,82 +127,68 @@ int handle_leds(char *str)
 	onrisc_blink_create(&led);
 
 	/* parse LED name */
-	if (!strcmp(name, "pwr"))
-	{
+	if (!strcmp(name, "pwr")) {
 		led.led_type = LED_POWER;
-	}
-	else if (!strcmp(name, "app"))
-	{
+	} else if (!strcmp(name, "app")) {
 		led.led_type = LED_APP;
-	}
-	else if (!strcmp(name, "wln"))
-	{
+	} else if (!strcmp(name, "wln")) {
 		led.led_type = LED_WLAN;
-	}
-	else
-	{
+	} else {
 		fprintf(stderr, "unknown LED: %s\n", name);
 		return EXIT_FAILURE;
 	}
 
 	/* check on/off state */
-	switch(led_state)
-	{
-		case 0:
-		case 1:
-			if (onrisc_switch_led(&led, led_state) == EXIT_FAILURE)
-			{
-				fprintf(stderr, "failed to switch %s LED\n", name);
-			}
+	switch (led_state) {
+	case 0:
+	case 1:
+		if (onrisc_switch_led(&led, led_state) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to switch %s LED\n", name);
+		}
 
-			break;
-		case 2:
-			led.count = -1; /* blinking continuously */
-			led.interval.tv_sec = 1;
-			led.interval.tv_usec = 0;
-			led.high_phase.tv_sec = 0;
-			led.high_phase.tv_usec = 500000;
+		break;
+	case 2:
+		led.count = -1;	/* blinking continuously */
+		led.interval.tv_sec = 1;
+		led.interval.tv_usec = 0;
+		led.high_phase.tv_sec = 0;
+		led.high_phase.tv_usec = 500000;
 
-			if (onrisc_blink_led_start(&led) == EXIT_FAILURE)
-			{
-				fprintf(stderr, "failed to start %s LED\n", name);
-				return EXIT_FAILURE;
-			}
-
-			sleep(5);
-
-			if (onrisc_blink_led_stop(&led) == EXIT_FAILURE)
-			{
-				fprintf(stderr, "failed to stop %s LED\n", name);
-				return EXIT_FAILURE;
-			}
-
-			/* blink with another frequency */
-			led.count = -1; /* blinking continuously */
-			led.interval.tv_sec = 2;
-			led.interval.tv_usec = 0;
-			led.high_phase.tv_sec = 1;
-			led.high_phase.tv_usec = 0;
-
-			if (onrisc_blink_led_start(&led) == EXIT_FAILURE)
-			{
-				fprintf(stderr, "failed to start %s LED\n", name);
-				return EXIT_FAILURE;
-			}
-
-			sleep(5);
-
-			if (onrisc_blink_led_stop(&led) == EXIT_FAILURE)
-			{
-				fprintf(stderr, "failed to stop %s LED\n", name);
-				return EXIT_FAILURE;
-			}
-			break;
-		default:
-			fprintf(stderr, "unknown LED state: %d\n", led_state);
+		if (onrisc_blink_led_start(&led) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to start %s LED\n", name);
 			return EXIT_FAILURE;
-	}
+		}
 
+		sleep(5);
+
+		if (onrisc_blink_led_stop(&led) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to stop %s LED\n", name);
+			return EXIT_FAILURE;
+		}
+
+		/* blink with another frequency */
+		led.count = -1;	/* blinking continuously */
+		led.interval.tv_sec = 2;
+		led.interval.tv_usec = 0;
+		led.high_phase.tv_sec = 1;
+		led.high_phase.tv_usec = 0;
+
+		if (onrisc_blink_led_start(&led) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to start %s LED\n", name);
+			return EXIT_FAILURE;
+		}
+
+		sleep(5);
+
+		if (onrisc_blink_led_stop(&led) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to stop %s LED\n", name);
+			return EXIT_FAILURE;
+		}
+		break;
+	default:
+		fprintf(stderr, "unknown LED state: %d\n", led_state);
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -182,40 +198,38 @@ int set_wlan_mac()
 	char cmd[128];
 
 	sprintf(cmd, "ifconfig wlan0 hw ether %02x:%02x:%02x:%02x:%02x:%02x",
-			onrisc_system.mac3[0],
-			onrisc_system.mac3[1],
-			onrisc_system.mac3[2],
-			onrisc_system.mac3[3],
-			onrisc_system.mac3[4],
-			onrisc_system.mac3[5]
-			);
+		onrisc_system.mac3[0],
+		onrisc_system.mac3[1],
+		onrisc_system.mac3[2],
+		onrisc_system.mac3[3],
+		onrisc_system.mac3[4], onrisc_system.mac3[5]
+	    );
 
 	system(cmd);
 
 	return 0;
 }
+
 int set_macs()
 {
 	char cmd[128];
 
 	sprintf(cmd, "ifconfig eth0 hw ether %02x:%02x:%02x:%02x:%02x:%02x",
-			onrisc_system.mac1[0],
-			onrisc_system.mac1[1],
-			onrisc_system.mac1[2],
-			onrisc_system.mac1[3],
-			onrisc_system.mac1[4],
-			onrisc_system.mac1[5]
-			);
+		onrisc_system.mac1[0],
+		onrisc_system.mac1[1],
+		onrisc_system.mac1[2],
+		onrisc_system.mac1[3],
+		onrisc_system.mac1[4], onrisc_system.mac1[5]
+	    );
 
 	system(cmd);
 	sprintf(cmd, "ifconfig eth1 hw ether %02x:%02x:%02x:%02x:%02x:%02x",
-			onrisc_system.mac2[0],
-			onrisc_system.mac2[1],
-			onrisc_system.mac2[2],
-			onrisc_system.mac2[3],
-			onrisc_system.mac2[4],
-			onrisc_system.mac2[5]
-			);
+		onrisc_system.mac2[0],
+		onrisc_system.mac2[1],
+		onrisc_system.mac2[2],
+		onrisc_system.mac2[3],
+		onrisc_system.mac2[4], onrisc_system.mac2[5]
+	    );
 	system(cmd);
 
 	return 0;
@@ -268,7 +282,9 @@ int main(int argc, char **argv)
 			} else if (!strcmp(optarg, "rts")) {
 				dir_ctrl = DIR_RTS;
 			} else {
-				fprintf(stderr, "Unknown direction control mode (%s)\n", optarg);
+				fprintf(stderr,
+					"Unknown direction control mode (%s)\n",
+					optarg);
 				goto error;
 			}
 			break;
@@ -281,8 +297,10 @@ int main(int argc, char **argv)
 			break;
 		case 'g':
 			{
-				if (onrisc_gpio_get_value(&gpios) == EXIT_FAILURE) {
-					fprintf(stderr, "Failed to get GPIO values\n");
+				if (onrisc_gpio_get_value(&gpios) ==
+				    EXIT_FAILURE) {
+					fprintf(stderr,
+						"Failed to get GPIO values\n");
 					goto error;
 				}
 
@@ -300,14 +318,15 @@ int main(int argc, char **argv)
 			break;
 		case 'S':
 			if (onrisc_get_dips(&dips) == EXIT_FAILURE) {
-				fprintf(stderr, "Failed to get DIP switch setting\n");
+				fprintf(stderr,
+					"Failed to get DIP switch setting\n");
 				goto error;
 			}
 
-			printf("DIP S1: %s\n", dips & DIP_S1?"on":"off");
-			printf("DIP S2: %s\n", dips & DIP_S2?"on":"off");
-			printf("DIP S3: %s\n", dips & DIP_S3?"on":"off");
-			printf("DIP S4: %s\n", dips & DIP_S4?"on":"off");
+			printf("DIP S1: %s\n", dips & DIP_S1 ? "on" : "off");
+			printf("DIP S2: %s\n", dips & DIP_S2 ? "on" : "off");
+			printf("DIP S3: %s\n", dips & DIP_S3 ? "on" : "off");
+			printf("DIP S4: %s\n", dips & DIP_S4 ? "on" : "off");
 
 			break;
 		case 't':
@@ -324,7 +343,8 @@ int main(int argc, char **argv)
 			} else if (!strcmp(optarg, "loop")) {
 				mode = TYPE_LOOPBACK;
 			} else {
-				fprintf(stderr, "Unknown UART mode (%s)\n", optarg);
+				fprintf(stderr, "Unknown UART mode (%s)\n",
+					optarg);
 				goto error;
 			}
 			break;
@@ -334,9 +354,10 @@ int main(int argc, char **argv)
 		case 'i':
 			{
 				int i, nr_swithes = 4;
-				
+
 				/* perform only for devices with network switch chip */
-				if (onrisc_system.model != BALTOS_IR_3220 && onrisc_system.model != BALTOS_IR_5221) {
+				if (onrisc_system.model != BALTOS_IR_3220
+				    && onrisc_system.model != BALTOS_IR_5221) {
 					break;
 				}
 
@@ -344,16 +365,18 @@ int main(int argc, char **argv)
 					nr_swithes = 2;
 				}
 
-				for(i = 1; i < nr_swithes; i++) {
+				for (i = 1; i < nr_swithes; i++) {
 					int ctrl_reg;
 
-					if (onrisc_read_mdio_reg(i, 0, &ctrl_reg)) {
+					if (onrisc_read_mdio_reg
+					    (i, 0, &ctrl_reg)) {
 						goto error;
 					}
 
 					ctrl_reg |= (1 << 11);
 
-					if (onrisc_write_mdio_reg(i, 0, ctrl_reg)) {
+					if (onrisc_write_mdio_reg
+					    (i, 0, ctrl_reg)) {
 						goto error;
 					}
 				}
@@ -361,8 +384,7 @@ int main(int argc, char **argv)
 			}
 			break;
 		case 'l':
-			if (handle_leds(optarg) == EXIT_FAILURE)
-			{
+			if (handle_leds(optarg) == EXIT_FAILURE) {
 				goto error;
 			}
 			break;
@@ -370,10 +392,12 @@ int main(int argc, char **argv)
 			termination = 1;
 			break;
 		case 'q':
-			if (onrisc_get_wlan_sw_state(&wlan_sw_state) == EXIT_FAILURE){
+			if (onrisc_get_wlan_sw_state(&wlan_sw_state) ==
+			    EXIT_FAILURE) {
 				printf("failed to get WLAN swithc state\n");
 			} else {
-				printf("WLAN switch: %s\n", wlan_sw_state ? "on":"off");
+				printf("WLAN switch: %s\n",
+				       wlan_sw_state ? "on" : "off");
 			}
 			break;
 		case 'j':
@@ -431,6 +455,6 @@ int main(int argc, char **argv)
 	}
 
 	return 0;
-error:
+ error:
 	return 1;
 }
