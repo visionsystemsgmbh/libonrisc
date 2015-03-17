@@ -267,6 +267,18 @@ int onrisc_get_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 		goto error;
 	}
 
+	dir = libsoc_gpio_get_direction(ctrl->gpio[0]);
+	switch(dir) {
+		case INPUT:
+			mode->src = INPUT;
+			break;
+		case OUTPUT:
+			mode->src = OUTPUT;
+			break;
+		case DIRECTION_ERROR:
+			fprintf(stderr, "failed to get RS mode source\n");
+			goto error;
+	}
 	rc = EXIT_SUCCESS;
 error:
 	return rc;

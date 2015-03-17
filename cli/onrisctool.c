@@ -59,19 +59,19 @@ int show_rs_modes()
 
 		switch(mode.rs_mode) {
 			case TYPE_RS232:
-				printf("Port %d: mode: rs232 termination: %s\n", i + 1, mode.termination?"on":"off");
+				printf("Port %d: mode: rs232 termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
 				break;
 			case TYPE_RS422:
-				printf("Port %d: mode: rs422 termination: %s\n", i + 1, mode.termination?"on":"off");
+				printf("Port %d: mode: rs422 termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
 				break;
 			case TYPE_RS485_HD:
-				printf("Port %d: mode: rs485-hd termination: %s\n", i + 1, mode.termination?"on":"off");
+				printf("Port %d: mode: rs485-hd termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
 				break;
 			case TYPE_RS485_FD:
-				printf("Port %d: mode: rs485-fd termination: %s\n", i + 1, mode.termination?"on":"off");
+				printf("Port %d: mode: rs485-fd termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
 				break;
 			case TYPE_LOOPBACK:
-				printf("Port %d: mode: loopback termination: %s\n", i + 1, mode.termination?"on":"off");
+				printf("Port %d: mode: loopback termination: %s source: %s\n", i + 1, mode.termination?"on":"off", mode.src == INPUT?"DIP":"software");
 				break;
 		}
 

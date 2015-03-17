@@ -136,12 +136,16 @@ enum rs_mode {TYPE_UNKNOWN, TYPE_RS232, TYPE_RS422, TYPE_RS485_FD, TYPE_RS485_HD
 
 enum dir_ctrl {DIR_ART, DIR_RTS};
 
+/** @name UART mode control structure */
+/*@{*/
 typedef struct {
 	uint32_t rs_mode;
 	uint32_t termination;
 	uint32_t dir_ctrl;
 	uint32_t echo;
+	uint32_t src; /*!< mode configuration source: software or DIP switch */
 } __attribute__ ((packed)) onrisc_uart_mode_t;
+/*@}*/
 
 typedef struct {
 	uint16_t model;	
