@@ -556,25 +556,6 @@ int onrisc_init(onrisc_system_t * data)
 			onrisc_system.mac2[i] = hw_eeprom.MAC2[i];
 			onrisc_system.mac3[i] = hw_eeprom.MAC3[i];
 		}
-
-		/* TODO differentiate 411/811 old and new */
-		switch (onrisc_system.model) {
-			case ALEKTO:
-			case ALEKTO2:
-			case BALTOS_IR_5221:
-			case BALTOS_IR_3220:
-			case BALTOS_DIO_1080:
-			case NETCOM_PLUS:
-			case NETCOM_PLUS_413:
-			case NETCOM_PLUS_811:
-			case NETCOM_PLUS_813:
-			case NETCON3:
-			case VS860:
-				if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) == EXIT_FAILURE) {
-					tca_found = 0;
-				}
-				break;
-		}
 	}
 
 	/* copy onrisc_system_t to user space */
@@ -586,23 +567,6 @@ int onrisc_init(onrisc_system_t * data)
 	onrisc_init_caps();
 
 	init_flag = 1;
-
-	switch (model) {
-	case ALEKTO:
-	case ALEKTO2:
-	case BALTOS_IR_5221:
-	case BALTOS_IR_3220:
-	case BALTOS_DIO_1080:
-	case NETCON3:
-	case VS860:
-		if (tca_found) {
-			/* initialize GPIO */
-			if (onrisc_gpio_init() == EXIT_FAILURE) {
-				init_flag = 0;
-				return EXIT_FAILURE;
-			}
-		}
-	}
 
 	return EXIT_SUCCESS;
 }

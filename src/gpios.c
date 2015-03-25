@@ -1,5 +1,6 @@
 #include "vssys.h"
 
+int gpio_init_flag = 0;
 onrisc_gpios_int_t onrisc_gpios;
 
 int onrisc_gpio_init_alekto2()
@@ -276,6 +277,9 @@ int onrisc_gpio_init()
 		break;
 	}
 
+	/* GPIO subsystem initialized */
+	gpio_init_flag = 1;
+
 	rc = EXIT_SUCCESS;
  error:
 	return rc;
@@ -366,7 +370,11 @@ int onrisc_gpio_get_direction(onrisc_gpios_t * gpio_dir)
 {
 	int i, rc = EXIT_FAILURE;
 
-	assert(init_flag == 1);
+	if (!gpio_init_flag) {
+		if (onrisc_gpio_init() == EXIT_FAILURE) {
+			goto error;
+		}
+	}
 
 	gpio_dir->mask = 0;
 	gpio_dir->value = 0;
@@ -391,7 +399,11 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 {
 	int i, rc = EXIT_FAILURE;
 
-	assert(init_flag == 1);
+	if (!gpio_init_flag) {
+		if (onrisc_gpio_init() == EXIT_FAILURE) {
+			goto error;
+		}
+	}
 
 	for (i = 0; i < onrisc_gpios.ngpio; i++) {
 		if (gpio_dir->mask & (1 << i)) {
@@ -430,7 +442,11 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val)
 {
 	int i, rc = EXIT_FAILURE;
 
-	assert(init_flag == 1);
+	if (!gpio_init_flag) {
+		if (onrisc_gpio_init() == EXIT_FAILURE) {
+			goto error;
+		}
+	}
 
 	for (i = 0; i < onrisc_gpios.ngpio; i++) {
 		if (gpio_val->mask & (1 << i)) {
@@ -461,7 +477,11 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 	int i, rc = EXIT_FAILURE;
 	gpio_level level;
 
-	assert(init_flag == 1);
+	if (!gpio_init_flag) {
+		if (onrisc_gpio_init() == EXIT_FAILURE) {
+			goto error;
+		}
+	}
 
 	gpio_val->value = 0;
 
@@ -498,5 +518,11 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 
 int onrisc_gpio_get_number()
 {
+	if (!gpio_init_flag) {
+		if (onrisc_gpio_init() == EXIT_FAILURE) {
+			return EXIT_FAILURE;
+		}
+	}
+
 	return onrisc_gpios.ngpio;
 }
