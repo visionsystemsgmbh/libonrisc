@@ -259,6 +259,9 @@ int onrisc_init_caps()
 			leds->led[LED_APP].pin = 17;
 
 			if (NETCAN == onrisc_system.model) {
+				leds->num = 4;
+				leds->led[LED_CAN_ERROR].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
+				leds->led[LED_CAN_ERROR].pin = 15;
 				break;
 			}
 
