@@ -127,6 +127,7 @@ int onrisc_init_caps()
 			}
 
 			break;
+		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
 		case NETCON3:
 		case NETCOM_PLUS:
@@ -142,9 +143,9 @@ int onrisc_init_caps()
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
 			leds->led[LED_POWER].pin = 96;
 			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
-			leds->led[LED_WLAN].pin = 16;
+			leds->led[LED_WLAN].pin = 17;
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
-			leds->led[LED_APP].pin = 17;
+			leds->led[LED_APP].pin = 16;
 
 			/* initialize DIP caps */
 			dips = malloc(sizeof(onrisc_dip_caps_t));
@@ -161,6 +162,7 @@ int onrisc_init_caps()
 			dips->dip_switch[0].pin[3] = 47;
 
 			break;
+		/*TODO: detect hw rev */
 		case NETCOM_PLUS_413:
 		case NETCOM_PLUS_813:
 			/* initialize DIP caps */
@@ -188,9 +190,9 @@ int onrisc_init_caps()
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
 			leds->led[LED_POWER].pin = 96;
 			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
-			leds->led[LED_WLAN].pin = 16;
+			leds->led[LED_WLAN].pin = 17;
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
-			leds->led[LED_APP].pin = 17;
+			leds->led[LED_APP].pin = 16;
 
 			/* initialize UART caps */
 			uarts = malloc(sizeof(onrisc_uart_caps_t));
