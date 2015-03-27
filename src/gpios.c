@@ -6,8 +6,14 @@ onrisc_gpios_int_t onrisc_gpios;
 int onrisc_gpio_init_alekto2()
 {
 	int i, rc = EXIT_FAILURE;
-	int base = onrisc_gpios.base;
+	int base;
 	gpio_direction cur_dir;
+
+	if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) == EXIT_FAILURE) {
+		goto error;
+	}
+
+	base = onrisc_gpios.base;
 
 	for (i = 0; i < onrisc_gpios.ngpio / 2; i++) {
 		onrisc_gpios.gpios[i].direction = INPUT;
@@ -149,9 +155,13 @@ int onrisc_gpio_init_alekto2()
 	return rc;
 }
 
-int onrisc_gpio_init_balios()
+int onrisc_gpio_init_baltos()
 {
 	int i, rc = EXIT_FAILURE;
+
+	if (onrisc_get_tca6416_base(&onrisc_gpios.base, 0x20) == EXIT_FAILURE) {
+		goto error;
+	}
 
 	for (i = 0; i < onrisc_gpios.ngpio / 2; i++) {
 		gpio_direction cur_dir;
@@ -259,7 +269,7 @@ int onrisc_gpio_init()
 	case BALTOS_IR_5221:
 		onrisc_gpios.ngpio = 8;
 
-		if (onrisc_gpio_init_balios() == EXIT_FAILURE) {
+		if (onrisc_gpio_init_baltos() == EXIT_FAILURE) {
 			fprintf(stderr, "failed to init gpios\n");
 			goto error;
 		}
@@ -269,7 +279,7 @@ int onrisc_gpio_init()
 	case NETCON3:
 		onrisc_gpios.ngpio = 16;
 
-		if (onrisc_gpio_init_balios() == EXIT_FAILURE) {
+		if (onrisc_gpio_init_baltos() == EXIT_FAILURE) {
 			fprintf(stderr, "failed to init gpios\n");
 			goto error;
 		}
