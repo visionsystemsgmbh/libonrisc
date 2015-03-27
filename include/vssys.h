@@ -25,6 +25,13 @@
 #define TIOCGEPLD	0x5470
 #define TIOCSEPLD	0x5471
 
+/** @name Hardware parameter stuff */
+/*@{*/
+#define PARTITION_REDBOOT	"/dev/mtdblock1"	//!< RedBoot partition device
+#define PARTITION_REDBOOT_SIZE	0x10000			//!< Flash size
+#define GLOBAL_MAGIC		0xDEADBEEF		//!< Magic number
+/*@}*/
+
 //! @name EPLD modes
 //@{
 #define EPLD_PORTOFF					0x05  //!< turn the drivers off

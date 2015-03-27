@@ -1,7 +1,6 @@
 #include "vssys.h"
 
 int init_flag = 0;
-int tca_found = 1;
 onrisc_system_t onrisc_system;
 onrisc_capabilities_t onrisc_capabilities;
 onrisc_eeprom_t eeprom;

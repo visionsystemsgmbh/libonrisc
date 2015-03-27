@@ -18,13 +18,6 @@ extern "C" {
 #define ONRISC_MAX_LEDS        	64
 #define ONRISC_MAX_DIPS	        32
 
-/** @name Hardware parameter stuff */
-/*@{*/
-#define PARTITION_REDBOOT	"/dev/mtdblock1"	//!< RedBoot partition device
-#define PARTITION_REDBOOT_SIZE	0x10000			//!< Flash size
-#define GLOBAL_MAGIC		0xDEADBEEF		//!< Magic number
-/*@}*/
-
 #define ALEKTO		1
 #define ALENA		2
 #define ALEKTO_LAN	3
