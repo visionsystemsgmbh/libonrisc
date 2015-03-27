@@ -188,8 +188,11 @@ int handle_leds(char *str)
 		}
 		break;
 	default:
-		fprintf(stderr, "unknown LED state: %d\n", led_state);
-		return EXIT_FAILURE;
+		if (onrisc_get_led_state(&led, &led_state) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to get LED state\n");
+			return EXIT_FAILURE;
+		}
+		printf("%s: %s\n", name, led_state ? "on" : "off");
 	}
 
 	return EXIT_SUCCESS;

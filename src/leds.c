@@ -61,6 +61,39 @@ int onrisc_restore_leds(blink_led_t * blinker)
 	return rc;
 }
 
+int onrisc_get_led_state(blink_led_t * led, uint8_t * state)
+{
+	int rc = EXIT_FAILURE;
+	unsigned long val;
+	uint8_t led_flags = onrisc_capabilities.leds->led[led->led_type].flags;
+
+	assert(init_flag == 1);
+
+	if (onrisc_led_init(led) == EXIT_FAILURE) {
+		goto error;
+	}
+
+	if (led_flags & LED_IS_GPIO_BASED) {
+		val = libsoc_gpio_get_level(led->led);
+		switch (val) {
+			case HIGH:
+				*state = led_flags & LED_IS_HIGH_ACTIVE ? HIGH : LOW;
+				break;
+			case LOW:
+				*state = led_flags & LED_IS_HIGH_ACTIVE ? LOW : HIGH;
+				break;
+			case LEVEL_ERROR:
+				*state = val;
+				fprintf(stderr, "Failed to get LED state\n");
+				goto error;
+		}
+	}
+
+	rc = EXIT_SUCCESS;
+error:
+	return rc;
+}
+
 int onrisc_switch_led(blink_led_t * led, uint8_t state)
 {
 	unsigned long val;
