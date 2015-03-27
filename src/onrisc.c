@@ -8,6 +8,13 @@ onrisc_eeprom_t eeprom;
 /* UART mode variables */
 int serial_mode_first_pin = 200;
 
+char *onrisc_get_eeprom_path(void)
+{
+	assert(init_flag == 1);
+
+	return eeprom.path;
+}
+
 onrisc_capabilities_t *onrisc_get_dev_caps(void)
 {
 	assert(init_flag == 1);

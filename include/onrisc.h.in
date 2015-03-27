@@ -240,6 +240,12 @@ int onrisc_init(onrisc_system_t *data);
 onrisc_capabilities_t *onrisc_get_dev_caps(void);
 
 /**
+ * @brief get EEPROM sysfs path
+ * @return EEPROM path or NULL
+ */
+char *onrisc_get_eeprom_path(void);
+
+/**
  * @brief show content of the internal onrisc_system_t structure
  */
 void onrisc_print_hw_params();
