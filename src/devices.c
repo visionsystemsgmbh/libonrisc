@@ -19,7 +19,8 @@ int onrisc_init_caps()
 	onrisc_led_caps_t *leds = NULL;
 	onrisc_dip_caps_t *dips = NULL;
 	onrisc_uart_caps_t *uarts = NULL;
-	onrisc_wlan_sw_caps_t *wlan_sw = NULL;
+	onrisc_sw_caps_t *wlan_sw = NULL;
+	onrisc_sw_caps_t *mpcie_sw = NULL;
 
 	switch(onrisc_system.model) {
 		case ALEKTO:
@@ -88,13 +89,23 @@ int onrisc_init_caps()
 			}
 
 			/* initialize WLAN switch caps */
-			wlan_sw = malloc(sizeof(onrisc_wlan_sw_caps_t));
+			wlan_sw = malloc(sizeof(onrisc_sw_caps_t));
 			if (NULL == wlan_sw) {
 				goto error;
 			}
-			memset(wlan_sw, 0, sizeof(onrisc_wlan_sw_caps_t));
+			memset(wlan_sw, 0, sizeof(onrisc_sw_caps_t));
 
 			wlan_sw->pin = 6;
+			wlan_sw->flags = SW_IS_READ_ONLY;
+
+			/* initialize mPCIe switch caps */
+			mpcie_sw = malloc(sizeof(onrisc_sw_caps_t));
+			if (NULL == mpcie_sw) {
+				goto error;
+			}
+			memset(mpcie_sw, 0, sizeof(onrisc_sw_caps_t));
+
+			mpcie_sw->pin = 100;
 
 			break;
 		case ALEKTO2:
@@ -161,6 +172,16 @@ int onrisc_init_caps()
 			dips->dip_switch[0].pin[2] = 46;
 			dips->dip_switch[0].pin[3] = 47;
 
+			/* TODO only for new 811/411 */
+			/* initialize mPCIe switch caps */
+			mpcie_sw = malloc(sizeof(onrisc_sw_caps_t));
+			if (NULL == mpcie_sw) {
+				goto error;
+			}
+			memset(mpcie_sw, 0, sizeof(onrisc_sw_caps_t));
+
+			mpcie_sw->pin = 100;
+
 			break;
 		/*TODO: detect hw rev */
 		case NETCOM_PLUS_413:
@@ -224,6 +245,15 @@ int onrisc_init_caps()
 						0x21);
 				}
 			}
+
+			/* initialize mPCIe switch caps */
+			mpcie_sw = malloc(sizeof(onrisc_sw_caps_t));
+			if (NULL == mpcie_sw) {
+				goto error;
+			}
+			memset(mpcie_sw, 0, sizeof(onrisc_sw_caps_t));
+
+			mpcie_sw->pin = 100;
 
 			break;
 		case NETCOM_PLUS_111:
@@ -301,6 +331,7 @@ int onrisc_init_caps()
 	onrisc_capabilities.uarts = uarts;
 	onrisc_capabilities.leds = leds;
 	onrisc_capabilities.wlan_sw = wlan_sw;
+	onrisc_capabilities.mpcie_sw = mpcie_sw;
 
 	rc = EXIT_SUCCESS;
 error:

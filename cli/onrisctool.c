@@ -32,6 +32,8 @@ void print_usage()
 	fprintf(stderr,
 		"         -j                 get configured RS modes\n");
 	fprintf(stderr,
+		"         -k                 set/get mPCIe switch state: 0 - off, 1 - on, 2 - get current state\n");
+	fprintf(stderr,
 		"         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
 	fprintf(stderr,
 		"         -S                 show DIP switch settings (Baltos 1080 only)\n");
@@ -110,6 +112,41 @@ int show_rs_modes()
 	rc = EXIT_SUCCESS;
  error:
 	return rc;
+}
+
+int handle_mpcie_switch(char *str)
+{
+	uint8_t sw_state = 0;
+
+	if (sscanf(str, "%1hhu",&sw_state) != 1) {
+		fprintf(stderr, "error parsing switch\n");
+		return EXIT_FAILURE;
+	}
+
+	switch(sw_state) {
+		case 0:
+			if (onrisc_set_mpcie_sw_state(LOW) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
+			break;
+		case 1:
+			if (onrisc_set_mpcie_sw_state(HIGH) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
+			break;
+		default:
+			{
+				gpio_level sw_level;
+
+				if (onrisc_get_mpcie_sw_state(&sw_level) == EXIT_FAILURE) {
+					return EXIT_FAILURE;
+				}
+
+				printf("mPCIe switch: %s\n", sw_level == HIGH ? "on" : "off");
+			}
+	}
+
+	return EXIT_SUCCESS;
 }
 
 int handle_leds(char *str)
@@ -266,7 +303,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:c:d:f:l:p:t:iegrhmsSwqj?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:k:l:p:t:iegrhmsSwqj?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -390,6 +427,11 @@ int main(int argc, char **argv)
 			break;
 		case 'l':
 			if (handle_leds(optarg) == EXIT_FAILURE) {
+				goto error;
+			}
+			break;
+		case 'k':
+			if (handle_mpcie_switch(optarg) == EXIT_FAILURE) {
 				goto error;
 			}
 			break;
