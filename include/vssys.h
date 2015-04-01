@@ -114,6 +114,5 @@
 
 extern int init_flag;
 extern onrisc_system_t onrisc_system;
-extern onrisc_gpios_int_t onrisc_gpios;
 extern int serial_mode_first_pin;
 extern onrisc_capabilities_t onrisc_capabilities;

@@ -16,6 +16,7 @@ void onrisc_config_switch(onrisc_dip_switch_t *sw, uint32_t flags, uint8_t num, 
 int onrisc_init_caps()
 {
 	int i, rc = EXIT_FAILURE;
+	onrisc_gpios_int_t *gpios = NULL;
 	onrisc_led_caps_t *leds = NULL;
 	onrisc_dip_caps_t *dips = NULL;
 	onrisc_uart_caps_t *uarts = NULL;
@@ -53,6 +54,12 @@ int onrisc_init_caps()
 					0,
 					0);
 			}
+
+			gpios = malloc(sizeof(onrisc_gpios_int_t));
+			if (NULL == gpios) {
+				goto error;
+			}
+			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
 
 			break;
 		case BALTOS_IR_5221:
@@ -107,6 +114,12 @@ int onrisc_init_caps()
 
 			mpcie_sw->pin = 100;
 
+			gpios = malloc(sizeof(onrisc_gpios_int_t));
+			if (NULL == gpios) {
+				goto error;
+			}
+			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
+
 			break;
 		case ALEKTO2:
 			/* initialize LED caps */
@@ -137,10 +150,22 @@ int onrisc_init_caps()
 					0x21);
 			}
 
+			gpios = malloc(sizeof(onrisc_gpios_int_t));
+			if (NULL == gpios) {
+				goto error;
+			}
+			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
+
 			break;
 		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
 		case NETCON3:
+			gpios = malloc(sizeof(onrisc_gpios_int_t));
+			if (NULL == gpios) {
+				goto error;
+			}
+			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
+
 		case NETCOM_PLUS:
 		case NETCOM_PLUS_811:
 			/* initialize LED caps */
@@ -327,6 +352,7 @@ int onrisc_init_caps()
 			break;
 	}
 
+	onrisc_capabilities.gpios = gpios;
 	onrisc_capabilities.dips = dips;
 	onrisc_capabilities.uarts = uarts;
 	onrisc_capabilities.leds = leds;
