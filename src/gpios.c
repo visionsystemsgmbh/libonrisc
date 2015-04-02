@@ -172,11 +172,6 @@ int onrisc_gpio_init_baltos()
 		int offset = i + onrisc_gpios->ngpio / 2;
 		int base = onrisc_gpios->base;
 
-		onrisc_gpios->gpios[i].direction = INPUT;
-		onrisc_gpios->gpios[i].dir_fixed = 1;
-		onrisc_gpios->gpios[offset].direction = OUTPUT;
-		onrisc_gpios->gpios[offset].dir_fixed = 1;
-
 		/* init inputs */
 		onrisc_gpios->gpios[i].pin =
 		    libsoc_gpio_request(i + base, LS_SHARED);
@@ -273,18 +268,8 @@ int onrisc_gpio_init()
 		break;
 	case BALTOS_IR_3220:
 	case BALTOS_IR_5221:
-		onrisc_gpios->ngpio = 8;
-
-		if (onrisc_gpio_init_baltos() == EXIT_FAILURE) {
-			fprintf(stderr, "failed to init gpios\n");
-			goto error;
-		}
-
-		break;
 	case BALTOS_DIO_1080:
 	case NETCON3:
-		onrisc_gpios->ngpio = 16;
-
 		if (onrisc_gpio_init_baltos() == EXIT_FAILURE) {
 			fprintf(stderr, "failed to init gpios\n");
 			goto error;

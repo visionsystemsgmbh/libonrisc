@@ -61,6 +61,8 @@ int onrisc_init_caps()
 			}
 			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
 
+			gpios->ngpio = 8;
+
 			break;
 		case BALTOS_IR_5221:
 		case BALTOS_IR_3220:
@@ -120,6 +122,17 @@ int onrisc_init_caps()
 			}
 			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
 
+			gpios->ngpio = 8;
+
+			for (i = 0; i < gpios->ngpio / 2; i++) {
+				int offset = i + gpios->ngpio / 2;
+
+				gpios->gpios[i].direction = INPUT;
+				gpios->gpios[i].dir_fixed = 1;
+				gpios->gpios[offset].direction = OUTPUT;
+				gpios->gpios[offset].dir_fixed = 1;
+			}
+
 			break;
 		case ALEKTO2:
 			/* initialize LED caps */
@@ -156,6 +169,8 @@ int onrisc_init_caps()
 			}
 			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
 
+			gpios->ngpio = 8;
+
 			break;
 		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
@@ -165,6 +180,17 @@ int onrisc_init_caps()
 				goto error;
 			}
 			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
+
+			gpios->ngpio = 16;
+
+			for (i = 0; i < gpios->ngpio / 2; i++) {
+				int offset = i + gpios->ngpio / 2;
+
+				gpios->gpios[i].direction = INPUT;
+				gpios->gpios[i].dir_fixed = 1;
+				gpios->gpios[offset].direction = OUTPUT;
+				gpios->gpios[offset].dir_fixed = 1;
+			}
 
 		case NETCOM_PLUS:
 		case NETCOM_PLUS_811:
