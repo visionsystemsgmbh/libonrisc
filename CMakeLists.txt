@@ -42,6 +42,21 @@ if (PYTHON_WRAP)
 	swig_link_libraries(onrisc ${PYTHON_LIBRARIES} soc pthread udev)
 endif (PYTHON_WRAP)
 
+if (LUA_WRAP)
+	find_package(SWIG REQUIRED)
+	include(${SWIG_USE_FILE})
+
+	FIND_PACKAGE(Lua51 REQUIRED)
+	INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIR})
+
+ 	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+	set(CMAKE_SWIG_FLAGS "")
+
+	swig_add_module(luaonrisc lua onrisc.i ${SRCS})
+	swig_link_libraries(luaonrisc soc pthread udev ${LUA_LIBRARY})
+endif (LUA_WRAP)
+
 # library
 add_library(onrisc SHARED ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
 set_target_properties(onrisc PROPERTIES
