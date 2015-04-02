@@ -17,6 +17,8 @@ void print_usage()
 		"       onrisctool -p <num> -t <type> -r -d <dirctl> -e\n");
 	fprintf(stderr,
 		"Options: -s                 show hardware parameter\n");
+	fprintf(stderr,
+		"         -n                 show device capabilities\n");
 	fprintf(stderr, "         -m                 set MAC addresses\n");
 	fprintf(stderr,
 		"         -p <num>           onboard serial port number\n");
@@ -277,6 +279,30 @@ int set_macs()
 	return 0;
 }
 
+int print_caps() {
+	onrisc_capabilities_t * caps = onrisc_get_dev_caps();
+
+	printf(" Device Capabilities\n---------------------------\n");
+	if (caps->gpios) {
+		printf("GPIOS: %d\n", caps->gpios->ngpio);
+	}
+	if (caps->uarts) {
+		printf("UARTS: %d\n", caps->uarts->num);
+	}
+	if (caps->dips) {
+		printf("DIPS: %d\n", caps->dips->num);
+	}
+	if (caps->leds) {
+		printf("LEDS: %d\n", caps->leds->num);
+	}
+	if (caps->wlan_sw) {
+		printf("WLAN switch present\n");
+	}
+	if (caps->mpcie_sw) {
+		printf("miniPCIe switch present\n");
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int opt;
@@ -303,7 +329,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:c:d:f:k:l:p:t:iegrhmsSwqj?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:k:l:p:t:iegrhmnsSwqj?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -351,6 +377,9 @@ int main(int argc, char **argv)
 			break;
 		case 'm':
 			set_macs();
+			break;
+		case 'n':
+			print_caps();
 			break;
 		case 'w':
 			set_wlan_mac();
