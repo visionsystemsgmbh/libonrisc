@@ -65,7 +65,7 @@ int show_rs_modes()
 {
 	int i, rc = EXIT_FAILURE;
 	onrisc_capabilities_t *caps = onrisc_get_dev_caps();
-	if (NULL == caps->uarts) {
+	if ((NULL == caps->uarts) || !(UARTS_SWITCHABLE & caps->uarts->flags)) {
 		fprintf(stderr, "device has no RS mode switchable UARTs\n");
 		goto error;
 	}
@@ -287,7 +287,15 @@ int print_caps() {
 		printf("GPIOS: %d\n", caps->gpios->ngpio);
 	}
 	if (caps->uarts) {
-		printf("UARTS: %d\n", caps->uarts->num);
+		printf("UARTS: %d ", caps->uarts->num);
+		if (caps->uarts->flags & UARTS_SWITCHABLE) {
+			printf(" (modes switchable by software");
+			if (caps->uarts->flags & UARTS_SWITCHABLE) {
+				printf(" & DIPs");
+			}
+			printf(")");
+		}
+		printf("\n");
 	}
 	if (caps->dips) {
 		printf("DIPS: %d\n", caps->dips->num);
