@@ -16,12 +16,16 @@ void onrisc_config_switch(onrisc_dip_switch_t *sw, uint32_t flags, uint8_t num, 
 int onrisc_init_caps()
 {
 	int i, rc = EXIT_FAILURE;
+	int maj, min;
 	onrisc_gpios_int_t *gpios = NULL;
 	onrisc_led_caps_t *leds = NULL;
 	onrisc_dip_caps_t *dips = NULL;
 	onrisc_uart_caps_t *uarts = NULL;
 	onrisc_sw_caps_t *wlan_sw = NULL;
 	onrisc_sw_caps_t *mpcie_sw = NULL;
+
+	maj = onrisc_system.hw_rev >> 16;
+	min = onrisc_system.hw_rev & 0xffff;
 
 	/* LEDS */
 	/* initialize LED caps */
@@ -148,12 +152,18 @@ int onrisc_init_caps()
 		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
 		case NETCON3:
-		case NETCOM_PLUS:
-		case NETCOM_PLUS_811:
 			break;
-		/*TODO: detect hw rev */
+
+		case NETCOM_PLUS:
 		case NETCOM_PLUS_413:
 		case NETCOM_PLUS_813:
+		case NETCOM_PLUS_811:
+			if (NETCOM_PLUS_811 == onrisc_system.model || NETCOM_PLUS == onrisc_system.model) {
+				if (1 == maj && 2 == min) {
+					break;
+				}
+			}
+
 			/* initialize UART caps */
 			uarts = malloc(sizeof(onrisc_uart_caps_t));
 			if (NULL == uarts) {
@@ -161,7 +171,7 @@ int onrisc_init_caps()
 			}
 			memset(uarts, 0, sizeof(onrisc_uart_caps_t));
 
-			if (NETCOM_PLUS_413 == onrisc_system.model) {
+			if (NETCOM_PLUS_413 == onrisc_system.model || NETCOM_PLUS == onrisc_system.model) {
 				uarts->num = 4;
 			} else {
 				uarts->num = 8;
@@ -184,6 +194,7 @@ int onrisc_init_caps()
 						0x21);
 				}
 			}
+			break;
 
 		case NETCOM_PLUS_111:
 		case NETCOM_PLUS_113:
