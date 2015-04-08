@@ -94,18 +94,19 @@ int onrisc_init_caps()
 	}
 
 	/* UARTS */
+	/* initialize UART caps */
+	uarts = malloc(sizeof(onrisc_uart_caps_t));
+	if (NULL == uarts) {
+		goto error;
+	}
+	memset(uarts, 0, sizeof(onrisc_uart_caps_t));
+
 	switch(onrisc_system.model) {
 		case ALEKTO:
 		case ALENA:
 		case ALEKTO_LAN:
-			/* initialize UART caps */
-			uarts = malloc(sizeof(onrisc_uart_caps_t));
-			if (NULL == uarts) {
-				goto error;
-			}
-			memset(uarts, 0, sizeof(onrisc_uart_caps_t));
-
 			uarts->num = 2;
+			uarts->flags = UARTS_SWITCHABLE;
 			for (i = 0; i < uarts->num; i++) {
 				onrisc_config_switch(&uarts->ctrl[i],
 					0,
@@ -116,14 +117,8 @@ int onrisc_init_caps()
 			break;
 		case BALTOS_IR_5221:
 		case BALTOS_IR_3220:
-			/* initialize UART caps */
-			uarts = malloc(sizeof(onrisc_uart_caps_t));
-			if (NULL == uarts) {
-				goto error;
-			}
-			memset(uarts, 0, sizeof(onrisc_uart_caps_t));
-
 			uarts->num = 2;
+			uarts->flags = UARTS_SWITCHABLE | UARTS_DIPS_PHYSICAL;
 			for (i = 0; i < uarts->num; i++) {
 				onrisc_config_switch(&uarts->ctrl[i],
 					(RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
@@ -133,14 +128,8 @@ int onrisc_init_caps()
 			}
 			break;
 		case ALEKTO2:
-			/* initialize UART caps */
-			uarts = malloc(sizeof(onrisc_uart_caps_t));
-			if (NULL == uarts) {
-				goto error;
-			}
-			memset(uarts, 0, sizeof(onrisc_uart_caps_t));
-
 			uarts->num = 2;
+			uarts->flags = UARTS_SWITCHABLE | UARTS_DIPS_PHYSICAL;
 			for (i = 0; i < uarts->num; i++) {
 				onrisc_config_switch(&uarts->ctrl[i],
 					(RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
@@ -152,30 +141,28 @@ int onrisc_init_caps()
 		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
 		case NETCON3:
+			uarts->num = 2;
+			uarts->flags = 0;
 			break;
 
 		case NETCOM_PLUS:
 		case NETCOM_PLUS_413:
 		case NETCOM_PLUS_813:
 		case NETCOM_PLUS_811:
-			if (NETCOM_PLUS_811 == onrisc_system.model || NETCOM_PLUS == onrisc_system.model) {
-				if (1 == maj && 2 == min) {
-					break;
-				}
-			}
-
-			/* initialize UART caps */
-			uarts = malloc(sizeof(onrisc_uart_caps_t));
-			if (NULL == uarts) {
-				goto error;
-			}
-			memset(uarts, 0, sizeof(onrisc_uart_caps_t));
-
 			if (NETCOM_PLUS_413 == onrisc_system.model || NETCOM_PLUS == onrisc_system.model) {
 				uarts->num = 4;
 			} else {
 				uarts->num = 8;
 			}
+
+			if (NETCOM_PLUS_811 == onrisc_system.model || NETCOM_PLUS == onrisc_system.model) {
+				if (1 == maj && 2 == min) {
+					uarts->flags = 0;
+					break;
+				}
+			}
+
+			uarts->flags = UARTS_SWITCHABLE;
 
 			for (i = 0; i < 4; i++) {
 				onrisc_config_switch(&uarts->ctrl[i],
@@ -200,17 +187,16 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_113:
 		case NETCOM_PLUS_211:
 		case NETCOM_PLUS_213:
-			/* initialize UART caps */
-			uarts = malloc(sizeof(onrisc_uart_caps_t));
-			if (NULL == uarts) {
-				goto error;
-			}
-			memset(uarts, 0, sizeof(onrisc_uart_caps_t));
-
 			if (NETCOM_PLUS_111 == onrisc_system.model || NETCOM_PLUS_113 == onrisc_system.model) {
 				uarts->num = 1;
 			} else {
 				uarts->num = 2;
+			}
+
+			if (NETCOM_PLUS_111 == onrisc_system.model || NETCOM_PLUS_211 == onrisc_system.model) {
+				uarts->flags = 0;
+			} else {
+				uarts->flags = UARTS_SWITCHABLE;
 			}
 
 			onrisc_config_switch(&uarts->ctrl[0],

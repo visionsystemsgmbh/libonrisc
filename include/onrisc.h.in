@@ -61,8 +61,12 @@ typedef struct {
 } __attribute__ ((packed)) onrisc_dip_switch_t;
 /*@}*/
 
+#define UARTS_SWITCHABLE (1 << 0)
+#define UARTS_DIPS_PHYSICAL (1 << 1)
+
 typedef struct {
 	uint32_t num;
+	uint32_t flags; /*!< UARTS flags */
 	onrisc_dip_switch_t ctrl[ONRISC_MAX_UARTS];
 } __attribute__ ((packed)) onrisc_uart_caps_t;
 

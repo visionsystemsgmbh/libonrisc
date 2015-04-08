@@ -288,7 +288,7 @@ int onrisc_get_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 {
 	int rc = EXIT_SUCCESS;
 
-	if (NULL == onrisc_capabilities.uarts) {
+	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
 		fprintf(stderr, "device has no switchable UARTs\n");
 		rc = EXIT_FAILURE;
 		goto error;
@@ -310,8 +310,14 @@ int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 {
 	int rc = EXIT_SUCCESS;
 
-	if (NULL == onrisc_capabilities.uarts) {
+	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
 		fprintf(stderr, "device has no switchable UARTs\n");
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+
+	if ((TYPE_DIP == mode->rs_mode) && !(UARTS_DIPS_PHYSICAL & onrisc_capabilities.uarts->flags)) {
+		fprintf(stderr, "device has no UART-DIPs\n");
 		rc = EXIT_FAILURE;
 		goto error;
 	}
