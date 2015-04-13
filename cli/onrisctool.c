@@ -290,7 +290,7 @@ int print_caps() {
 		printf("UARTS: %d ", caps->uarts->num);
 		if (caps->uarts->flags & UARTS_SWITCHABLE) {
 			printf(" (modes switchable by software");
-			if (caps->uarts->flags & UARTS_SWITCHABLE) {
+			if (caps->uarts->flags & UARTS_DIPS_PHYSICAL) {
 				printf(" & DIPs");
 			}
 			printf(")");
