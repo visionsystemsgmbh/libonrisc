@@ -35,6 +35,35 @@
 	}
 	
 }
+
+//for datetime in python
+
+%{
+#include <datetime.h>
+%}
+
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) timeval {
+    PyDateTime_IMPORT;
+    $1 = PyDelta_Check($input) ? 1 : 0;
+}
+
+%typemap(out) struct timeval {
+    PyDateTime_IMPORT;
+    // Assume interval < a day
+    $result = PyDelta_FromDSU(0, $1.tv_sec, $1.tv_usec);
+}
+
+%typemap(in) struct timeval
+{
+    PyDateTime_IMPORT;
+    if (!PyDelta_Check($input)) {
+	PyErr_SetString(PyExc_ValueError,"Expected a datetime.timedelta");
+	return NULL;
+    }
+
+    struct timeval ret = {((PyDateTime_Delta*)$input)->seconds, ((PyDateTime_Delta*)$input)->microseconds};
+    $1 = ret;
+}
 #endif
 
 %include "onrisc.h"
