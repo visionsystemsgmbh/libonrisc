@@ -337,7 +337,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:c:d:f:k:l:p:t:iegrhmnsSwqj?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:k:l:p:t:iegGrhmnsSwqj?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -380,6 +380,19 @@ int main(int argc, char **argv)
 					goto error;
 				}
 
+				printf("0x%08x\n", gpios.value);
+			}
+			break;
+		case 'G':
+			{
+				if (onrisc_gpio_get_direction(&gpios) ==
+				    EXIT_FAILURE) {
+					fprintf(stderr,
+						"Failed to get GPIO values\n");
+					goto error;
+				}
+
+				printf("0x%08x\n", gpios.mask);
 				printf("0x%08x\n", gpios.value);
 			}
 			break;

@@ -22,7 +22,7 @@ cmake_minimum_required(VERSION 2.6)
 include_directories(BEFORE ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/include) 
 
 configure_file(${PROJECT_SOURCE_DIR}/include/onrisc.h.in ${PROJECT_BINARY_DIR}/onrisc.h @ONLY)
-set(SRCS src/onrisc.c src/leds.c src/gpios.c src/system.c src/uarts.c src/devices.c)
+set(SRCS src/onrisc.c src/leds.c src/gpios.c src/dips.c src/system.c src/uarts.c src/devices.c)
 
 # swig 
 
@@ -66,6 +66,10 @@ target_link_libraries(onrisc soc pthread udev)
 # cli
 add_executable(onrisctool ${PROJECT_SOURCE_DIR}/cli/onrisctool.c)
 target_link_libraries(onrisctool onrisc)
+
+# cli
+add_executable(onriscdipd ${PROJECT_SOURCE_DIR}/cli/onriscdipd.c)
+target_link_libraries(onriscdipd onrisc)
 
 install(TARGETS onrisc 
 	LIBRARY DESTINATION lib COMPONENT shlib

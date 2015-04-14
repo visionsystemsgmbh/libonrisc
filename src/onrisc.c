@@ -3,6 +3,7 @@
 int init_flag = 0;
 onrisc_system_t onrisc_system;
 onrisc_capabilities_t onrisc_capabilities;
+onrisc_dip_caps_t * onrisc_dips;
 onrisc_eeprom_t eeprom;
 
 /* UART mode variables */
@@ -152,63 +153,6 @@ error:
 		close(fd);
 	}
 
-	return rc;
-}
-
-int onrisc_get_dips(uint32_t * dips)
-{
-	int rc = EXIT_SUCCESS;
-	gpio *dip_gpios[4];
-	gpio_level level;
-	int i;
-	onrisc_dip_caps_t *dip_caps = onrisc_capabilities.dips;
-
-	assert(init_flag == 1);
-
-	*dips = 0;
-
-	if (NULL == dip_caps) {
-		rc = EXIT_FAILURE;
-		goto error;
-	}
-
-	for (i = 0; i < dip_caps->dip_switch[0].num; i++) {
-		uint32_t pin = dip_caps->dip_switch[0].pin[i];
-
-		/* export GPIO */
-		dip_gpios[i] = libsoc_gpio_request(pin, LS_SHARED);
-		if (dip_gpios[i] == NULL) {
-			rc = EXIT_FAILURE;
-			goto error;
-		}
-
-		/* set direction to input */
-		if (libsoc_gpio_set_direction(dip_gpios[i], INPUT) ==
-		    EXIT_FAILURE) {
-			rc = EXIT_FAILURE;
-			goto error;
-		}
-
-		/* get level */
-		level = libsoc_gpio_get_level(dip_gpios[i]);
-		if (level == LEVEL_ERROR) {
-			rc = EXIT_FAILURE;
-			goto error;
-		}
-
-		/* set DIP status variable. DIPs are low active */
-		if (level == LOW) {
-			*dips |= DIP_S1 << i;
-		}
-
-		/* free GPIO */
-		if (libsoc_gpio_free(dip_gpios[i]) == EXIT_FAILURE) {
-			rc = EXIT_FAILURE;
-			goto error;
-		}
-	}
-
- error:
 	return rc;
 }
 

@@ -543,6 +543,137 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 	return rc;
 }
 
+int generic_gpio_callback(void * arg)
+{
+	callback_int_arg_t * params = (callback_int_arg_t *) arg;
+	onrisc_gpios_t val;
+	val.mask = 1 << (params->index);
+	gpio_level level;
+	int i;
+
+	val.value = 0;
+
+	for (i = 0; i < onrisc_gpios->ngpio; i++) {
+		level = libsoc_gpio_get_level(onrisc_gpios->gpios[i].
+					   pin);
+
+		if (level == LOW) {
+			val.value &= ~(1 << i);
+		} else {
+			val.value |= 1 << i;
+		}
+	}
+
+	return params->callback_fn(val, params->args);
+}
+
+int onrisc_gpio_register_callback(onrisc_gpios_t mask, int (*callback_fn) (onrisc_gpios_t, void *), void *arg, gpio_edge edge)
+{
+	int i, rc = EXIT_FAILURE;
+	callback_int_arg_t * params;
+
+	if (!onrisc_capabilities.gpios){
+		goto error;
+	}
+
+	onrisc_gpios = onrisc_capabilities.gpios;
+
+	if (!gpio_init_flag) {
+		if (onrisc_gpio_init() == EXIT_FAILURE) {
+			goto error;
+		}
+	}
+
+	mask.value = 0;
+
+	switch (onrisc_system.model) {
+	case ALEKTO:
+	case ALEKTO_LAN:
+	case ALENA:
+		break;
+	case ALEKTO2:
+	case BALTOS_IR_3220:
+	case BALTOS_IR_5221:
+	case BALTOS_DIO_1080:
+	case NETCON3:
+		for (i = 0; i < onrisc_gpios->ngpio; i++) {
+			if (mask.mask & (1 << i)) {
+				/* check, if it is INPUT */
+				if (onrisc_gpios->gpios[i].direction == OUTPUT) {
+					continue;
+				}
+
+				/* set trigger edge */
+				libsoc_gpio_set_edge(onrisc_gpios->gpios[i].pin, edge);	
+
+				params = malloc(sizeof(callback_int_arg_t));
+				if (NULL == params) {
+					goto error;
+				}
+				memset(params, 0, sizeof(callback_int_arg_t));
+ 				
+				params->callback_fn = callback_fn;				
+				params->index = i;				
+				params->args = arg;				
+	
+				/* register ISR */
+				libsoc_gpio_callback_interrupt(onrisc_gpios->gpios[i].pin, generic_gpio_callback, (void *) params);
+			}
+		}
+		break;
+	}
+	rc = EXIT_SUCCESS;
+ error:
+	return rc;
+}
+
+int onrisc_gpio_cancel_callback(onrisc_gpios_t mask)
+{
+	int i, rc = EXIT_FAILURE;
+
+	if (!onrisc_capabilities.gpios){
+		goto error;
+	}
+
+	onrisc_gpios = onrisc_capabilities.gpios;
+
+	if (!gpio_init_flag) {
+		if (onrisc_gpio_init() == EXIT_FAILURE) {
+			goto error;
+		}
+	}
+
+	mask.value = 0;
+
+	switch (onrisc_system.model) {
+	case ALEKTO:
+	case ALEKTO_LAN:
+	case ALENA:
+		break;
+	case ALEKTO2:
+	case BALTOS_IR_3220:
+	case BALTOS_IR_5221:
+	case BALTOS_DIO_1080:
+	case NETCON3:
+		for (i = 0; i < onrisc_gpios->ngpio; i++) {
+			if (mask.mask & (1 << i)) {
+				/* check, if it is INPUT */
+				if (onrisc_gpios->gpios[i].direction == OUTPUT) {
+					continue;
+				}
+
+ 				/* register ISR */
+				libsoc_gpio_callback_interrupt_cancel(onrisc_gpios->gpios[i].pin);
+			}
+		}
+		break;
+	}
+	rc = EXIT_SUCCESS;
+ error:
+	return rc;
+}
+
+
 int onrisc_gpio_get_number()
 {
 	onrisc_gpios = onrisc_capabilities.gpios;

@@ -123,6 +123,12 @@ typedef struct  {
 	uint32_t value;
 } __attribute__ ((packed)) onrisc_gpios_t;
 
+typedef struct  {
+	int (*callback_fn) (onrisc_gpios_t,void *);
+	uint32_t index;
+	void * args;
+} __attribute__ ((packed)) callback_int_arg_t;
+
 typedef struct {
 	onrisc_gpios_int_t *gpios;
 	onrisc_uart_caps_t *uarts;
@@ -370,6 +376,40 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val);
  * @return number of GPIOs
  */
 int onrisc_gpio_get_number();
+
+/**
+ * @brief registers a callback function (interrupt) for GPIO pins
+ * @param mask sets the mask which pins trigger the interrupt (mask component)
+ * @param callback_fn is called on interrupt. The first argument contains the triggring pin (mask) and the current state of the gpios (value)
+ * @param arg is the second argument to the calback_fn
+ * @param edge defines the edge on which the interrupt triggers (RISING, FALLING, BOTH)
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_gpio_register_callback(onrisc_gpios_t mask, int (*callback_fn) (onrisc_gpios_t, void *), void *arg, gpio_edge edge);
+
+/**
+ * @brief removes a callback function (interrupt) from GPIO pins
+ * @param mask sets the mask which pins to remove (mask component)
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_gpio_cancel_callback(onrisc_gpios_t mask);
+
+/**
+ * @brief registers a callback function (interrupt) for DIP switches
+ * @param idx is the index for the DIPs (set to 0 for now)
+ * @param callback_fn is called on interrupt. The first argument contains the triggering dip (mask) and the current state of the dips (value)
+ * @param arg is the second argument to the calback_fn
+ * @param edge defines the edge on which the interrupt triggers (RISING, FALLING, BOTH)
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_dip_register_callback(uint32_t idx, int (*callback_fn) (onrisc_gpios_t, void *), void *arg, gpio_edge edge);
+
+/**
+ * @brief removes a callback function (interrupt) from DIP switches
+ * @param idx is the index for the DIPs (set to 0 for now)
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_dip_cancel_callback(uint32_t idx);
 
 /**
  * @brief write to MDIO register
