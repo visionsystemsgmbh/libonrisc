@@ -306,7 +306,7 @@ error:
 
 }
 
-int onrisc_get_uart_mode_raw(int port_nr, uint8_t * mode)
+int onrisc_get_uart_mode_raw(int port_nr, uint32_t * mode)
 {
 	int rc = EXIT_FAILURE;
 

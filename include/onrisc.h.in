@@ -350,7 +350,7 @@ int onrisc_get_uart_mode(int port_nr, onrisc_uart_mode_t *mode);
  * @param mode pointer to a binary vector 
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
-int onrisc_get_uart_mode_raw(int port_nr, uint8_t *mode);
+int onrisc_get_uart_mode_raw(int port_nr, uint32_t *mode);
 
 /**
  * @brief get DIP switches values
