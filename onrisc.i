@@ -6,6 +6,7 @@
 
 #define __attribute__(x)
 %include "stdint.i"
+%include "typemaps.i"
 
 #ifdef SWIGPYTHON
 %typemap(out) uint8_t[ANY] {
@@ -66,4 +67,7 @@
 }
 #endif
 
+int onrisc_get_dips(uint32_t *OUTPUT);
+
 %include "onrisc.h"
+
