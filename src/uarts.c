@@ -339,6 +339,8 @@ int onrisc_get_uart_mode_raw(int port_nr, uint32_t * mode)
 			}
 		}
 
+		*mode |= (!!libsoc_gpio_get_direction(ctrl->gpio[0])) << i;
+
 		rc = EXIT_SUCCESS;
 	} 
 
