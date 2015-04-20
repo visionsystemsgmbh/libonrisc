@@ -67,6 +67,7 @@
 }
 #endif
 
+int onrisc_get_uart_mode_raw(int port_nr, uint32_t *OUTPUT);
 int onrisc_get_dips(uint32_t *OUTPUT);
 
 %include "onrisc.h"
