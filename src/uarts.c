@@ -348,6 +348,51 @@ error:
 	return rc;
 }
 
+int onrisc_get_uart_dips(int port_nr, uint32_t * mode)
+{
+	int rc = EXIT_FAILURE;
+	int i;
+	uint32_t old_mode = 0;
+
+	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
+		fprintf(stderr, "device has no switchable UARTs\n");
+		goto error;
+	}
+
+	onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
+
+	/* check GPIO direction settings */
+	if (libsoc_gpio_get_direction(ctrl->gpio[0]) == OUTPUT) {
+		if (onrisc_get_uart_mode_raw(port_nr, &old_mode) == EXIT_FAILURE) {
+			goto error;
+		}
+
+		for (i = 0; i < ctrl->num; i++) {
+			if (libsoc_gpio_set_direction(ctrl->gpio[i], INPUT) == EXIT_FAILURE) {
+				goto error;
+			}
+		}
+
+		if (onrisc_get_uart_mode_raw(port_nr, mode) == EXIT_FAILURE) {
+			goto error;
+		}
+
+		if (onrisc_set_uart_mode_raw(port_nr, old_mode) == EXIT_FAILURE) {
+			goto error;
+		}
+
+	} else {
+
+		if (onrisc_get_uart_mode_raw(port_nr, mode) == EXIT_FAILURE) {
+			goto error;
+		}
+	} 
+	rc = EXIT_SUCCESS;
+
+error:
+	return rc;
+}
+
 int onrisc_set_uart_mode_raw(int port_nr, uint8_t mode)
 {
 	int i;
