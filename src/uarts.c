@@ -53,6 +53,65 @@ error:
 	return rc;
 }
 
+int onrisc_uart_init()
+{
+	int i, rc = EXIT_SUCCESS;
+	int dir;
+	int base = 0;
+	onrisc_uart_caps_t *caps = onrisc_capabilities.uarts;
+	onrisc_dip_switch_t *ctrl = NULL;
+
+	if(caps->flags & UARTS_DIPS_PHYSICAL) {
+		dir = INPUT;			
+	} else {
+		dir = OUTPUT;
+	}
+
+	for (i=1; i <= onrisc_capabilities.uarts->num; ++i) {
+		ctrl = &caps->ctrl[i - 1];
+		if (!ctrl->num)
+			break;
+
+		if (ctrl->flags & RS_NEEDS_I2C_ADDR) {
+			if (onrisc_get_tca6416_base(&base, ctrl->i2c_id) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
+		}
+
+		for (i = 0; i < ctrl->num; i++) {
+			ctrl->gpio[i] = libsoc_gpio_request(base + ctrl->pin[i], LS_SHARED);
+			if (NULL == ctrl->gpio[i]) {
+				rc = EXIT_FAILURE;
+				goto error;
+			}
+
+			if (libsoc_gpio_set_direction(ctrl->gpio[i], dir) == EXIT_FAILURE) {
+				rc = EXIT_FAILURE;
+				goto error;
+			}
+		}
+
+		if (ctrl->num && (dir == OUTPUT)) {
+			if(caps->flags & UARTS_SWITCHABLE) {
+				libsoc_gpio_set_level(ctrl->gpio[0], LOW);   //LOOPBACK
+			} else {
+				libsoc_gpio_set_level(ctrl->gpio[0], HIGH);  //RS232
+			}
+			libsoc_gpio_set_level(ctrl->gpio[1], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
+			libsoc_gpio_set_level(ctrl->gpio[3], LOW);
+			if (onrisc_set_sr485_ioctl(i, 0) == EXIT_FAILURE) {
+				rc = EXIT_FAILURE;
+				goto error;
+			}
+		}
+
+		ctrl->flags |= RS_IS_SETUP;
+	}
+error:
+	return rc;
+}
+
 int onrisc_setup_uart_gpios(int dir, int port_nr)
 {
 	int i, rc = EXIT_SUCCESS;

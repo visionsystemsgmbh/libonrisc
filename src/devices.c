@@ -141,7 +141,7 @@ int onrisc_init_caps()
 		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
 		case NETCON3:
-			uarts->num = 2;
+			uarts->num = 8;
 			uarts->flags = 0;
 			break;
 

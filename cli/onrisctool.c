@@ -46,6 +46,8 @@ void print_usage()
 	fprintf(stderr, "         -g                 get GPIO values\n");
 	fprintf(stderr,
 		"         -i                 turn network switch off\n");
+	fprintf(stderr,
+		"         -I                 initalize device hardware\n");
 	fprintf(stderr, "         -w                 set wlan0 MAC\n");
 	fprintf(stderr,
 		"         -q                 query WLAN switch state\n");
@@ -337,7 +339,7 @@ int main(int argc, char **argv)
 	}
 
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "a:b:c:d:f:k:l:p:t:iegGrhmnsSwqj?")) != -1) {
+	while ((opt = getopt(argc, argv, "a:b:c:d:f:k:l:p:t:iIegGrhmnsSwqj?")) != -1) {
 		switch (opt) {
 
 		case 'a':
@@ -473,6 +475,11 @@ int main(int argc, char **argv)
 					}
 				}
 
+			}
+			break;
+		case 'I':
+			if (onrisc_uart_init()) {
+				goto error;
 			}
 			break;
 		case 'l':
