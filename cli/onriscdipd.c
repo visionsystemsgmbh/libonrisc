@@ -65,10 +65,21 @@ bool hw_uart_dips = false;
 
 int test_callback(onrisc_gpios_t dips, void* data)
 {
+	int port_nr = ALL_PORTS;
+	char cmd[256];
+	if(dips.mask == 0) {
+		port_nr = *((int *) data);
+	}
 	if(dip_list[dips.value].action_type == SERIAL_MODE) {
-		onrisc_set_uart_mode_raw(ALL_PORTS, dip_list[dips.value].action.mode);
+		onrisc_set_uart_mode_raw(port_nr, dip_list[dips.value].action.mode);
 	} else 	if(dip_list[dips.value].action_type == SHELL) {
-		system(dip_list[dips.value].action.cmd);
+		if(dips.mask != 0) {
+			system(dip_list[dips.value].action.cmd);
+		} else {
+			sprintf(cmd, "%s%d", dip_list[dips.value].action.cmd, port_nr);
+			system(cmd);
+		}
+
 	}
  
 }	
@@ -208,12 +219,13 @@ int main(int argc, char **argv)
 				for(i=1;i <= caps->uarts->num; ++i) {	
 					dips.mask=0;
 					onrisc_get_uart_dips(i,&dips.value);
-					test_callback(dips,NULL);
+					test_callback(dips,&i);
 				}
 			} else {
 				dips.mask=0;
+				i=ALL_PORTS;
 				onrisc_get_dips(&dips.value);
-				test_callback(dips,NULL);
+				test_callback(dips,&i);
 			}
 			break;
 		case '?':
