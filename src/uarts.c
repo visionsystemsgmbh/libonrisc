@@ -55,7 +55,7 @@ error:
 
 int onrisc_uart_init()
 {
-	int i, rc = EXIT_SUCCESS;
+	int i, j, rc = EXIT_SUCCESS;
 	int dir;
 	int base = 0;
 	onrisc_uart_caps_t *caps = onrisc_capabilities.uarts;
@@ -78,14 +78,14 @@ int onrisc_uart_init()
 			}
 		}
 
-		for (i = 0; i < ctrl->num; i++) {
-			ctrl->gpio[i] = libsoc_gpio_request(base + ctrl->pin[i], LS_SHARED);
-			if (NULL == ctrl->gpio[i]) {
+		for (j = 0; j < ctrl->num; j++) {
+			ctrl->gpio[j] = libsoc_gpio_request(base + ctrl->pin[j], LS_SHARED);
+			if (NULL == ctrl->gpio[j]) {
 				rc = EXIT_FAILURE;
 				goto error;
 			}
 
-			if (libsoc_gpio_set_direction(ctrl->gpio[i], dir) == EXIT_FAILURE) {
+			if (libsoc_gpio_set_direction(ctrl->gpio[j], dir) == EXIT_FAILURE) {
 				rc = EXIT_FAILURE;
 				goto error;
 			}
