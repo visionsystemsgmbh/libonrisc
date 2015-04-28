@@ -52,6 +52,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_211:
 		case NETCOM_PLUS_213:
 		case NETCAN:
+		case BALTOS_IR_2110:
 			leds->num = 3;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
 			leds->led[LED_POWER].pin = 96;
@@ -187,7 +188,8 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_113:
 		case NETCOM_PLUS_211:
 		case NETCOM_PLUS_213:
-			if (NETCOM_PLUS_111 == onrisc_system.model || NETCOM_PLUS_113 == onrisc_system.model) {
+		case BALTOS_IR_2110:
+			if (NETCOM_PLUS_111 == onrisc_system.model || NETCOM_PLUS_113 == onrisc_system.model || BALTOS_IR_2110 == onrisc_system.model) {
 				uarts->num = 1;
 			} else {
 				uarts->num = 2;
@@ -313,6 +315,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_211:
 		case NETCOM_PLUS_213:
 		case NETCAN:
+		case BALTOS_IR_2110:
 			/* initialize DIP caps */
 			dips = malloc(sizeof(onrisc_dip_caps_t));
 			if (NULL == dips) {

@@ -25,6 +25,7 @@ extern "C" {
 #define ALEKTO2		200
 #define BALTOS_IR_5221	210
 #define BALTOS_IR_3220	211
+#define BALTOS_IR_2110	212
 #define BALTOS_DIO_1080	214
 #define NETCON3		215
 #define NETCOM_PLUS	220
