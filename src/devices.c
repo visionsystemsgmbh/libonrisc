@@ -264,7 +264,6 @@ int onrisc_init_caps()
 			}
 
 			break;
-		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
 		case NETCON3:
 			gpios = malloc(sizeof(onrisc_gpios_int_t));
@@ -288,11 +287,8 @@ int onrisc_init_caps()
 
 	/* DIPS */
 	switch(onrisc_system.model) {
-		/*TODO: detect hw rev */
 		case BALTOS_DIO_1080:
 		case NETCON3:
-		case NETCOM_PLUS:
-		case NETCOM_PLUS_811:
 			/* initialize DIP caps */
 			dips = malloc(sizeof(onrisc_dip_caps_t));
 			if (NULL == dips) {
@@ -306,8 +302,33 @@ int onrisc_init_caps()
 			dips->dip_switch[0].pin[1] = 45;
 			dips->dip_switch[0].pin[2] = 46;
 			dips->dip_switch[0].pin[3] = 47;
+
 			break;
-		/*TODO: detect hw rev */
+		case NETCOM_PLUS:
+		case NETCOM_PLUS_811:
+			/* initialize DIP caps */
+			dips = malloc(sizeof(onrisc_dip_caps_t));
+			if (NULL == dips) {
+				goto error;
+			}
+			memset(dips, 0, sizeof(onrisc_dip_caps_t));
+
+			if (1 == maj && 2 == min) {
+				dips->num = 1;
+				dips->dip_switch[0].num = 4;
+				dips->dip_switch[0].pin[0] = 44;
+				dips->dip_switch[0].pin[1] = 45;
+				dips->dip_switch[0].pin[2] = 46;
+				dips->dip_switch[0].pin[3] = 47;
+			} else {
+				dips->num = 1;
+				dips->dip_switch[0].num = 4;
+				dips->dip_switch[0].pin[0] = 32 * 2 + 18;
+				dips->dip_switch[0].pin[1] = 32 * 2 + 19;
+				dips->dip_switch[0].pin[2] = 32 * 3 + 9;
+				dips->dip_switch[0].pin[3] = 32 * 3 + 10;
+			}
+			break;
 		case NETCOM_PLUS_413:
 		case NETCOM_PLUS_813:
 		case NETCOM_PLUS_111:
