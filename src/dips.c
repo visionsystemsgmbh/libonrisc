@@ -37,6 +37,8 @@ int onrisc_dip_init()
 		}
 	}
 
+	dip_init_flag = 1;
+
  error:
 	return rc;
 }
