@@ -173,7 +173,7 @@ int onrisc_init_caps()
 					0x20);
 			}
 
-			if (NETCOM_PLUS_813 == onrisc_system.model) {
+			if (NETCOM_PLUS_813 == onrisc_system.model || NETCOM_PLUS_811 == onrisc_system.model) {
 				for (i = 0; i < 4; i++) {
 					onrisc_config_switch(&uarts->ctrl[i + 4],
 						(RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
