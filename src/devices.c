@@ -47,12 +47,12 @@ int onrisc_init_caps()
 			break;
 		case BALTOS_IR_5221:
 		case BALTOS_IR_3220:
+		case BALTOS_IR_2110:
 		case NETCOM_PLUS_111:
 		case NETCOM_PLUS_113:
 		case NETCOM_PLUS_211:
 		case NETCOM_PLUS_213:
 		case NETCAN:
-		case BALTOS_IR_2110:
 			leds->num = 3;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
 			leds->led[LED_POWER].pin = 96;
@@ -77,8 +77,6 @@ int onrisc_init_caps()
 
 			break;
 		/*TODO: detect hw rev */
-		case BALTOS_DIO_1080:
-		case NETCON3:
 		case NETCOM_PLUS:
 		case NETCOM_PLUS_811:
 		case NETCOM_PLUS_413:
@@ -91,6 +89,22 @@ int onrisc_init_caps()
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_APP].pin = 16;
 
+			if (NETCOM_PLUS_811 == onrisc_system.model || NETCOM_PLUS == onrisc_system.model) {
+				if (1 == maj && 2 == min) {
+					leds->led[LED_WLAN].pin = 16;
+					leds->led[LED_APP].pin = 17;
+				}
+			}
+			break;
+		case BALTOS_DIO_1080:
+		case NETCON3:
+			leds->num = 3;
+			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
+			leds->led[LED_POWER].pin = 96;
+			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
+			leds->led[LED_WLAN].pin = 16;
+			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
+			leds->led[LED_APP].pin = 17;
 			break;
 	}
 
