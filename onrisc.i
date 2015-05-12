@@ -9,6 +9,18 @@
 %include "typemaps.i"
 
 #ifdef SWIGPYTHON
+%typemap(out) uint8_t[6] {
+        char mac[13] = "000000000000";
+        sprintf(mac,"%02X%02X%02X%02X%02X%02X",$1[0], $1[1], $1[2], $1[3], $1[4] ,$1[5]);
+	$result = PyString_FromString(mac);
+}
+
+%typemap(in) uint8_t[6] {
+        uint8_t mac[6] = {0,0,0,0,0,0};
+        sscanf(PyString_AsString($input),"%02X%02X%02X%02X%02X%02X",&mac[0], &mac[1], &mac[2], &mac[3], &mac[4] ,&mac[5]);
+	$1=mac;
+}
+
 %typemap(out) uint8_t[ANY] {
 	$result = PyList_New($1_dim0);
 	int i = 0;
