@@ -23,6 +23,7 @@ int onrisc_init_caps()
 	onrisc_uart_caps_t *uarts = NULL;
 	onrisc_sw_caps_t *wlan_sw = NULL;
 	onrisc_sw_caps_t *mpcie_sw = NULL;
+	onrisc_eth_caps_t *eths = NULL;
 
 	maj = onrisc_system.hw_rev >> 16;
 	min = onrisc_system.hw_rev & 0xffff;
@@ -420,12 +421,82 @@ int onrisc_init_caps()
 			break;
 	}
 
+	/* ETHS */
+	eths = malloc(sizeof(onrisc_eth_caps_t));
+	if (NULL == eths) {
+		goto error;
+	}
+	memset(eths, 0, sizeof(onrisc_eth_caps_t));
+
+	eths->num = 2;
+	
+	eths->eth[0].num = 1;
+	eths->eth[0].flags = (ETH_RGMII_1G | ETH_PHYSICAL);
+	eths->eth[0].phy_id = 7;
+	strcpy(eths->eth[0].if_name, "eth1");
+
+	switch(onrisc_system.model) {
+		case ALEKTO:
+		case ALENA:
+		case ALEKTO_LAN:
+		case ALEKTO2:
+			eths->eth[0].num = 1;
+			eths->eth[0].flags = (ETH_RGMII_1G | ETH_PHYSICAL);
+			eths->eth[0].phy_id = 0;
+			strcpy(eths->eth[0].if_name, "eth0");
+
+			eths->eth[1].num = 1;
+			eths->eth[1].flags = (ETH_RGMII_1G | ETH_PHYSICAL);
+			eths->eth[1].phy_id = 1;
+			strcpy(eths->eth[1].if_name, "eth1");
+			break;
+
+		case BALTOS_IR_5221:
+			eths->eth[1].num = 4;
+			eths->eth[1].flags = (ETH_RMII_100M | ETH_PHYSICAL);
+			eths->eth[1].phy_id = 0;
+			strcpy(eths->eth[1].if_name, "eth0");
+			break;
+
+		case BALTOS_IR_3220:
+			eths->eth[1].num = 2;
+			eths->eth[1].flags = (ETH_RMII_100M | ETH_PHYSICAL);
+			eths->eth[1].phy_id = 0;
+			strcpy(eths->eth[1].if_name, "eth0");
+			break;
+
+		case BALTOS_IR_2110:
+			eths->eth[1].num = 1;
+			eths->eth[1].flags = (ETH_RMII_100M | ETH_PHYSICAL);
+			eths->eth[1].phy_id = 1;
+			strcpy(eths->eth[1].if_name, "eth0");
+			break;
+
+		case NETCOM_PLUS_111:
+		case NETCOM_PLUS_113:
+		case NETCOM_PLUS_211:
+		case NETCOM_PLUS_213:
+		case NETCAN:
+		case NETCOM_PLUS:
+		case NETCOM_PLUS_811:
+		case NETCOM_PLUS_413:
+		case NETCOM_PLUS_813:
+		case BALTOS_DIO_1080:
+		case NETCON3:
+			eths->eth[1].num = 0;
+			eths->eth[1].flags = ETH_RMII_100M;
+			eths->eth[1].phy_id = 0;
+			strcpy(eths->eth[1].if_name, "eth0");
+			break;
+	}
+
 	onrisc_capabilities.gpios = gpios;
 	onrisc_capabilities.dips = dips;
 	onrisc_capabilities.uarts = uarts;
 	onrisc_capabilities.leds = leds;
 	onrisc_capabilities.wlan_sw = wlan_sw;
 	onrisc_capabilities.mpcie_sw = mpcie_sw;
+	onrisc_capabilities.eths = eths;
 
 	rc = EXIT_SUCCESS;
 error:

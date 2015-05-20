@@ -17,6 +17,7 @@ extern "C" {
 #define ONRISC_MAX_UARTS        64
 #define ONRISC_MAX_LEDS        	64
 #define ONRISC_MAX_DIPS	        32
+#define ONRISC_MAX_ETHS	        32
 
 #define ALEKTO		1
 #define ALENA		2
@@ -70,6 +71,23 @@ typedef struct {
 	uint32_t flags; /*!< UARTS flags */
 	onrisc_dip_switch_t ctrl[ONRISC_MAX_UARTS];
 } __attribute__ ((packed)) onrisc_uart_caps_t;
+
+#define ETH_RMII_100M (1 << 0)
+#define ETH_RGMII_1G (1 << 1)
+#define ETH_PHYSICAL (1 << 2)
+
+typedef struct {
+	uint32_t num;
+	uint32_t flags; /*!< ETH flags */
+	uint32_t phy_id;
+	char if_name[8];
+} __attribute__ ((packed)) onrisc_eth_t;
+
+typedef struct {
+	uint32_t num;
+	uint32_t flags; /*!< ETHS flags */
+	onrisc_eth_t eth[ONRISC_MAX_ETHS];
+} __attribute__ ((packed)) onrisc_eth_caps_t;
 
 typedef struct {
 	uint32_t num;
@@ -137,6 +155,9 @@ typedef struct {
 	onrisc_led_caps_t *leds;
 	onrisc_sw_caps_t *wlan_sw;
 	onrisc_sw_caps_t *mpcie_sw;
+	onrisc_eth_caps_t *eths;
+	uint32_t num_extra_fields;
+	void *extra_fields[8];
 } __attribute__ ((packed)) onrisc_capabilities_t;
 
 enum rs_mode {TYPE_UNKNOWN, TYPE_RS232, TYPE_RS422, TYPE_RS485_FD, TYPE_RS485_HD, TYPE_LOOPBACK, TYPE_DIP, TYPE_CAN};

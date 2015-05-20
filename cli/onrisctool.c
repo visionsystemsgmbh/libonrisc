@@ -311,6 +311,17 @@ int print_caps() {
 	if (caps->mpcie_sw) {
 		printf("miniPCIe switch present\n");
 	}
+	if (caps->eths) {
+		int idx;
+		printf("ETHS: %d\n", caps->eths->num);
+		for(idx=0; idx < caps->eths->num; idx++) {
+			printf("\t%s: %d ports speed: %s%s%s\n", caps->eths->eth[idx].if_name, caps->eths->eth[idx].num,
+				(caps->eths->eth[idx].flags & ETH_RMII_100M) ? "100Mbit ":"",
+				(caps->eths->eth[idx].flags & ETH_RGMII_1G) ? "1Gbit ":"",
+				(caps->eths->eth[idx].flags & ETH_PHYSICAL) ? "":"INTERNAL ONLY");
+		}
+		printf("\n");
+	}
 }
 
 int main(int argc, char **argv)
