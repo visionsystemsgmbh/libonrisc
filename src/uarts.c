@@ -347,6 +347,14 @@ int onrisc_get_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 {
 	int rc = EXIT_SUCCESS;
 
+	if (port_nr < 1 || port_nr > onrisc_capabilities.uarts->num) {
+		fprintf(stderr, "port %d is out of range.\nPlease specify port number between 1 and %d\n",
+			port_nr,
+			onrisc_capabilities.uarts->num);
+		rc = EXIT_FAILURE;
+		goto error;
+	}
+
 	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
 		fprintf(stderr, "device has no switchable UARTs\n");
 		rc = EXIT_FAILURE;
@@ -412,6 +420,14 @@ int onrisc_get_uart_dips(int port_nr, uint32_t * mode)
 	int rc = EXIT_FAILURE;
 	int i;
 	uint32_t old_mode = 0;
+
+	if (port_nr < 1 || port_nr > onrisc_capabilities.uarts->num) {
+		fprintf(stderr, "port %d is out of range.\nPlease specify port number between 1 and %d\n",
+			port_nr,
+			onrisc_capabilities.uarts->num);
+		rc = EXIT_FAILURE;
+		goto error;
+	}
 
 	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
 		fprintf(stderr, "device has no switchable UARTs\n");
@@ -507,6 +523,14 @@ int onrisc_set_uart_mode_raw(int port_nr, uint8_t mode)
 int onrisc_set_uart_mode(int port_nr, onrisc_uart_mode_t * mode)
 {
 	int rc = EXIT_SUCCESS;
+
+	if (port_nr < 1 || port_nr > onrisc_capabilities.uarts->num) {
+		fprintf(stderr, "port %d is out of range.\nPlease specify port number between 1 and %d\n",
+			port_nr,
+			onrisc_capabilities.uarts->num);
+		rc = EXIT_FAILURE;
+		goto error;
+	}
 
 	if ((NULL == onrisc_capabilities.uarts) || !(UARTS_SWITCHABLE & onrisc_capabilities.uarts->flags)) {
 		fprintf(stderr, "device has no switchable UARTs\n");
