@@ -76,6 +76,7 @@ install(TARGETS onrisc
 	PUBLIC_HEADER DESTINATION include COMPONENT dev
 	)
 install(TARGETS onrisctool RUNTIME DESTINATION bin)
+install(TARGETS onriscdipd RUNTIME DESTINATION bin)
 
 if (PYTHON_WRAP)
 	execute_process (

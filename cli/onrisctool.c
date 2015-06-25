@@ -38,7 +38,7 @@ void print_usage()
 	fprintf(stderr,
 		"         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
 	fprintf(stderr,
-		"         -S                 show DIP switch settings (Baltos 1080 only)\n");
+		"         -S                 show DIP switch settings\n");
 	fprintf(stderr, "         -a                 GPIO data mask\n");
 	fprintf(stderr, "         -c                 GPIO direction mask\n");
 	fprintf(stderr, "         -b                 GPIO value\n");
@@ -431,7 +431,12 @@ int main(int argc, char **argv)
 			printf("DIP S1: %s\n", dips & DIP_S1 ? "on" : "off");
 			printf("DIP S2: %s\n", dips & DIP_S2 ? "on" : "off");
 			printf("DIP S3: %s\n", dips & DIP_S3 ? "on" : "off");
-			printf("DIP S4: %s\n", dips & DIP_S4 ? "on" : "off");
+			printf("DIP S4: %s\n\n", dips & DIP_S4 ? "on" : "off");
+			printf("Vector: %s%s%s%s\n", dips & DIP_S1 ? "1" : "0",
+				dips & DIP_S2 ? "1" : "0",
+				dips & DIP_S3 ? "1" : "0",
+				dips & DIP_S4 ? "1" : "0");
+
 
 			break;
 		case 't':
