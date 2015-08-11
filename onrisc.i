@@ -10,9 +10,9 @@
 
 #ifdef SWIGPYTHON
 %typemap(out) uint8_t[6] {
-        char mac[13] = "000000000000";
-        sprintf(mac,"%02X%02X%02X%02X%02X%02X",$1[0], $1[1], $1[2], $1[3], $1[4] ,$1[5]);
-	$result = PyString_FromString(mac);
+char mac[13] = "000000000000";
+sprintf(mac,"%02X%02X%02X%02X%02X%02X",$1[0], $1[1], $1[2], $1[3], $1[4] ,$1[5]);
+$result = PyString_FromString(mac);
 }
 
 %typemap(in) uint8_t[6] {
@@ -20,6 +20,14 @@
         sscanf(PyString_AsString($input),"%02X%02X%02X%02X%02X%02X",&mac[0], &mac[1], &mac[2], &mac[3], &mac[4] ,&mac[5]);
 	$1=mac;
 }
+
+/*%typemap(in) gpio_level {
+	$1=(gpio_level) PyInt_AsLong($input);
+}
+%typemap(out) gpio_level* {
+	$result=PyInt_FromLong((long) *$1);
+}*/
+
 
 %typemap(out) uint8_t[ANY] {
 	$result = PyList_New($1_dim0);
@@ -78,10 +86,13 @@
     $1 = ret;
 }
 #endif
+typedef int gpio_level;
 
 int onrisc_get_uart_dips(int port_nr, uint32_t *OUTPUT);
 int onrisc_get_uart_mode_raw(int port_nr, uint32_t *OUTPUT);
 int onrisc_get_dips(uint32_t *OUTPUT);
+int onrisc_get_wlan_sw_state(gpio_level *OUTPUT);
+int onrisc_get_mpcie_sw_state(gpio_level *OUTPUT);
 
 %include "onrisc.h"
 
