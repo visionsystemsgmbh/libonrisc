@@ -36,7 +36,7 @@ void print_usage()
 	fprintf(stderr,
 		"         -k                 set/get mPCIe switch state: 0 - off, 1 - on, 2 - get current state\n");
 	fprintf(stderr,
-		"         -l <name:[0|1|2]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink\n");
+		"         -l <name:[0|1|2|3]>  turn led [pwr, app, wln] on/off or blink: 0 - off, 1 - on. 2 - blink. 3 - blink continuously\n");
 	fprintf(stderr,
 		"         -S                 show DIP switch settings\n");
 	fprintf(stderr, "         -a                 GPIO data mask\n");
@@ -222,6 +222,25 @@ int handle_leds(char *str)
 		}
 
 		sleep(5);
+
+		if (onrisc_blink_led_stop(&led) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to stop %s LED\n", name);
+			return EXIT_FAILURE;
+		}
+		break;
+	case 3:
+		led.count = -1;	/* blinking continuously */
+		led.interval.tv_sec = 1;
+		led.interval.tv_usec = 0;
+		led.high_phase.tv_sec = 0;
+		led.high_phase.tv_usec = 500000;
+
+		if (onrisc_blink_led_start(&led) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to start %s LED\n", name);
+			return EXIT_FAILURE;
+		}
+
+		while(true);
 
 		if (onrisc_blink_led_stop(&led) == EXIT_FAILURE) {
 			fprintf(stderr, "failed to stop %s LED\n", name);
