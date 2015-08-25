@@ -230,10 +230,10 @@ int handle_leds(char *str)
 		break;
 	case 3:
 		led.count = -1;	/* blinking continuously */
-		led.interval.tv_sec = 1;
+		led.interval.tv_sec = 3;
 		led.interval.tv_usec = 0;
-		led.high_phase.tv_sec = 0;
-		led.high_phase.tv_usec = 500000;
+		led.high_phase.tv_sec = 2;
+		led.high_phase.tv_usec = 0;
 
 		if (onrisc_blink_led_start(&led) == EXIT_FAILURE) {
 			fprintf(stderr, "failed to start %s LED\n", name);
