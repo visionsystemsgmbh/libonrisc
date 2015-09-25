@@ -9,6 +9,7 @@ Features
 3. control UART's RS232/422/485 driver
 4. control digital I/O
 5. read DIP switch
+6. control mPCIe slot
 
 Installation
 ------------
@@ -104,3 +105,11 @@ All routines and data structures are described in `include/onrisc.h` using **Dox
     int onrisc_get_wlan_sw_state(gpio_level *state);
 
 `onrisc_get_wlan_sw_state()` returns WLAN switch state, i.e. 1 - on, 0 - off
+
+### mPCIe switch
+
+    int onrisc_get_mpcie_sw_state(gpio_level *state);
+    int onrisc_set_mpcie_sw_state(gpio_level state);
+
+`onrisc_get_mpcie_sw_state()` returns mPCIe switch state, i.e. 1 - on, 0 - off
+`onrisc_set_mpcie_sw_state()` sets mPCIe switch state, i.e. 1 - on, 0 - off
