@@ -482,6 +482,12 @@ int onrisc_write_mdio_reg(int phy_id, int reg, int val);
 int onrisc_read_mdio_reg(int phy_id, int reg, int *val);
 
 /**
+ * @brief find IP175D switch chip over MDIO bus
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_find_ip175d(void);
+
+/**
  * @brief read WLAN switch level
  * @param state WLAN switch level: HIGH, LOW or LEVEL_ERROR
  * @return EXIT_SUCCESS or EXIT_FAILURE

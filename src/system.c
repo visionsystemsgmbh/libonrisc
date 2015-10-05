@@ -169,6 +169,31 @@ error:
 	return -1;
 }
 
+int onrisc_find_ip175d(void)
+{
+	int rc = EXIT_FAILURE, ret;
+	FILE *fp;
+	char buf[32];
+
+	fp = fopen(ETH0_PHY, "r");
+	if (fp == NULL) {
+		goto error;
+	}
+
+	while (fgets(buf, sizeof(buf), fp)) {
+		if (strcmp(buf, "0x02430d80")) {
+			break;
+		}
+	}
+
+	rc = EXIT_SUCCESS;
+ error:
+	if (fp != NULL) {
+		fclose(fp);
+	}
+	return rc;
+}
+
 int onrisc_get_tca6416_base(int *base, int addr)
 {
 	int rc = EXIT_FAILURE;

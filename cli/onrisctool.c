@@ -485,20 +485,25 @@ int main(int argc, char **argv)
 				int i, nr_swithes = 4;
 
 				/* perform only for devices with network switch chip */
-				if (onrisc_system.model != BALTOS_IR_3220
-				    && onrisc_system.model != BALTOS_IR_5221) {
+				if (onrisc_find_ip175d()) {
+					/* warn, if switch wasn't found on devices, that must have it */
+					if (onrisc_system.model == BALTOS_IR_3220
+					    || onrisc_system.model == BALTOS_IR_5221) {
+						fprintf(stderr, "Failed to find IP175D chip, though it must be present\n");
+						goto error;
+					}
+
 					break;
 				}
 
-				if (onrisc_system.model == BALTOS_IR_3220) {
-					nr_swithes = 2;
-				}
+				printf("IP175D switch chip found\n");
 
 				for (i = 1; i < nr_swithes; i++) {
 					int ctrl_reg;
 
 					if (onrisc_read_mdio_reg
 					    (i, 0, &ctrl_reg)) {
+						fprintf(stderr, "Failed to read MDIO register\n");
 						goto error;
 					}
 
@@ -506,6 +511,18 @@ int main(int argc, char **argv)
 
 					if (onrisc_write_mdio_reg
 					    (i, 0, ctrl_reg)) {
+						fprintf(stderr, "Failed to write MDIO register\n");
+						goto error;
+					}
+
+					if (onrisc_read_mdio_reg
+					    (i, 0, &ctrl_reg)) {
+						fprintf(stderr, "Failed to read MDIO register\n");
+						goto error;
+					}
+
+					if (!(ctrl_reg & (1 << 11))) {
+						fprintf(stderr, "Failed to turn port %d off\n", i);
 						goto error;
 					}
 				}
