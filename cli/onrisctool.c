@@ -6,6 +6,8 @@
 
 #include "onrisc.h"
 
+#define ALL_UARTS 0
+
 onrisc_system_t onrisc_system;
 
 void print_usage()
@@ -21,7 +23,7 @@ void print_usage()
 		"         -n                 show device capabilities\n");
 	fprintf(stderr, "         -m                 set MAC addresses\n");
 	fprintf(stderr,
-		"         -p <num>           onboard serial port number\n");
+		"         -p <num>           onboard serial port number starting with '1', '0' affects all ports\n");
 	fprintf(stderr,
 		"         -t <type>          RS232/422/485, DIP or loopback mode:\n");
 	fprintf(stderr,
@@ -54,6 +56,8 @@ void print_usage()
 	fprintf(stderr, "Examples:\n");
 	fprintf(stderr,
 		"onrisctool -p 1 -t rs232 (set first serial port into RS232 mode)\n");
+	fprintf(stderr,
+		"onrisctool -p 0 -t rs232 (set all serial port into RS232 mode)\n");
 	fprintf(stderr,
 		"onrisctool -m (set MAC addresses for eth0 and eth1 stored in EEPROM)\n");
 	fprintf(stderr, "onrisctool -l pwr:0 (turn power LED off)\n");
@@ -576,9 +580,20 @@ int main(int argc, char **argv)
 		onrisc_uart_mode.echo = echo;
 		onrisc_uart_mode.dir_ctrl = dir_ctrl;;
 
-		if (onrisc_set_uart_mode(port, &onrisc_uart_mode)) {
-			fprintf(stderr, "Failed to set UART mode\n");
-			goto error;
+		if (port == ALL_UARTS) {
+			int i;
+			onrisc_capabilities_t *caps = onrisc_get_dev_caps();
+			for (i = 0; i < caps->uarts->num; i++) {
+				if (onrisc_set_uart_mode(i + 1, &onrisc_uart_mode)) {
+					fprintf(stderr, "Failed to set UART mode\n");
+					goto error;
+				}
+			}
+		} else {
+			if (onrisc_set_uart_mode(port, &onrisc_uart_mode)) {
+				fprintf(stderr, "Failed to set UART mode\n");
+				goto error;
+			}
 		}
 	}
 
