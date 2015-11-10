@@ -322,8 +322,7 @@ int onrisc_get_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 	} else if (val[0] == LOW && val[1] == LOW && val[2] == LOW) {
 		mode->rs_mode = TYPE_LOOPBACK;
 	} else {
-		fprintf(stderr, "unknown RS mode\n");
-		goto error;
+		mode->rs_mode = TYPE_UNKNOWN;
 	}
 
 	dir = libsoc_gpio_get_direction(ctrl->gpio[0]);

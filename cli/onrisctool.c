@@ -78,6 +78,7 @@ int show_rs_modes()
 
 	for (i = 0; i < caps->uarts->num; i++) {
 		onrisc_uart_mode_t mode;
+		uint32_t dips;
 		if (onrisc_get_uart_mode(i + 1, &mode)) {
 			fprintf(stderr, "failed to get UART mode\n");
 			goto error;
@@ -113,6 +114,19 @@ int show_rs_modes()
 			    ("Port %d: mode: loopback termination: %s source: %s\n",
 			     i + 1, mode.termination ? "on" : "off",
 			     mode.src == INPUT ? "DIP" : "software");
+			break;
+		case TYPE_UNKNOWN:
+			if (onrisc_get_uart_dips(i + 1, &dips)) {
+				fprintf(stderr, "failed to get UART mode\n");
+				goto error;
+			}
+			printf
+			    ("Port %d: mode: unknown vector: %s%s%s%s\n",
+			     i + 1, dips & DIP_S1 ? "1" : "0",
+				dips & DIP_S2 ? "1" : "0",
+				dips & DIP_S3 ? "1" : "0",
+				dips & DIP_S4 ? "1" : "0");
+
 			break;
 		}
 
