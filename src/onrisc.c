@@ -309,6 +309,12 @@ int onrisc_get_model(int *model)
 			/* Alekto */
 			*model = ALEKTO;
 			break;
+		} else if (strstr(buf, "Atheros")) {
+			/* Atheros */
+			*model = NETCOM_PLUS_ECO_111;
+			eeprom.path = malloc(strlen("/dev/mtdblock3") + 2);
+			sprintf(eeprom.path, "/dev/mtdblock3");
+			break;
 		} else {
 			/* TODO: default device */
 		}
@@ -484,6 +490,8 @@ int onrisc_init(onrisc_system_t * data)
 	int model, i;
 	struct _param_hw hw_nor;
 	BSP_VS_HWPARAM hw_eeprom;
+	eeprom.flags = 0;
+	eeprom.path = NULL;
 
 	if (onrisc_get_model(&model) == EXIT_FAILURE) {
 		fprintf(stderr, "failed to get model\n");
@@ -491,8 +499,6 @@ int onrisc_init(onrisc_system_t * data)
 	}
 
 	/* find EEPROM */
-	eeprom.flags = 0;
-	eeprom.path = NULL;
 	if (onrisc_get_eeprom(&eeprom) == EXIT_FAILURE && ALEKTO != model) {
 		fprintf(stderr, "failed to find EEPROM\n");
 		return EXIT_FAILURE;

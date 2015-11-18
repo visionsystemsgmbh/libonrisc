@@ -106,6 +106,10 @@ int onrisc_get_eeprom(onrisc_eeprom_t *eeprom)
 	struct udev_list_entry *devices, *dev_list_entry;
 	struct udev_device *dev;
 
+	if (eeprom->path != NULL) {
+		return EXIT_SUCCESS;
+	}
+
 	/* create the udev object */
 	udev = udev_new();
 	if (!udev) {

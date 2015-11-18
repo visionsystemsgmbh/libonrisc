@@ -107,6 +107,14 @@ int onrisc_init_caps()
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_APP].pin = 17;
 			break;
+		case NETCOM_PLUS_ECO_111:
+		case NETCOM_PLUS_ECO_211:
+			leds->num = 2;
+			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
+			leds->led[LED_POWER].pin = 27;
+			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
+			leds->led[LED_APP].pin = 1;
+			break;
 	}
 
 	/* UARTS */
@@ -230,6 +238,15 @@ int onrisc_init_caps()
 					0);
 			}
 
+			break;
+
+		case NETCOM_PLUS_ECO_111:
+		case NETCOM_PLUS_ECO_211:
+			uarts->num = 1;
+			if (NETCOM_PLUS_ECO_211 == onrisc_system.model) {
+				uarts->num = 2;
+			}
+			uarts->flags = 0;
 			break;
 	}
 
@@ -487,6 +504,10 @@ int onrisc_init_caps()
 			eths->eth[1].flags = ETH_RMII_100M;
 			eths->eth[1].phy_id = 0;
 			strcpy(eths->eth[1].if_name, "eth0");
+			break;
+		case NETCOM_PLUS_ECO_111:
+		case NETCOM_PLUS_ECO_211:
+			strcpy(eths->eth[0].if_name, "eth0");
 			break;
 	}
 
