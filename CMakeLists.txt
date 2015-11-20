@@ -19,7 +19,11 @@ INCLUDE(CPack)
 
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(BEFORE ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/include) 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(PC_LIBSOC REQUIRED libsoc)
+pkg_check_modules(PC_LIBUDEV REQUIRED libudev)
+
+include_directories(BEFORE ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/include ${PC_LIBSOC_INCLUDE_DIRS} ${PC_LIBUDEV_INCLUDE_DIRS})
 
 configure_file(${PROJECT_SOURCE_DIR}/include/onrisc.h.in ${PROJECT_BINARY_DIR}/onrisc.h @ONLY)
 set(SRCS src/onrisc.c src/leds.c src/gpios.c src/dips.c src/system.c src/uarts.c src/devices.c)
@@ -61,7 +65,7 @@ endif (LUA_WRAP)
 add_library(onrisc SHARED ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
 set_target_properties(onrisc PROPERTIES
 	PUBLIC_HEADER "${PROJECT_BINARY_DIR}/onrisc.h")
-target_link_libraries(onrisc soc pthread udev)
+target_link_libraries(onrisc ${PC_LIBSOC_LIBRARIES} ${PC_LIBUDEV_LIBRARIES} pthread)
 
 # cli
 add_executable(onrisctool ${PROJECT_SOURCE_DIR}/cli/onrisctool.c)
