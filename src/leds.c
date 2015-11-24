@@ -1,5 +1,7 @@
 #include "vssys.h"
 
+int onrisc_led_init(blink_led_t * blinker);
+
 gpio *onrisc_gpio_init_sysfs(unsigned int gpio_id)
 {
 	gpio *test_gpio;

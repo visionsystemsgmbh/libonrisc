@@ -10,6 +10,7 @@
 #include <net/if.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/ioctl.h>
 
 /* Linux header */
 #include <linux/sockios.h>
@@ -117,3 +118,11 @@ extern int init_flag;
 extern onrisc_system_t onrisc_system;
 extern int serial_mode_first_pin;
 extern onrisc_capabilities_t onrisc_capabilities;
+
+int onrisc_get_sw_state(onrisc_sw_caps_t *sw, gpio_level *state);
+int onrisc_set_sw_state(onrisc_sw_caps_t *sw, gpio_level state);
+int onrisc_get_eeprom(onrisc_eeprom_t *eeprom);
+int onrisc_get_i2c_address(const char *path);
+int onrisc_find_ip175d(void);
+int onrisc_get_tca6416_base(int *base, int addr);
+int onrisc_init_caps(void);
