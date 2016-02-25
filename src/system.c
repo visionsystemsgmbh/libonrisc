@@ -9,7 +9,7 @@ char *mtd_dev(const char *partition)
 	int i = 1;
 	char *end;
 
-	dev = malloc(16);
+	dev = malloc(20);
 	if (dev == NULL)
 		return NULL;
 
