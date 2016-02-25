@@ -311,9 +311,12 @@ int onrisc_get_model(int *model)
 			break;
 		} else if (strstr(buf, "Atheros")) {
 			/* Atheros */
+			eeprom.path = mtd_dev("HW");
+			if (eeprom.path == NULL) {
+				goto error;
+			}
+
 			*model = NETCOM_PLUS_ECO_111;
-			eeprom.path = malloc(strlen("/dev/mtdblock3") + 2);
-			sprintf(eeprom.path, "/dev/mtdblock3");
 			break;
 		} else {
 			/* TODO: default device */
@@ -321,6 +324,7 @@ int onrisc_get_model(int *model)
 	}
 
 	fclose(fp);
+	fp = NULL;
 
 	/* get model from device tree */
 	if (*model == ALEKTO2) {
@@ -361,9 +365,13 @@ int onrisc_get_model(int *model)
 		}
 
 		fclose(fp);
+		fp = NULL;
 	}
 
  error:
+	if (fp)
+		fclose(fp);
+
 	return *model ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 

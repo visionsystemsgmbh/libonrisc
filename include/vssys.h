@@ -20,8 +20,10 @@
 #include "onrisc.h"
 
 /* driver−specific ioctls : */
+#ifndef TIOCGRS485
 #define TIOCGRS485 0x542E
 #define TIOCSRS485 0x542F
+#endif
 
 #define TIOCGEPLD	0x5470
 #define TIOCSEPLD	0x5471
@@ -126,3 +128,4 @@ int onrisc_get_i2c_address(const char *path);
 int onrisc_find_ip175d(void);
 int onrisc_get_tca6416_base(int *base, int addr);
 int onrisc_init_caps(void);
+char *mtd_dev(const char *partition);

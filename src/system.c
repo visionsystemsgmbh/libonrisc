@@ -1,5 +1,52 @@
 #include "vssys.h"
 
+char *mtd_dev(const char *partition)
+{
+	FILE *f;
+	char buf[128];
+	char *par = NULL;
+	char *dev;
+	int i = 1;
+	char *end;
+
+	dev = malloc(16);
+	if (dev == NULL)
+		return NULL;
+
+	sprintf(dev, "/dev/mtdblock000");
+
+	f = fopen("/proc/mtd","r");
+	if (!f) {
+		goto error;
+	}
+
+	while (fgets(buf, sizeof(buf), f))
+	{
+		par = strchr(buf, '\"');
+		if (par) {
+			par++;
+			end = strrchr(buf, '\"');
+			if (end) {
+				*end = '\0';
+				if (!(strcmp(par, partition))) {
+					*(strchr(buf, ':')) = '\0';
+					strncpy(dev + 13, buf + 3, 3);
+					goto out;
+				}
+			}
+		}
+		i++;
+	}
+error:
+	free(dev);
+	dev = NULL;
+out:
+	if (f)
+		fclose(f);
+
+	return dev;
+}
+
 int onrisc_get_sw_state(onrisc_sw_caps_t *sw, gpio_level *state)
 {
 	int rc = EXIT_FAILURE;
