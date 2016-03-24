@@ -87,23 +87,21 @@ int onrisc_write_mdio_reg(int phy_id, int reg, int val)
 	int err;
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof(ifr));
-	strcpy(ifr.ifr_name, "eth0"); //set to whatever your ethernet device is
+	strcpy(ifr.ifr_name, "eth1");
 
 	struct mii_ioctl_data* mii = (struct mii_ioctl_data*)(&ifr.ifr_data);
-	mii->phy_id = phy_id; //set to your phy's ID
-	mii->reg_num = reg; //the register you want to read
+	mii->phy_id = phy_id;
+	mii->reg_num = reg;
 	mii->val_in = val;
 	mii->val_out = 0;
 
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (fd <= 0)
-	{
+	if (fd <= 0) {
 		fprintf(stderr, "failed to create MDIO write socket\n");
 		goto error;
 	}
 	err = ioctl(fd, SIOCSMIIREG, &ifr);
-	if (err)
-	{
+	if (err) {
 		fprintf(stderr, "failed to perform SIOCSMIIREG\n");
 		goto error;
 	}
@@ -124,23 +122,21 @@ int onrisc_read_mdio_reg(int phy_id, int reg, int *val)
 	int err;
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof(ifr));
-	strcpy(ifr.ifr_name, "eth0"); //set to whatever your ethernet device is
+	strcpy(ifr.ifr_name, "eth1");
 
 	struct mii_ioctl_data* mii = (struct mii_ioctl_data*)(&ifr.ifr_data);
-	mii->phy_id = phy_id; //set to your phy's ID
-	mii->reg_num = reg; //the register you want to read
+	mii->phy_id = phy_id;
+	mii->reg_num = reg;
 	mii->val_in = 0;
 	mii->val_out = 0;
 
 	fd = socket(AF_INET, SOCK_DGRAM, 0);
-	if (fd <= 0)
-	{
+	if (fd <= 0) {
 		fprintf(stderr, "failed to create MDIO read socket\n");
 		goto error;
 	}
 	err = ioctl(fd, SIOCGMIIREG, &ifr);
-	if (err)
-	{
+	if (err) {
 		fprintf(stderr, "failed to perform SIOCGMIIREG\n");
 		goto error;
 	}
