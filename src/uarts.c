@@ -14,13 +14,17 @@ int onrisc_set_sr485_ioctl(int port_nr, int on)
 	}
 
 	sprintf(port, "/dev/ttyO%d", port_nr);
+	if (access(port, F_OK)) {
+	    sprintf(port, "/dev/ttyS%d", port_nr);
+	}
 
 	fd = open(port, O_RDWR | O_NONBLOCK);
 	if (fd <= 0) {
-		fprintf(stderr, "failed to open /dev/ttyO%d\n", port_nr);
+		fprintf(stderr, "failed to open %s\n", port);
 		rc = EXIT_FAILURE;
 		goto error ;
 	}
+
 	/* get current RS485 settings */
 	if (ioctl(fd , TIOCGRS485, &rs485conf ) < 0) {
 		fprintf(stderr, "failed to invoke TIOCGRS485\n");
@@ -31,7 +35,7 @@ int onrisc_set_sr485_ioctl(int port_nr, int on)
 	if (on) {
 		/* enable RS485 mode */
 		rs485conf.flags |= SER_RS485_ENABLED;
-		rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND) ;
+		rs485conf.flags &= ~(SER_RS485_RTS_ON_SEND);
 		rs485conf.flags |= SER_RS485_RTS_AFTER_SEND;
 	}
 	else {
