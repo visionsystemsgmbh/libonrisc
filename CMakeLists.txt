@@ -64,7 +64,9 @@ endif (LUA_WRAP)
 # library
 add_library(onrisc SHARED ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
 set_target_properties(onrisc PROPERTIES
-	PUBLIC_HEADER "${PROJECT_BINARY_DIR}/onrisc.h")
+	PUBLIC_HEADER "${PROJECT_BINARY_DIR}/onrisc.h"
+	VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}
+	SOVERSION 1)
 target_link_libraries(onrisc ${PC_LIBSOC_LIBRARIES} ${PC_LIBUDEV_LIBRARIES} pthread)
 
 # cli
