@@ -64,7 +64,7 @@ void print_usage()
 	fprintf(stderr,
 		"onrisctool -c 0x0f -f 0x0f (set first 4 IOs to output)\n");
 	fprintf(stderr,
-		"onrisctool -a 0x07 -b 0x05 (turn pins 0 and 2 to high and clear pin 1)\n");
+		"onrisctool -a 0x70 -b 0x50 (turn pins 0 and 2 to high and clear pin 1)\n");
 }
 
 int show_rs_modes()
