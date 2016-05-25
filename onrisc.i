@@ -21,6 +21,10 @@ $result = PyString_FromString(mac);
 	$1=mac;
 }
 
+%typemap(in) char[ANY] {
+        $1=PyString_AsString($input);
+}
+
 /*%typemap(in) gpio_level {
 	$1=(gpio_level) PyInt_AsLong($input);
 }
