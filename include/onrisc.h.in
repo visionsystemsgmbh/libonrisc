@@ -38,7 +38,7 @@ extern "C" {
 #define NETCOM_PLUS_211		226
 #define NETCOM_PLUS_213		227
 #define NETCOM_PLUS_ECO_111	228
-#define NETCOM_PLUS_ECO_211	229
+#define NETCOM_PLUS_ECO_113	229
 #define NETCAN			230
 
 typedef struct {

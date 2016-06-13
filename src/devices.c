@@ -108,12 +108,12 @@ int onrisc_init_caps()
 			leds->led[LED_APP].pin = 17;
 			break;
 		case NETCOM_PLUS_ECO_111:
-		case NETCOM_PLUS_ECO_211:
+		case NETCOM_PLUS_ECO_113:
 			leds->num = 2;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
 			leds->led[LED_POWER].pin = 27;
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
-			leds->led[LED_APP].pin = 1;
+			leds->led[LED_APP].pin = 15;
 			break;
 	}
 
@@ -241,12 +241,15 @@ int onrisc_init_caps()
 			break;
 
 		case NETCOM_PLUS_ECO_111:
-		case NETCOM_PLUS_ECO_211:
+		case NETCOM_PLUS_ECO_113:
 			uarts->num = 1;
-			if (NETCOM_PLUS_ECO_211 == onrisc_system.model) {
-				uarts->num = 2;
-			}
-			uarts->flags = 0;
+			uarts->flags = UARTS_SWITCHABLE;
+			uarts->ctrl[0].num = 4;
+			uarts->ctrl[0].flags = RS_HAS_TERMINATION | RS_IS_GPIO_BASED;
+			uarts->ctrl[0].pin[0] = 18;
+			uarts->ctrl[0].pin[1] = 19;
+			uarts->ctrl[0].pin[2] = 16;
+			uarts->ctrl[0].pin[3] = 14;
 			break;
 	}
 
@@ -383,6 +386,22 @@ int onrisc_init_caps()
 			dips->dip_switch[0].pin[2] = 32 * 3 + 9;
 			dips->dip_switch[0].pin[3] = 32 * 3 + 10;
 			break;
+		case NETCOM_PLUS_ECO_111:
+		case NETCOM_PLUS_ECO_113:
+			/* initialize DIP caps */
+			dips = malloc(sizeof(onrisc_dip_caps_t));
+			if (NULL == dips) {
+				goto error;
+			}
+			memset(dips, 0, sizeof(onrisc_dip_caps_t));
+
+			dips->num = 1;
+			dips->dip_switch[0].num = 4;
+			dips->dip_switch[0].pin[0] = 20;
+			dips->dip_switch[0].pin[1] = 21;
+			dips->dip_switch[0].pin[2] = 22;
+			dips->dip_switch[0].pin[3] = 23;
+			break;
 	}
 
 	/* SWITCHES */
@@ -506,7 +525,7 @@ int onrisc_init_caps()
 			strcpy(eths->eth[1].if_name, "eth0");
 			break;
 		case NETCOM_PLUS_ECO_111:
-		case NETCOM_PLUS_ECO_211:
+		case NETCOM_PLUS_ECO_113:
 			strcpy(eths->eth[0].if_name, "eth0");
 			break;
 	}
