@@ -306,6 +306,11 @@ int set_macs()
 	    );
 
 	system(cmd);
+
+	if (VS860 == onrisc_system.model) {
+		return 0;
+	}
+
 	sprintf(cmd, "ifconfig eth1 hw ether %02x:%02x:%02x:%02x:%02x:%02x",
 		onrisc_system.mac2[0],
 		onrisc_system.mac2[1],
@@ -313,6 +318,7 @@ int set_macs()
 		onrisc_system.mac2[3],
 		onrisc_system.mac2[4], onrisc_system.mac2[5]
 	    );
+
 	system(cmd);
 
 	return 0;
