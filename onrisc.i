@@ -7,6 +7,7 @@
 #define __attribute__(x)
 %include "stdint.i"
 %include "typemaps.i"
+%include "carrays.i"
 
 #ifdef SWIGPYTHON
 %typemap(out) uint8_t[6] {
@@ -91,6 +92,11 @@ $result = PyString_FromString(mac);
 }
 #endif
 typedef int gpio_level;
+
+%array_class(onrisc_eth_t, ethArray);
+%array_class(onrisc_led_t, ledArray);
+%array_class(onrisc_gpio_t, gpioArray);
+%array_class(onrisc_dip_switch_t, dipSwitchArray);
 
 int onrisc_get_uart_dips(int port_nr, uint32_t *OUTPUT);
 int onrisc_get_uart_mode_raw(int port_nr, uint32_t *OUTPUT);
