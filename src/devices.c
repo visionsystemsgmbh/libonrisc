@@ -241,6 +241,10 @@ int onrisc_init_caps()
 			break;
 
 		case NETCOM_PLUS_ECO_111:
+			uarts->num = 1;
+			uarts->flags = 0;
+			break;
+
 		case NETCOM_PLUS_ECO_113:
 			uarts->num = 1;
 			uarts->flags = UARTS_SWITCHABLE;
