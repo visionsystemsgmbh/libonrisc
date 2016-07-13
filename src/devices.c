@@ -109,11 +109,15 @@ int onrisc_init_caps()
 			break;
 		case NETCOM_PLUS_ECO_111:
 		case NETCOM_PLUS_ECO_113:
-			leds->num = 2;
-			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
+			leds->num = 4;
+			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_POWER].pin = 27;
+			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
+			leds->led[LED_WLAN].pin = 0;
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_APP].pin = 15;
+			leds->led[LED_ETH_SPEED].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
+			leds->led[LED_ETH_SPEED].pin = 26;
 			break;
 	}
 

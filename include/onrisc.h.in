@@ -220,18 +220,19 @@ typedef struct _BSP_VS_HWPARAM    // v1.0
 	uint8_t MAC3[6];        // WL1271 WLAN
 } __attribute__ ((packed)) BSP_VS_HWPARAM; 
 
-/* Definition for KS8695 based devices */
-
 #define LED_POWER				0x01	//!< power LED red
 #define LED_WLAN				0x02	//!< WLAN LED blue
 #define LED_APP					0x04	//!< LED green
 #define LED_BTN_WLAN				0x08	//!< LED button wlan (Arete)
 #define LED_CAN_ERROR				0x10	//!< CAN Error LED (NET-CAN)
+#define LED_ETH_SPEED				0x20	//!< LED network speed
 
 #define DIP_S1					0x01
 #define DIP_S2					0x02
 #define DIP_S3					0x04
 #define DIP_S4					0x08
+
+/* Definition for KS8695 based devices */
 
 struct epld_struct
 {
