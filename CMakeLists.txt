@@ -77,12 +77,16 @@ target_link_libraries(onrisctool onrisc)
 add_executable(onriscdipd ${PROJECT_SOURCE_DIR}/cli/onriscdipd.c)
 target_link_libraries(onriscdipd onrisc)
 
+add_executable(onriscgpiod ${PROJECT_SOURCE_DIR}/cli/onriscgpiod.c)
+target_link_libraries(onriscgpiod onrisc)
+
 install(TARGETS onrisc 
 	LIBRARY DESTINATION lib COMPONENT shlib
 	PUBLIC_HEADER DESTINATION include COMPONENT dev
 	)
 install(TARGETS onrisctool RUNTIME DESTINATION bin)
 install(TARGETS onriscdipd RUNTIME DESTINATION bin)
+install(TARGETS onriscgpiod RUNTIME DESTINATION bin)
 
 if (PYTHON_WRAP)
 	execute_process (
