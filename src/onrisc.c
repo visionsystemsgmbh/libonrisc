@@ -4,6 +4,7 @@ int init_flag = 0;
 onrisc_system_t onrisc_system;
 onrisc_capabilities_t onrisc_capabilities;
 onrisc_dip_caps_t * onrisc_dips;
+onrisc_sw_caps_t * onrisc_wlsw;
 onrisc_eeprom_t eeprom;
 
 /* UART mode variables */
@@ -550,3 +551,80 @@ int onrisc_init(onrisc_system_t * data)
 
 	return EXIT_SUCCESS;
 }
+
+int generic_wlan_sw_callback(void * arg)
+{
+	callback_int_arg_t * params = (callback_int_arg_t *) arg;
+	onrisc_gpios_t val;
+	val.mask = 1;
+	gpio_level level;
+	int i;
+
+	onrisc_wlsw = onrisc_capabilities.wlan_sw;
+
+	val.value = 0;
+
+	level = libsoc_gpio_get_level(onrisc_wlsw->gpio);
+
+	if (level == HIGH) {
+		val.value = 1;
+	} else {
+		val.value = 0;
+	}
+
+	return params->callback_fn(val, params->args);
+}
+
+int onrisc_wlan_sw_register_callback(int (*callback_fn) (onrisc_gpios_t, void *), void *arg, gpio_edge edge)
+{
+	int rc = EXIT_FAILURE;
+	callback_int_arg_t * params;
+
+	if (!onrisc_capabilities.wlan_sw){
+		goto error;
+	}
+
+	onrisc_wlsw = onrisc_capabilities.wlan_sw;
+
+	if (onrisc_sw_init(onrisc_wlsw) == EXIT_FAILURE) {
+		goto error;
+	}
+
+	/* set trigger edge */
+	libsoc_gpio_set_edge(onrisc_wlsw->gpio, edge);	
+	params = malloc(sizeof(callback_int_arg_t));
+	if (NULL == params) {
+		goto error;
+	}
+	memset(params, 0, sizeof(callback_int_arg_t));
+	
+	params->callback_fn = callback_fn;				
+	params->index = 0;				
+	params->args = arg;				
+
+	/* register ISR */
+	libsoc_gpio_callback_interrupt(onrisc_wlsw->gpio, generic_wlan_sw_callback, (void *) params);
+
+	rc = EXIT_SUCCESS;
+ error:
+	return rc;
+}
+
+int onrisc_wlan_sw_cancel_callback()
+{
+	int rc = EXIT_FAILURE;
+
+	if (!onrisc_capabilities.wlan_sw){
+		goto error;
+	}
+
+	onrisc_wlsw = onrisc_capabilities.wlan_sw;
+
+	/* register ISR */
+	libsoc_gpio_callback_interrupt_cancel(onrisc_wlsw->gpio);
+
+	rc = EXIT_SUCCESS;
+ error:
+	return rc;
+}
+

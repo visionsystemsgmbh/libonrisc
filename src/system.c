@@ -47,6 +47,50 @@ out:
 	return dev;
 }
 
+int onrisc_sw_init(onrisc_sw_caps_t *sw)
+{
+	int rc = EXIT_FAILURE;
+	gpio_direction dir;
+
+	if (!(sw->flags & SW_IS_SETUP)) {
+		/* request GPIO */
+		sw->gpio = libsoc_gpio_request(sw->pin, LS_SHARED);
+		if (NULL == sw->gpio) {
+			fprintf(stderr, "failed to register switch GPIO\n");
+			goto error;
+		}
+
+		/* check GPIO direction settings */
+		if ((dir = libsoc_gpio_get_direction(sw->gpio)) == DIRECTION_ERROR) {
+			fprintf(stderr, "failed to get GPIO direction\n");
+			return rc;
+		}
+
+		/* set direction */
+		if (sw->flags & SW_IS_READ_ONLY) {
+			if (INPUT != dir) {
+				if (libsoc_gpio_set_direction(sw->gpio, INPUT) == EXIT_FAILURE) {
+					fprintf(stderr, "failed to set GPIO dir\n");
+					goto error;
+				}
+			}
+		} else {
+			if (OUTPUT != dir) {
+				if (libsoc_gpio_set_direction(sw->gpio, OUTPUT) == EXIT_FAILURE) {
+					fprintf(stderr, "failed to set GPIO dir\n");
+					goto error;
+				}
+			}
+		}
+
+		sw->flags |= SW_IS_SETUP;
+	}
+
+	rc = EXIT_SUCCESS;
+error:
+	return rc;
+}
+
 int onrisc_get_sw_state(onrisc_sw_caps_t *sw, gpio_level *state)
 {
 	int rc = EXIT_FAILURE;

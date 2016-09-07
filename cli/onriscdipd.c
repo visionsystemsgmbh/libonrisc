@@ -41,7 +41,7 @@ typedef struct {
 	{.action_type=SERIAL_MODE, .action.mode=0b1011}, //15 RS485-FD + Term
 };*/
 
-dip_entry dip_list[16] = { 
+dip_entry dip_list[18] = { 
 	{.action_type=UNSET}, // 0
 	{.action_type=UNSET}, // 1
 	{.action_type=UNSET}, // 2
@@ -58,29 +58,13 @@ dip_entry dip_list[16] = {
 	{.action_type=UNSET}, //13
 	{.action_type=UNSET}, //14
 	{.action_type=UNSET}, //15
-};
-
-dip_entry gpio_list[16] = { 
-	{.action_type=UNSET}, // IN 0 RISING EDGE
-	{.action_type=UNSET}, // IN 1
-	{.action_type=UNSET}, // IN 2
-	{.action_type=UNSET}, // IN 3
-	{.action_type=UNSET}, // IN 0 FALLING EDGE
-	{.action_type=UNSET}, // IN 1
-	{.action_type=UNSET}, // IN 2
-	{.action_type=UNSET}, // IN 3
-	{.action_type=UNSET}, // 
-	{.action_type=UNSET}, //
-	{.action_type=UNSET}, //
-	{.action_type=UNSET}, //
-	{.action_type=UNSET}, //
-	{.action_type=UNSET}, //
-	{.action_type=UNSET}, //
-	{.action_type=UNSET}, //
+	{.action_type=UNSET}, //16 WLAN SW RISING EDGE
+	{.action_type=UNSET}, //17 WLAN SW FALLING EDGE
 };
 
 bool rs232only = false;
 bool hw_uart_dips = false;
+bool wlan_sw = false;
 
 int test_callback(onrisc_gpios_t dips, void* data)
 {
@@ -103,30 +87,22 @@ int test_callback(onrisc_gpios_t dips, void* data)
  
 }	
 
-int gpio_callback(onrisc_gpios_t gpios, void* data)
+int wlan_sw_callback(onrisc_gpios_t gpios, void* data)
 {
 	int port_nr = ALL_PORTS;
-	int i;
 	char cmd[256];
 	
-	if(gpios.mask == 0) {
-		port_nr = *((int *) data);
-	}
-	for(i=0 ; i < 4 ; i++) {
-		if (gpios.mask & (1 << i)) {
-			if (gpios.value & (1 << i)) {
-				if(gpio_list[i].action_type == SERIAL_MODE) {
-					onrisc_set_uart_mode_raw(port_nr, gpio_list[i].action.mode);
-				} else 	if(gpio_list[i].action_type == SHELL) {
-					system(gpio_list[i].action.cmd);
-				}
-			} else {
-				if(gpio_list[i+4].action_type == SERIAL_MODE) {
-					onrisc_set_uart_mode_raw(port_nr, gpio_list[i+4].action.mode);
-				} else 	if(gpio_list[i+4].action_type == SHELL) {
-					system(gpio_list[i+4].action.cmd);
-				}
-			}
+	if (gpios.value) {
+		if(dip_list[16].action_type == SERIAL_MODE) {
+			onrisc_set_uart_mode_raw(port_nr, dip_list[16].action.mode);
+		} else 	if(dip_list[16].action_type == SHELL) {
+			system(dip_list[16].action.cmd);
+		}
+	} else {
+		if(dip_list[17].action_type == SERIAL_MODE) {
+			onrisc_set_uart_mode_raw(port_nr, dip_list[17].action.mode);
+		} else 	if(dip_list[17].action_type == SHELL) {
+			system(dip_list[17].action.cmd);
 		}
 	}
 }	
@@ -139,11 +115,7 @@ void print_usage()
 	fprintf(stderr,
 		"Options: -c                 read configs from /etc/onriscdipd.conf\n");
 	fprintf(stderr,
-		"         -k                 read configs from /etc/onriscgpiod.conf\n");
-	fprintf(stderr,
 		"         -d                 start as DIP daemon\n");
-	fprintf(stderr,
-		"         -g                 start as GPIO daemon\n");
 	fprintf(stderr, "         -e                 execute callback at start\n");
 }
 
@@ -167,7 +139,7 @@ int readconfig(char *filename)
 		if (!read)
 			continue;
 		buf=strtok(line,":");
-		sscanf(buf, "%01X", &idx);
+		sscanf(buf, "%02X", &idx);
 		buf=strtok(NULL,":");
 		sscanf(buf, "%s", type);
 		if (!strcmp(type,"unset")){
@@ -208,67 +180,6 @@ int readconfig(char *filename)
 	return 0;
 }
 
-int readconfig_gpio(char *filename)
-{
-	FILE *fp;
-	char *line = NULL;
-	size_t len = 0;
-	ssize_t read;
-	int idx,i;
-	uint8_t mode = 0;
-	char type[20];
-	char cmd[256];
-	char *buf = NULL;
-
-	fp = fopen("/etc/onriscgpiod.conf", "r");
-	if (fp == NULL)
-		exit(EXIT_FAILURE);
-
-	while ((read = getline(&line, &len, fp)) != -1) {
-		if (!read)
-			continue;
-		buf=strtok(line,":");
-		sscanf(buf, "%01X", &idx);
-		buf=strtok(NULL,":");
-		sscanf(buf, "%s", type);
-		if (!strcmp(type,"unset")){
-			gpio_list[idx].action_type = UNSET;
-		} else if (!strcmp(type, "serial-mode")){
-			if (rs232only || hw_uart_dips){
-				gpio_list[idx].action_type = UNSET;
-				continue;
-			}
-			gpio_list[idx].action_type = SERIAL_MODE;
-			buf=strtok(NULL,"\n");
-			sscanf(buf, "%s", cmd);
-
-			if(strlen(cmd) > 5)
-				exit(EXIT_FAILURE);
-
-			mode = 0;
-			for (i=0; i<strlen(cmd); ++i){
-				if (cmd[i] == '1') {
-					mode |= 1 << ((strlen(cmd) - 1) - i);
-				} else if (cmd[i] == '0') {
-				} else {
-					exit(EXIT_FAILURE);
-				}	
-			}
-			
-			gpio_list[idx].action.mode = mode;
-		} else if (!strcmp(type, "shell")){
-			gpio_list[idx].action_type = SHELL;
-
-			if(strlen(cmd) > 255)
-				exit(EXIT_FAILURE);
-
-			buf=strtok(NULL,"\n");
-			strcpy(gpio_list[idx].action.cmd, buf);
-		}
-	}
-	return 0;
-}
-
 int main(int argc, char **argv)
 {
 	int opt, i;
@@ -303,9 +214,10 @@ int main(int argc, char **argv)
 	
 	rs232only = !(caps->uarts->flags & UARTS_SWITCHABLE);	
 	hw_uart_dips = !!(caps->uarts->flags & UARTS_DIPS_PHYSICAL);	
+	wlan_sw = !!(caps->wlan_sw);	
 	
 	/* handle command line params */
-	while ((opt = getopt(argc, argv, "ckedgh?")) != -1) {
+	while ((opt = getopt(argc, argv, "cedh?")) != -1) {
 		switch (opt) {
 
 		case 'c':
@@ -320,10 +232,15 @@ int main(int argc, char **argv)
 			break;
 		case 'd':
 			if (hw_uart_dips) {
-				printf("This device has UART-DIPs\nNothing to do for daemon\n");
-				break;
+				printf("This device has UART-DIPs\n");
+			} else {
+				onrisc_dip_register_callback(0, test_callback, NULL, BOTH);
 			}
-			onrisc_dip_register_callback(0, test_callback, NULL, BOTH);
+			if (!wlan_sw) {
+				printf("This device has no WLAN switch\n");
+			} else {
+				onrisc_wlan_sw_register_callback(wlan_sw_callback, NULL, BOTH);
+			}
 			while(1);
 			break;
 		case 'e':
@@ -339,19 +256,12 @@ int main(int argc, char **argv)
 				onrisc_get_dips(&dips.value);
 				test_callback(dips,&i);
 			}
-			break;
-		case 'g':
-			if (!caps->gpios) {
-				printf("This device has GPIOs\nNothing to do for daemon\n");
-				break;
+			if (wlan_sw) {
+				dips.mask=0;
+				onrisc_get_wlan_sw_state(&wlan_sw_state);
+				dips.value = (wlan_sw_state == HIGH) ? 1: 0;
+				wlan_sw_callback(dips,NULL);
 			}
-			onrisc_gpios_t mask;
-			mask.mask=0xF;
-			onrisc_gpio_register_callback(mask, gpio_callback, NULL, BOTH);
-			while(1);
-			break;
-		case 'k':
-			readconfig_gpio(NULL);
 			break;
 		case '?':
 		case 'h':

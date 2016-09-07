@@ -467,6 +467,21 @@ int onrisc_dip_register_callback(uint32_t idx, int (*callback_fn) (onrisc_gpios_
 int onrisc_dip_cancel_callback(uint32_t idx);
 
 /**
+ * @brief registers a callback function (interrupt) for the WLAN switch
+ * @param callback_fn is called on interrupt. The first argument contains the triggering dip (mask) and the current state of the dips (value)
+ * @param arg is the second argument to the calback_fn
+ * @param edge defines the edge on which the interrupt triggers (RISING, FALLING, BOTH)
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_wlan_sw_register_callback(int (*callback_fn) (onrisc_gpios_t, void *), void *arg, gpio_edge edge);
+
+/**
+ * @brief removes a callback function (interrupt) from WLAN switch
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_wlan_sw_cancel_callback();
+
+/**
  * @brief write to MDIO register
  * @param phy_id PHY ID
  * @param reg PHY's register
@@ -510,6 +525,13 @@ int onrisc_get_mpcie_sw_state(gpio_level *state);
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_set_mpcie_sw_state(gpio_level state);
+
+/**
+ * @brief initializes a switch
+ * @param sw switch to be initialized
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_sw_init(onrisc_sw_caps_t *sw);
 
 #ifdef __cplusplus
 }
