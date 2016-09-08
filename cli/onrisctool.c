@@ -309,7 +309,9 @@ int set_macs()
 
 	system(cmd);
 
-	if (VS860 == onrisc_system.model) {
+	if (VS860 == onrisc_system.model ||
+	    NETCOM_PLUS_ECO_111 == onrisc_system.model ||
+	    NETCOM_PLUS_ECO_113 == onrisc_system.model) {
 		return 0;
 	}
 
