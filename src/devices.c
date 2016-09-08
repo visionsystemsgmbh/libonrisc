@@ -72,7 +72,7 @@ int onrisc_init_caps()
 			break;
 		case ALEKTO2:
 			leds->num = 1;
-			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE | LED_NEEDS_I2C_ADDR);
+			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE | LED_NEEDS_I2C_ADDR | LED_IS_INPUT_ACTIVE);
 			leds->led[LED_POWER].pin = 9;
 			leds->led[LED_POWER].i2c_id = 0x21;
 
@@ -110,7 +110,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_111:
 		case NETCOM_PLUS_ECO_113:
 			leds->num = 4;
-			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
+			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE | LED_IS_INPUT_ACTIVE);
 			leds->led[LED_POWER].pin = 27;
 			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_WLAN].pin = 0;

@@ -110,6 +110,7 @@ typedef struct {
 #define LED_IS_AVAILABLE (1 << 2)
 #define LED_NEEDS_I2C_ADDR (1 << 3)
 #define LED_IS_LED_CLASS_BASED (1 << 4)
+#define LED_IS_INPUT_ACTIVE (1 << 5)
 
 /** @name LED hardware control structure */
 /*@{*/

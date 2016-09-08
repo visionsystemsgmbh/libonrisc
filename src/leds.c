@@ -112,7 +112,7 @@ int onrisc_switch_led(blink_led_t * led, uint8_t state)
 		if (state) {
 			/* HIGH phase */
 			if (led_flags & LED_IS_HIGH_ACTIVE) {
-				if (ALEKTO2 == onrisc_system.model) {
+				if (led_flags & LED_IS_INPUT_ACTIVE) {
 					libsoc_gpio_set_direction(led->led,
 								  INPUT);
 				} else {
