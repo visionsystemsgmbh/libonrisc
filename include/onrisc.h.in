@@ -226,7 +226,6 @@ typedef struct _BSP_VS_HWPARAM    // v1.0
 #define LED_APP					0x04	//!< LED green
 #define LED_BTN_WLAN				0x08	//!< LED button wlan (Arete)
 #define LED_CAN_ERROR				0x10	//!< CAN Error LED (NET-CAN)
-#define LED_ETH_SPEED				0x20	//!< LED network speed
 
 #define DIP_S1					0x01
 #define DIP_S2					0x02

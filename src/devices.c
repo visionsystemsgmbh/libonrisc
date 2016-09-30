@@ -109,15 +109,13 @@ int onrisc_init_caps()
 			break;
 		case NETCOM_PLUS_ECO_111:
 		case NETCOM_PLUS_ECO_113:
-			leds->num = 4;
+			leds->num = 3;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE | LED_IS_INPUT_ACTIVE);
 			leds->led[LED_POWER].pin = 27;
 			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_WLAN].pin = 0;
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_APP].pin = 15;
-			leds->led[LED_ETH_SPEED].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
-			leds->led[LED_ETH_SPEED].pin = 26;
 			break;
 	}
 
@@ -245,13 +243,12 @@ int onrisc_init_caps()
 			break;
 
 		case NETCOM_PLUS_ECO_111:
-			uarts->num = 1;
-			uarts->flags = 0;
-			break;
-
 		case NETCOM_PLUS_ECO_113:
 			uarts->num = 1;
 			uarts->flags = UARTS_SWITCHABLE;
+			if (NETCOM_PLUS_ECO_111 == onrisc_system.model) {
+				uarts->flags = 0;
+			}
 			uarts->ctrl[0].num = 4;
 			uarts->ctrl[0].flags = RS_HAS_TERMINATION | RS_IS_GPIO_BASED;
 			uarts->ctrl[0].pin[0] = 18;
