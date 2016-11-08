@@ -88,6 +88,15 @@ install(TARGETS onrisctool RUNTIME DESTINATION bin)
 install(TARGETS onriscdipd RUNTIME DESTINATION bin)
 install(TARGETS onriscgpiod RUNTIME DESTINATION bin)
 
+# PkgConfig
+set(prefix      ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix ${CMAKE_INSTALL_PREFIX}/bin)
+set(includedir  ${CMAKE_INSTALL_PREFIX}/include)
+set(libdir      ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
+
+configure_file(${CMAKE_SOURCE_DIR}/libonrisc.pc.in ${CMAKE_BINARY_DIR}/libonrisc.pc @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/libonrisc.pc DESTINATION lib${LIB_SUFFIX}/pkgconfig)
+
 if (PYTHON_WRAP)
 	execute_process (
 	   COMMAND ${PYTHON_EXECUTABLE} -c
