@@ -28,10 +28,24 @@ On **Debian** one can skip the last step and create/install deb package:
 1. `cpack`
 2. `dpkg -i *.deb`
 
+pkg-config Support
+------------------
+
+**libonrisc** automatically installs `libonrisc.pc` file, so that one can query its version, linker flags etc. To query **libonrisc** version invoke:
+
+    pkg-config --modversion libonrisc
+
+In CMake you can use following code fragment to find `libonrisc`:
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PC_LIBONRISC REQUIRED libonrisc)
+
+If `libonrisc` was found its include and linker flags will be stored in `${PC_LIBONRISC_INCLUDE_DIRS}` and `${PC_LIBONRISC_LIBRARIES}` respectively.
+
 API
 ---
 
-All routines and data structures are described in `include/onrisc.h` using **Doxygen** syntax. It is mandatory to invoke `onrisc_init()` before you use any other API calls otherwise you'll get assertion triggered. `cli/onrisctool.c` provides usage example to the most API calls.
+All routines and data structures are described in `include/onrisc.h` using **Doxygen** syntax. It is mandatory to invoke `onrisc_init()` before you use any other API calls otherwise you'll get assertion triggered. `cli/onrisctool.c` provides usage examples to the most API calls.
 
 ### Get system information
 
