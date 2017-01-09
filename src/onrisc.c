@@ -298,7 +298,7 @@ int onrisc_get_model(int *model)
 			/* Alekto2 */
 			*model = ALEKTO2;
 			break;
-		} else if (strstr(buf, "VS-860")) {
+		} else if (strstr(buf, "VS-860") || strstr(buf, "AM3517")) {
 			/* VS-860 */
 			*model = VS860;
 			break;
