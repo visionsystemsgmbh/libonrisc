@@ -15,3 +15,5 @@ install_manifest.txt
 /ipkg*
 Makefile
 Headers/
+oe-logs
+oe-workdir
