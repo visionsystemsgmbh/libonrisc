@@ -209,7 +209,7 @@ int handle_leds(char *str)
 
 		break;
 	case 2:
-		led.count = -1;	/* blinking continuously */
+		led.count = 5;	/* blinking continuously */
 		led.interval.tv_sec = 1;
 		led.interval.tv_usec = 0;
 		led.high_phase.tv_sec = 0;
@@ -227,24 +227,6 @@ int handle_leds(char *str)
 			return EXIT_FAILURE;
 		}
 
-		/* blink with another frequency */
-		led.count = -1;	/* blinking continuously */
-		led.interval.tv_sec = 2;
-		led.interval.tv_usec = 0;
-		led.high_phase.tv_sec = 1;
-		led.high_phase.tv_usec = 0;
-
-		if (onrisc_blink_led_start(&led) == EXIT_FAILURE) {
-			fprintf(stderr, "failed to start %s LED\n", name);
-			return EXIT_FAILURE;
-		}
-
-		sleep(5);
-
-		if (onrisc_blink_led_stop(&led) == EXIT_FAILURE) {
-			fprintf(stderr, "failed to stop %s LED\n", name);
-			return EXIT_FAILURE;
-		}
 		break;
 	case 3:
 		led.count = -1;	/* blinking continuously */

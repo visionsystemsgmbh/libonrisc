@@ -33,6 +33,21 @@ struct timeval *result, *x, *y;
 	return x->tv_sec < y->tv_sec;
 }
 
+int timeval_multiply(result, x, y)
+struct timeval *result, *x;
+int32_t y;
+{
+	result->tv_usec = y * x->tv_usec;
+	result->tv_sec = y * x->tv_sec;
+
+	if (x->tv_usec > 1000000) {
+		result->tv_sec += result->tv_usec / 1000000;
+		result->tv_usec %= 1000000;
+	}
+	/* Return 1 if result is negative. */
+	return result->tv_sec < 0;
+}
+
 int onrisc_restore_leds(blink_led_t * blinker)
 {
 	int rc = EXIT_SUCCESS;
@@ -68,11 +83,24 @@ int onrisc_get_led_state(blink_led_t * led, uint8_t * state)
 	int rc = EXIT_FAILURE;
 	unsigned long val;
 	uint8_t led_flags = onrisc_capabilities.leds->led[led->led_type].flags;
+	onrisc_led_t *led_cap = &onrisc_capabilities.leds->led[led->led_type];
 
 	assert(init_flag == 1);
 
 	if (onrisc_led_init(led) == EXIT_FAILURE) {
 		goto error;
+	}
+
+	if (led_cap->flags & LED_CLASS) {
+		char path[256];
+		sprintf(path,"/sys/class/leds/%s/brightness",led_cap->name);
+		FILE *fp = fopen(path, "r");
+		if (fp == NULL)
+			return EXIT_FAILURE;
+		fscanf(fp,"%d", state);
+		fclose(fp);
+
+		return EXIT_SUCCESS;
 	}
 
 	if (led_flags & LED_IS_GPIO_BASED) {
@@ -100,11 +128,31 @@ int onrisc_switch_led(blink_led_t * led, uint8_t state)
 {
 	unsigned long val;
 	uint8_t led_flags = onrisc_capabilities.leds->led[led->led_type].flags;
+	onrisc_led_t *led_cap = &onrisc_capabilities.leds->led[led->led_type];
 
 	assert(init_flag == 1);
 
 	if (onrisc_led_init(led) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
+	}
+
+	if (led_cap->flags & LED_CLASS) {
+		char path[256];
+		sprintf(path,"/sys/class/leds/%s/trigger",led_cap->name);
+		FILE *fp = fopen(path, "w");
+		if (fp == NULL)
+			return EXIT_FAILURE;
+		fprintf(fp,"none");
+		fclose(fp);
+
+		sprintf(path,"/sys/class/leds/%s/brightness",led_cap->name);
+		fp = fopen(path, "w");
+		if (fp == NULL)
+			return EXIT_FAILURE;
+		fprintf(fp,state ? "1" : "0");
+		fclose(fp);
+
+		return EXIT_SUCCESS;
 	}
 
 	if (led_flags & LED_IS_GPIO_BASED) {
@@ -185,12 +233,32 @@ void *blink_thread(void *data)
 			run = 0;
 		}
 	}
+}
 
-	/* restore LED status and free GPIO,
-	 * when counter is expired. If thread will be
-	 * canceled, then cancelling task will restore
-	 * LEDs */
-	onrisc_restore_leds(led);
+/**
+ * @brief blinking thread
+ * @param data blink_led structure
+ * @todo use switch/case structure for system identification
+ */
+void *blink_class_thread(void *data)
+{
+	blink_led_t *led = (blink_led_t *) data;
+	struct timeval stop_after;
+	uint8_t run = 1;
+	int32_t count = led->count;
+	onrisc_led_t *led_cap = &onrisc_capabilities.leds->led[led->led_type];
+
+	timeval_multiply(&stop_after, &led->interval, count);
+
+	select(1, NULL, NULL, NULL, &stop_after);
+
+	char path[256];
+	sprintf(path,"/sys/class/leds/%s/trigger",led_cap->name);
+	FILE *fp = fopen(path, "w");
+	if (fp == NULL)
+		return NULL;
+	fprintf(fp,"none");
+	fclose(fp);
 }
 
 void onrisc_blink_create(blink_led_t * blinker)
@@ -222,16 +290,30 @@ int onrisc_led_init(blink_led_t * blinker)
 	gpio *libsoc_gpio;
 	uint8_t led_flags;
 	uint32_t pin;
+	char *name; 
+	struct stat buf;
 
 	assert(blinker->led_type < ONRISC_MAX_LEDS);
 
 	led_flags = onrisc_capabilities.leds->led[blinker->led_type].flags;
 	pin = onrisc_capabilities.leds->led[blinker->led_type].pin;
+	name = onrisc_capabilities.leds->led[blinker->led_type].name;
 
 	if (!(led_flags & LED_IS_AVAILABLE)) {
 		fprintf(stderr, "LED (%d) is not available on this device\n",
 			blinker->led_type);
 		return EXIT_FAILURE;
+	}
+
+	if (led_flags & LED_CLASS) {
+		/* check, if LED (leds-gpio) was already initialized */
+		return EXIT_SUCCESS;
+	}
+
+	if(!stat("/proc/device-tree/leds/power", &buf)) {
+		onrisc_capabilities.leds->led[blinker->led_type].flags |= LED_CLASS;
+		led_flags = onrisc_capabilities.leds->led[blinker->led_type].flags;
+		return EXIT_SUCCESS;
 	}
 
 	if (led_flags & LED_IS_GPIO_BASED) {
@@ -284,7 +366,9 @@ int onrisc_led_init(blink_led_t * blinker)
 int onrisc_blink_led_start(blink_led_t * blinker)
 {
 	int rc;
-	struct timeval tmp, tmp_res;
+	struct timeval tmp, tmp_res, off;
+	onrisc_led_t *led_cap = &onrisc_capabilities.leds->led[blinker->led_type];
+
 
 	assert(init_flag == 1);
 
@@ -294,6 +378,40 @@ int onrisc_blink_led_start(blink_led_t * blinker)
 
 	if (onrisc_led_init(blinker) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
+	}
+
+	if (led_cap->flags & LED_CLASS) {
+		char path[256];
+		sprintf(path,"/sys/class/leds/%s/trigger",led_cap->name);
+		FILE *fp = fopen(path, "w");
+		if (fp == NULL)
+			return EXIT_FAILURE;
+		fprintf(fp,"timer");
+		fclose(fp);
+
+		sprintf(path,"/sys/class/leds/%s/delay_on",led_cap->name);
+		fp = fopen(path, "w");
+		if (fp == NULL)
+			return EXIT_FAILURE;
+		fprintf(fp,"%d", (tmp.tv_sec * 1000) + (tmp.tv_usec / 1000));
+		fclose(fp);
+
+		sprintf(path,"/sys/class/leds/%s/delay_off",led_cap->name);
+		fp = fopen(path, "w");
+		if (fp == NULL)
+			return EXIT_FAILURE;
+		fprintf(fp,"%d", (tmp_res.tv_sec * 1000) + (tmp_res.tv_usec / 1000));
+		fclose(fp);
+
+		if(blinker->count > 0) {
+			/* create blinking thread */
+			rc = pthread_create(&blinker->thread_id,
+						NULL, blink_class_thread, (void *)blinker);
+
+			return rc ? EXIT_FAILURE : EXIT_SUCCESS;
+		}
+
+		return EXIT_SUCCESS;
 	}
 
 	/* create blinking thread */
@@ -306,6 +424,26 @@ int onrisc_blink_led_start(blink_led_t * blinker)
 int onrisc_blink_led_stop(blink_led_t * blinker)
 {
 	assert(init_flag == 1);
+
+	onrisc_led_t *led_cap = &onrisc_capabilities.leds->led[blinker->led_type];
+
+	if (led_cap->flags & LED_CLASS) {
+		char path[256];
+		sprintf(path,"/sys/class/leds/%s/trigger",led_cap->name);
+		FILE *fp = fopen(path, "w");
+		if (fp == NULL)
+			return EXIT_FAILURE;
+		fprintf(fp,"none");
+		fclose(fp);
+
+		if(blinker->count > 0) {
+			/* cancel thread */
+			pthread_cancel(blinker->thread_id);
+			pthread_join(blinker->thread_id, NULL);
+		}
+
+		return EXIT_SUCCESS;
+	}
 
 	if (blinker->thread_id == -1) {
 		return EXIT_SUCCESS;

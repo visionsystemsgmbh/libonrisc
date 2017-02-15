@@ -57,10 +57,13 @@ int onrisc_init_caps()
 			leds->num = 3;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
 			leds->led[LED_POWER].pin = 96;
+			strcpy(leds->led[LED_POWER].name,"onrisc:red:power");
 			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_WLAN].pin = 16;
+			strcpy(leds->led[LED_WLAN].name,"onrisc:blue:wlan");
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_APP].pin = 17;
+			strcpy(leds->led[LED_APP].name,"onrisc:green:app");
 
 			if (NETCAN == onrisc_system.model) {
 				leds->num = 4;

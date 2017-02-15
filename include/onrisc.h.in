@@ -113,6 +113,7 @@ typedef struct {
 #define LED_NEEDS_I2C_ADDR (1 << 3)
 #define LED_IS_LED_CLASS_BASED (1 << 4)
 #define LED_IS_INPUT_ACTIVE (1 << 5)
+#define LED_CLASS (1 << 6)
 
 /** @name LED hardware control structure */
 /*@{*/
@@ -120,6 +121,7 @@ typedef struct {
 	uint32_t pin; /*!< LED related IO pin */
 	uint32_t flags; /*!< LED flags */
 	uint8_t i2c_id; /*!< I2C ID for I2C GPIO expander attached LEDs */
+	char name[17];	//!< LED name
 } __attribute__ ((packed)) onrisc_led_t;
 /*@}*/
 
