@@ -91,7 +91,7 @@ int onrisc_get_led_state(blink_led_t * led, uint8_t * state)
 		goto error;
 	}
 
-	if (led_cap->flags & LED_CLASS) {
+	if (led_cap->flags & LED_IS_LED_CLASS_BASED) {
 		char path[256];
 		sprintf(path,"/sys/class/leds/%s/brightness",led_cap->name);
 		FILE *fp = fopen(path, "r");
@@ -136,7 +136,7 @@ int onrisc_switch_led(blink_led_t * led, uint8_t state)
 		return EXIT_FAILURE;
 	}
 
-	if (led_cap->flags & LED_CLASS) {
+	if (led_cap->flags & LED_IS_LED_CLASS_BASED) {
 		char path[256];
 		sprintf(path,"/sys/class/leds/%s/trigger",led_cap->name);
 		FILE *fp = fopen(path, "w");
@@ -305,13 +305,13 @@ int onrisc_led_init(blink_led_t * blinker)
 		return EXIT_FAILURE;
 	}
 
-	if (led_flags & LED_CLASS) {
+	if (led_flags & LED_IS_LED_CLASS_BASED) {
 		/* check, if LED (leds-gpio) was already initialized */
 		return EXIT_SUCCESS;
 	}
 
 	if(!stat("/proc/device-tree/leds/power", &buf)) {
-		onrisc_capabilities.leds->led[blinker->led_type].flags |= LED_CLASS;
+		onrisc_capabilities.leds->led[blinker->led_type].flags |= LED_IS_LED_CLASS_BASED;
 		led_flags = onrisc_capabilities.leds->led[blinker->led_type].flags;
 		return EXIT_SUCCESS;
 	}
@@ -380,7 +380,7 @@ int onrisc_blink_led_start(blink_led_t * blinker)
 		return EXIT_FAILURE;
 	}
 
-	if (led_cap->flags & LED_CLASS) {
+	if (led_cap->flags & LED_IS_LED_CLASS_BASED) {
 		char path[256];
 		sprintf(path,"/sys/class/leds/%s/trigger",led_cap->name);
 		FILE *fp = fopen(path, "w");
@@ -427,7 +427,7 @@ int onrisc_blink_led_stop(blink_led_t * blinker)
 
 	onrisc_led_t *led_cap = &onrisc_capabilities.leds->led[blinker->led_type];
 
-	if (led_cap->flags & LED_CLASS) {
+	if (led_cap->flags & LED_IS_LED_CLASS_BASED) {
 		char path[256];
 		sprintf(path,"/sys/class/leds/%s/trigger",led_cap->name);
 		FILE *fp = fopen(path, "w");
