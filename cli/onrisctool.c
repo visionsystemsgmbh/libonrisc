@@ -477,6 +477,15 @@ int main(int argc, char **argv)
 				mode = TYPE_RS485_FD;
 			} else if (!strcmp(optarg, "rs485-hd")) {
 				mode = TYPE_RS485_HD;
+			} else if (!strcmp(optarg, "rs422-term")) {
+				mode = TYPE_RS422;
+				termination = 1;
+			} else if (!strcmp(optarg, "rs485-fd-term")) {
+				mode = TYPE_RS485_FD;
+				termination = 1;
+			} else if (!strcmp(optarg, "rs485-hd-term")) {
+				mode = TYPE_RS485_HD;
+				termination = 1;
 			} else if (!strcmp(optarg, "dip")) {
 				mode = TYPE_DIP;
 			} else if (!strcmp(optarg, "loop")) {
