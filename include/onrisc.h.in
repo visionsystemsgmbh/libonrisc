@@ -40,8 +40,12 @@ extern "C" {
 #define NETCOM_PLUS_ECO_111		228
 #define NETCOM_PLUS_ECO_113		229
 #define NETCAN				230
+#define NETCAN_PLUS_ECO			231
+#define NETCAN_PLUS_ECO_WLAN		232
 #define NETCOM_PLUS_ECO_111_WLAN	240
 #define NETCOM_PLUS_ECO_113_WLAN	241
+#define NETIO				250
+#define NETIO_WLAN			251
 
 typedef struct {
 	uint32_t flags;

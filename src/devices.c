@@ -114,6 +114,8 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_113:
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
+		case NETCAN_PLUS_ECO:
+		case NETCAN_PLUS_ECO_WLAN:
 			leds->num = 3;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE | LED_IS_INPUT_ACTIVE);
 			leds->led[LED_POWER].pin = 27;
@@ -414,6 +416,8 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_113:
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
+		case NETCAN_PLUS_ECO:
+		case NETCAN_PLUS_ECO_WLAN:
 			/* initialize DIP caps */
 			dips = malloc(sizeof(onrisc_dip_caps_t));
 			if (NULL == dips) {
@@ -565,6 +569,10 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_113:
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
+		case NETCAN_PLUS_ECO:
+		case NETCAN_PLUS_ECO_WLAN:
+		case NETIO:
+		case NETIO_WLAN:
 			strcpy(eths->eth[0].if_name, "eth0");
 			break;
 	}
