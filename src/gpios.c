@@ -25,36 +25,36 @@ int onrisc_gpio_init_alekto2()
 	/* init driver control pins */
 
 	/* group 0 */
-	onrisc_gpios->gpios_ctrl[0].pin = libsoc_gpio_request(base, LS_SHARED);
+	onrisc_gpios->gpios_ctrl[0].pin = libsoc_gpio_request(base, LS_GPIO_SHARED);
 	if (onrisc_gpios->gpios_ctrl[0].pin == NULL) {
 		goto error;
 	}
 	onrisc_gpios->gpios_ctrl[1].pin =
-	    libsoc_gpio_request(base + 1, LS_SHARED);
+	    libsoc_gpio_request(base + 1, LS_GPIO_SHARED);
 	if (onrisc_gpios->gpios_ctrl[1].pin == NULL) {
 		goto error;
 	}
 
 	/* group 1 */
 	onrisc_gpios->gpios_ctrl[2].pin =
-	    libsoc_gpio_request(base + 4, LS_SHARED);
+	    libsoc_gpio_request(base + 4, LS_GPIO_SHARED);
 	if (onrisc_gpios->gpios_ctrl[2].pin == NULL) {
 		goto error;
 	}
 	onrisc_gpios->gpios_ctrl[3].pin =
-	    libsoc_gpio_request(base + 5, LS_SHARED);
+	    libsoc_gpio_request(base + 5, LS_GPIO_SHARED);
 	if (onrisc_gpios->gpios_ctrl[3].pin == NULL) {
 		goto error;
 	}
 
 	/* group 2 */
 	onrisc_gpios->gpios_ctrl[4].pin =
-	    libsoc_gpio_request(base + 6, LS_SHARED);
+	    libsoc_gpio_request(base + 6, LS_GPIO_SHARED);
 	if (onrisc_gpios->gpios_ctrl[4].pin == NULL) {
 		goto error;
 	}
 	onrisc_gpios->gpios_ctrl[5].pin =
-	    libsoc_gpio_request(base + 7, LS_SHARED);
+	    libsoc_gpio_request(base + 7, LS_GPIO_SHARED);
 	if (onrisc_gpios->gpios_ctrl[5].pin == NULL) {
 		goto error;
 	}
@@ -133,7 +133,7 @@ int onrisc_gpio_init_alekto2()
 	/* init data pins */
 	for(i = 0; i < onrisc_gpios->ngpio; i++) {
 		onrisc_gpios->gpios[i].pin =
-		    libsoc_gpio_request(base + 8 + i, LS_SHARED);
+		    libsoc_gpio_request(base + 8 + i, LS_GPIO_SHARED);
 		if (onrisc_gpios->gpios[i].pin == NULL) {
 			goto error;
 		}
@@ -174,7 +174,7 @@ int onrisc_gpio_init_baltos()
 
 		/* init inputs */
 		onrisc_gpios->gpios[i].pin =
-		    libsoc_gpio_request(i + base, LS_SHARED);
+		    libsoc_gpio_request(i + base, LS_GPIO_SHARED);
 		if (onrisc_gpios->gpios[i].pin == NULL) {
 			goto error;
 		}
@@ -192,7 +192,7 @@ int onrisc_gpio_init_baltos()
 
 		/* init outputs */
 		onrisc_gpios->gpios[offset].pin =
-		    libsoc_gpio_request(offset + base, LS_SHARED);
+		    libsoc_gpio_request(offset + base, LS_GPIO_SHARED);
 		if (onrisc_gpios->gpios[offset].pin == NULL) {
 			goto error;
 		}

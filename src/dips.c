@@ -23,7 +23,7 @@ int onrisc_dip_init()
 		uint32_t pin = dip_caps->dip_switch[0].pin[i];
 
 		/* export GPIO */
-		dip_caps->dip_switch[0].gpio[i] = libsoc_gpio_request(pin, LS_SHARED);
+		dip_caps->dip_switch[0].gpio[i] = libsoc_gpio_request(pin, LS_GPIO_SHARED);
 		if (dip_caps->dip_switch[0].gpio[i] == NULL) {
 			rc = EXIT_FAILURE;
 			goto error;
