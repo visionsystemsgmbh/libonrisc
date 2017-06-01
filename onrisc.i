@@ -103,6 +103,7 @@ int onrisc_get_uart_mode_raw(int port_nr, uint32_t *OUTPUT);
 int onrisc_get_dips(uint32_t *OUTPUT);
 int onrisc_get_wlan_sw_state(gpio_level *OUTPUT);
 int onrisc_get_mpcie_sw_state(gpio_level *OUTPUT);
+int onrisc_read_mdio_reg(int phy_id, int reg, int *OUTPUT);
 
 %include "onrisc.h"
 
