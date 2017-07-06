@@ -5,7 +5,7 @@ int onrisc_led_init(blink_led_t * blinker);
 gpio *onrisc_gpio_init_sysfs(unsigned int gpio_id)
 {
 	gpio *test_gpio;
-	test_gpio = libsoc_gpio_request(gpio_id, LS_SHARED);
+	test_gpio = libsoc_gpio_request(gpio_id, LS_GPIO_SHARED);
 	return test_gpio;
 }
 

@@ -115,6 +115,10 @@
 #define GPIO_CMD_GET_BTN_WLAN		23
 #define GPIO_CMD_MAX			GPIO_CMD_GET_BTN_WLAN
 
+#define LS_GPIO_SHARED	0
+#define LS_GPIO_GREEDY	1
+#define LS_GPIO_WEAK	2
+
 #define ETH0_PHY			"/sys/bus/mdio_bus/devices/4a101000.mdio:00/phy_id"
 extern int init_flag;
 extern onrisc_system_t onrisc_system;

@@ -54,7 +54,7 @@ int onrisc_sw_init(onrisc_sw_caps_t *sw)
 
 	if (!(sw->flags & SW_IS_SETUP)) {
 		/* request GPIO */
-		sw->gpio = libsoc_gpio_request(sw->pin, LS_SHARED);
+		sw->gpio = libsoc_gpio_request(sw->pin, LS_GPIO_SHARED);
 		if (NULL == sw->gpio) {
 			fprintf(stderr, "failed to register switch GPIO\n");
 			goto error;
@@ -98,7 +98,7 @@ int onrisc_get_sw_state(onrisc_sw_caps_t *sw, gpio_level *state)
 
 	if (!(sw->flags & SW_IS_SETUP)) {
 		/* request GPIO */
-		sw->gpio = libsoc_gpio_request(sw->pin, LS_SHARED);
+		sw->gpio = libsoc_gpio_request(sw->pin, LS_GPIO_SHARED);
 		if (NULL == sw->gpio) {
 			fprintf(stderr, "failed to register switch GPIO\n");
 			goto error;
@@ -147,7 +147,7 @@ int onrisc_set_sw_state(onrisc_sw_caps_t *sw, gpio_level state)
 
 	if (!(sw->flags & SW_IS_SETUP)) {
 		/* request GPIO */
-		sw->gpio = libsoc_gpio_request(sw->pin, LS_SHARED);
+		sw->gpio = libsoc_gpio_request(sw->pin, LS_GPIO_SHARED);
 		if (NULL == sw->gpio) {
 			fprintf(stderr, "failed to register switch GPIO\n");
 			goto error;

@@ -83,7 +83,7 @@ int onrisc_uart_init()
 		}
 
 		for (j = 0; j < ctrl->num; j++) {
-			ctrl->gpio[j] = libsoc_gpio_request(base + ctrl->pin[j], LS_SHARED);
+			ctrl->gpio[j] = libsoc_gpio_request(base + ctrl->pin[j], LS_GPIO_SHARED);
 			if (NULL == ctrl->gpio[j]) {
 				rc = EXIT_FAILURE;
 				goto error;
@@ -139,7 +139,7 @@ int onrisc_setup_uart_gpios(int dir, int port_nr)
 	for (i = 0; i < ctrl->num; i++) {
 		/* create new GPIO object only, if not already done */
 		if (!(ctrl->flags & RS_IS_SETUP)) {
-			ctrl->gpio[i] = libsoc_gpio_request(base + ctrl->pin[i], LS_SHARED);
+			ctrl->gpio[i] = libsoc_gpio_request(base + ctrl->pin[i], LS_GPIO_SHARED);
 			if (NULL == ctrl->gpio[i]) {
 				rc = EXIT_FAILURE;
 				goto error;
