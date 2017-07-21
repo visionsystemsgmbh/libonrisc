@@ -28,6 +28,33 @@ On **Debian** one can skip the last step and create/install deb package:
 1. `cpack`
 2. `dpkg -i *.deb`
 
+Python Bindings
+---------------
+
+**libonrisc** also provides Python bindings generated via SWIG. In order to
+build them install **swig** and **libpython** development packages and tell
+CMake to create Python bindings and proceed as described in the "Installation"
+section:
+
+    cmake .. -DPYTHON_WRAP=ON
+
+In Debian following packages provide Python bindings:
+
+* **python-onrisc1** - for Python 2
+* **python3-onrisc1** - for Python 3
+
+Following example shows how to get device's serial number:
+
+    ```python
+    import onrisc
+
+    info = onrisc.onrisc_system_t()
+    onrisc.onrisc_init(info)
+    print(info.ser_nr)
+    ```
+
+Further Python examples can be found in `examples` folder.
+
 pkg-config Support
 ------------------
 
