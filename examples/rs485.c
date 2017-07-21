@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <termios.h>
+#include <unistd.h>
 #include <onrisc.h>
 #include <fcntl.h>
 #include <sys/types.h>
