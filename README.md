@@ -45,13 +45,13 @@ In Debian following packages provide Python bindings:
 
 Following example shows how to get device's serial number:
 
-    ```python
-    import onrisc
+```python
+import onrisc
 
-    info = onrisc.onrisc_system_t()
-    onrisc.onrisc_init(info)
-    print(info.ser_nr)
-    ```
+info = onrisc.onrisc_system_t()
+onrisc.onrisc_init(info)
+print(info.ser_nr)
+```
 
 Further Python examples can be found in `examples` folder.
 
