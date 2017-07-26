@@ -374,7 +374,7 @@ int onrisc_blink_led_start(blink_led_t * blinker)
 
 	tmp.tv_sec = blinker->high_phase.tv_sec;
 	tmp.tv_usec = blinker->high_phase.tv_usec;
-	assert(timeval_subtract(&tmp_res, &blinker->interval, &tmp) == 0);
+	timeval_subtract(&tmp_res, &blinker->interval, &tmp);
 
 	if (onrisc_led_init(blinker) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
