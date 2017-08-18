@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
@@ -19,7 +18,7 @@
 
 #include "onrisc.h"
 
-/* driver−specific ioctls : */
+/* ioctls for RS485 handling */
 #ifndef TIOCGRS485
 #define TIOCGRS485 0x542E
 #define TIOCSRS485 0x542F

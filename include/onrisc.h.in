@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include <pthread.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <sys/time.h>
 #include <linux/serial.h>
