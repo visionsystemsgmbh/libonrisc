@@ -102,6 +102,8 @@ if (NODEJS_WRAP)
 		"${CMAKE_BINARY_DIR}/onrisc.h"
 		"${SWIG_ONRISC_I}"
 		"${CMAKE_SOURCE_DIR}/swig/binding.gyp"
+		"${CMAKE_SOURCE_DIR}/swig/index.js"
+		"${CMAKE_SOURCE_DIR}/swig/package.json"
 		DESTINATION ${SWIG_NODEJS})
 endif (NODEJS_WRAP)
 
@@ -121,12 +123,6 @@ if (NODEJS_WRAP)
 		-I${CMAKE_SOURCE_DIR}/src ${SWIG_ONRISC_I}
 		WORKING_DIRECTORY ${SWIG_NODEJS}
 		COMMENT "Creating Node.js bindings: swig")
-	add_custom_command(
-		TARGET onrisc
-		POST_BUILD
-		COMMAND node-gyp configure build
-		WORKING_DIRECTORY ${SWIG_NODEJS}
-		COMMENT "Creating Node.js bindings: node-gyp")
 endif (NODEJS_WRAP)
 
 # cli
