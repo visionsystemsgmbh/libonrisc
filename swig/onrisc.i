@@ -98,12 +98,21 @@ typedef int gpio_level;
 %array_class(onrisc_gpio_t, gpioArray);
 %array_class(onrisc_dip_switch_t, dipSwitchArray);
 
+#ifndef SWIG_JAVASCRIPT_V8
 int onrisc_get_uart_dips(int port_nr, uint32_t *OUTPUT);
 int onrisc_get_uart_mode_raw(int port_nr, uint32_t *OUTPUT);
 int onrisc_get_dips(uint32_t *OUTPUT);
 int onrisc_get_wlan_sw_state(gpio_level *OUTPUT);
 int onrisc_get_mpcie_sw_state(gpio_level *OUTPUT);
 int onrisc_read_mdio_reg(int phy_id, int reg, int *OUTPUT);
+#else
+extern int onrisc_get_dips(uint32_t *dips);
+extern int onrisc_get_wlan_sw_state(gpio_level *state);
+extern int onrisc_get_mpcie_sw_state(gpio_level *state);
+%include cpointer.i
+%pointer_functions(uint32_t, uint32_tp);
+%pointer_functions(int, intp);
+#endif
 
 %include "onrisc.h"
 
