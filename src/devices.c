@@ -114,6 +114,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_113:
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
+		case NETCOM_PLUS_ECO_411:
 		case NETCAN_PLUS_ECO:
 		case NETCAN_PLUS_ECO_WLAN:
 			leds->num = 3;
@@ -277,6 +278,11 @@ int onrisc_init_caps()
 			uarts->ctrl[0].pin[2] = 16;
 			uarts->ctrl[0].pin[3] = 14;
 			break;
+
+		case NETCOM_PLUS_ECO_411:
+			uarts->num = 4;
+			uarts->flags = 0;
+			break;
 	}
 
 	/* GPIOS */
@@ -416,6 +422,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_113:
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
+		case NETCOM_PLUS_ECO_411:
 		case NETCAN_PLUS_ECO:
 		case NETCAN_PLUS_ECO_WLAN:
 			/* initialize DIP caps */
@@ -569,6 +576,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_113:
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
+		case NETCOM_PLUS_ECO_411:
 		case NETCAN_PLUS_ECO:
 		case NETCAN_PLUS_ECO_WLAN:
 		case NETIO:
