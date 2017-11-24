@@ -3,6 +3,45 @@
 int gpio_init_flag = 0;
 onrisc_gpios_int_t * onrisc_gpios;
 
+int onrisc_gpio_init_netio()
+{
+	int i, rc = EXIT_FAILURE;
+	int base;
+	gpio_direction cur_dir;
+
+	onrisc_gpios = onrisc_capabilities.gpios;
+
+	if (onrisc_get_tca6416_base(&onrisc_gpios->base, 0x20) == EXIT_FAILURE) {
+		goto error;
+	}
+
+	base = onrisc_gpios->base;
+
+	for (i = 0; i < onrisc_gpios->ngpio; i++) {
+		/* init input pins */
+		onrisc_gpios->gpios[i].dir_fixed = 0;
+		onrisc_gpios->gpios[i].pin =
+			libsoc_gpio_request(i + base, LS_GPIO_SHARED);
+		if (onrisc_gpios->gpios[i].pin == NULL) {
+			goto error;
+		}
+
+		/* init control pins */
+		onrisc_gpios->gpios_ctrl[i].pin =
+			libsoc_gpio_request(i + 4 + base, LS_GPIO_SHARED);
+		if (onrisc_gpios->gpios_ctrl[i].pin == NULL) {
+			goto error;
+		}
+		onrisc_gpios->gpios[i].direction =
+		    libsoc_gpio_get_direction(onrisc_gpios->gpios_ctrl[i].pin);
+	}
+
+	rc = EXIT_SUCCESS;
+
+error:
+	return rc;
+}
+
 int onrisc_gpio_init_alekto2()
 {
 	int i, rc = EXIT_FAILURE;
@@ -276,6 +315,14 @@ int onrisc_gpio_init()
 		}
 
 		break;
+	case NETIO:
+	case NETIO_WLAN:
+		if (onrisc_gpio_init_netio() == EXIT_FAILURE) {
+			fprintf(stderr, "failed to init gpios\n");
+			goto error;
+		}
+
+		break;
 	}
 
 	/* GPIO subsystem initialized */
@@ -300,6 +347,8 @@ int onrisc_gpio_set_value_sysfs(onrisc_gpio_t * gpio)
 	case BALTOS_IR_5221:
 	case BALTOS_DIO_1080:
 	case NETCON3:
+	case NETIO:
+	case NETIO_WLAN:
 		if (libsoc_gpio_set_level(gpio->pin, gpio->value) ==
 		    EXIT_FAILURE) {
 			goto error;
@@ -312,6 +361,7 @@ int onrisc_gpio_set_value_sysfs(onrisc_gpio_t * gpio)
  error:
 	return rc;
 }
+
 int onrisc_gpio_set_direction_alekto2(onrisc_gpio_t * gpio, int idx)
 {
 	int rc = EXIT_FAILURE;
@@ -391,12 +441,8 @@ int onrisc_gpio_get_direction(onrisc_gpios_t * gpio_dir)
 	for (i = 0; i < onrisc_gpios->ngpio; i++) {
 		if (onrisc_gpios->gpios[i].dir_fixed) {
 			gpio_dir->mask |= (1 << i);
-			gpio_dir->value |= (onrisc_gpios->gpios[i].direction) ? (1 << i) : 0;
-		} else {
-			int dir = libsoc_gpio_get_direction(onrisc_gpios->gpios[i].pin);
-			onrisc_gpios->gpios[i].direction = dir;
-			gpio_dir->value |= (dir) ? (1 << i) : 0;
 		}
+		gpio_dir->value |= (onrisc_gpios->gpios[i].direction) ? (1 << i) : 0;
 	}
 
 	rc = EXIT_SUCCESS;
@@ -424,11 +470,12 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 		if (gpio_dir->mask & (1 << i)) {
 			/* check, if it is a fixed GPIO */
 			if (onrisc_gpios->gpios[i].dir_fixed) {
-				printf
-				    ("gpio %d is fixed and cannot change it's direction",
+				fprintf
+				    (stderr, "gpio %d is fixed and cannot change it's direction",
 				     i);
 				goto error;
 			}
+
 
 			/* get direction */
 			onrisc_gpios->gpios[i].direction =
@@ -441,6 +488,14 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 				break;
 			case ALEKTO2:
 				if (onrisc_gpio_set_direction_alekto2(&onrisc_gpios->gpios[i], i) == EXIT_FAILURE) {
+					goto error;
+				}
+				break;
+			case NETIO:
+			case NETIO_WLAN:
+				if (libsoc_gpio_set_direction(
+				     onrisc_gpios->gpios_ctrl[i].pin,
+					onrisc_gpios->gpios[i].direction) == EXIT_FAILURE) {
 					goto error;
 				}
 				break;
@@ -477,15 +532,64 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val)
 			}
 
 			/* set value */
-			onrisc_gpios->gpios[i].value =
-			    gpio_val->value & (1 << i) ? HIGH : LOW;
+			if (onrisc_system.model == NETIO || onrisc_system.model == NETIO_WLAN) {
+				onrisc_gpios->gpios_ctrl[i].value =
+				    gpio_val->value & (1 << i) ? LOW : HIGH;
 
-			/* set GPIO direction */
-			if (onrisc_gpio_set_value_sysfs
-			    (&onrisc_gpios->gpios[i]) == EXIT_FAILURE) {
-				goto error;
+				if (onrisc_gpio_set_value_sysfs
+				    (&onrisc_gpios->gpios_ctrl[i]) == EXIT_FAILURE) {
+					goto error;
+				}
+			} else {
+				onrisc_gpios->gpios[i].value =
+				    gpio_val->value & (1 << i) ? HIGH : LOW;
+
+				if (onrisc_gpio_set_value_sysfs
+				    (&onrisc_gpios->gpios[i]) == EXIT_FAILURE) {
+					goto error;
+				}
 			}
 		}
+	}
+
+	rc = EXIT_SUCCESS;
+ error:
+	return rc;
+}
+
+int onrisc_gpio_get_value_netio(uint32_t * value)
+{
+	int i, rc = EXIT_FAILURE;
+	gpio_level level;
+	onrisc_gpios = onrisc_capabilities.gpios;
+
+	for (i = 0; i < onrisc_gpios->ngpio; i++) {
+		if (onrisc_gpios->gpios[i].direction == INPUT) {
+			if ((level =
+			     libsoc_gpio_get_level(onrisc_gpios->gpios[i].
+						   pin)) == LEVEL_ERROR) {
+				fprintf(stderr, "failed to get GPIO %d\n", i);
+				goto error;
+			}
+			if (level == LOW) {
+				*value &= ~(1 << i);
+			} else {
+				*value |= 1 << i;
+			}
+		} else {
+			if ((level =
+			     libsoc_gpio_get_level(onrisc_gpios->gpios_ctrl[i].
+						   pin)) == LEVEL_ERROR) {
+				fprintf(stderr, "failed to get GPIO %d\n", i);
+				goto error;
+			}
+			if (level == LOW) {
+				*value |= 1 << i;
+			} else {
+				*value &= ~(1 << i);
+			}
+		}
+
 	}
 
 	rc = EXIT_SUCCESS;
@@ -535,6 +639,12 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 			} else {
 				gpio_val->value |= 1 << i;
 			}
+		}
+		break;
+	case NETIO:
+	case NETIO_WLAN:
+		if (onrisc_gpio_get_value_netio(&gpio_val->value) == EXIT_FAILURE) {
+			goto error;
 		}
 		break;
 	}

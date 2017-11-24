@@ -244,12 +244,12 @@ int onrisc_get_i2c_address(const char *path)
 	int addr = -1;
 	char *ptr, *ptr2;
 	
-	ptr = strstr(path, "i2c");
+	ptr = strstr(path, "gpiochip");
 	if (ptr == NULL) {
 		goto error;
 	}
 	
-	ptr2 = strchr(ptr + 10, '-');
+	ptr2 = strchr(ptr - 11, '-');
 	if (ptr2 == NULL) {
 		goto error;
 	}
@@ -296,6 +296,7 @@ int onrisc_get_tca6416_base(int *base, int addr)
 	struct udev_enumerate *enumerate;
 	struct udev_list_entry *devices, *dev_list_entry;
 	struct udev_device *dev;
+	char tca_model[10] = "tca6416";
 
 	*base = 0;
 
@@ -305,11 +306,14 @@ int onrisc_get_tca6416_base(int *base, int addr)
 		fprintf(stderr, "can't create udev object\n");
 		goto error;
 	}
+	if (onrisc_system.model == NETIO || onrisc_system.model == NETIO_WLAN) {
+		sprintf(tca_model, "tca6408");
+	}
 
 	/* create a list of the devices in the 'gpio' subsystem. */
 	enumerate = udev_enumerate_new(udev);
 	udev_enumerate_add_match_subsystem(enumerate, "gpio");
-	udev_enumerate_add_match_sysattr(enumerate, "label", "tca6416");
+	udev_enumerate_add_match_sysattr(enumerate, "label", tca_model);
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
 

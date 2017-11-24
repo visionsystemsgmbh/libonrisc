@@ -46,6 +46,7 @@ void print_usage()
 	fprintf(stderr, "         -b                 GPIO value\n");
 	fprintf(stderr, "         -f                 GPIO direction value\n");
 	fprintf(stderr, "         -g                 get GPIO values\n");
+	fprintf(stderr, "         -G                 show GPIO direction setup (first 32-bit value shows whether the direction is fixed, the second 32-bit value shows the direction itself)\n");
 	fprintf(stderr,
 		"         -i                 turn network switch off\n");
 	fprintf(stderr,

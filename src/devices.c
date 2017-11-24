@@ -117,6 +117,8 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_411:
 		case NETCAN_PLUS_ECO:
 		case NETCAN_PLUS_ECO_WLAN:
+		case NETIO:
+		case NETIO_WLAN:
 			leds->num = 3;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE | LED_IS_INPUT_ACTIVE);
 			leds->led[LED_POWER].pin = 27;
@@ -350,6 +352,16 @@ int onrisc_init_caps()
 				gpios->gpios[offset].dir_fixed = 1;
 			}
 			break;
+		case NETIO:
+		case NETIO_WLAN:
+			gpios = malloc(sizeof(onrisc_gpios_int_t));
+			if (NULL == gpios) {
+				goto error;
+			}
+			memset(gpios, 0, sizeof(onrisc_gpios_int_t));
+
+			gpios->ngpio = 4;
+			break;
 	}
 
 	/* DIPS */
@@ -438,6 +450,21 @@ int onrisc_init_caps()
 			dips->dip_switch[0].pin[1] = 21;
 			dips->dip_switch[0].pin[2] = 22;
 			dips->dip_switch[0].pin[3] = 23;
+			break;
+		case NETIO:
+		case NETIO_WLAN:
+			/* initialize DIP caps */
+			dips = malloc(sizeof(onrisc_dip_caps_t));
+			if (NULL == dips) {
+				goto error;
+			}
+			memset(dips, 0, sizeof(onrisc_dip_caps_t));
+
+			dips->num = 1;
+			dips->dip_switch[0].num = 3;
+			dips->dip_switch[0].pin[0] = 20;
+			dips->dip_switch[0].pin[1] = 21;
+			dips->dip_switch[0].pin[2] = 22;
 			break;
 	}
 
