@@ -119,13 +119,17 @@ int onrisc_init_caps()
 		case NETCAN_PLUS_ECO_WLAN:
 		case NETIO:
 		case NETIO_WLAN:
+		case MICROROUTER:
 			leds->num = 3;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE | LED_IS_INPUT_ACTIVE);
 			leds->led[LED_POWER].pin = 27;
+			strcpy(leds->led[LED_POWER].name,"onrisc:red:power");
 			leds->led[LED_WLAN].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_WLAN].pin = 0;
+			strcpy(leds->led[LED_WLAN].name,"onrisc:blue:wlan");
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_APP].pin = 15;
+			strcpy(leds->led[LED_APP].name,"onrisc:green:app");
 			break;
 	}
 
@@ -267,6 +271,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_113:
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
+		case MICROROUTER:
 			uarts->num = 1;
 			uarts->flags = UARTS_SWITCHABLE;
 			if (NETCOM_PLUS_ECO_111 == onrisc_system.model ||
@@ -437,6 +442,7 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_411:
 		case NETCAN_PLUS_ECO:
 		case NETCAN_PLUS_ECO_WLAN:
+		case MICROROUTER:
 			/* initialize DIP caps */
 			dips = malloc(sizeof(onrisc_dip_caps_t));
 			if (NULL == dips) {
@@ -609,6 +615,16 @@ int onrisc_init_caps()
 		case NETIO:
 		case NETIO_WLAN:
 			strcpy(eths->eth[0].if_name, "eth0");
+			break;
+		case MICROROUTER:
+			//WAN
+			strcpy(eths->eth[0].if_name, "eth0");
+			eths->eth[0].num = 1;
+			eths->eth[0].flags = (ETH_RMII_100M | ETH_PHYSICAL);
+			//LAN
+			strcpy(eths->eth[1].if_name, "eth1");
+			eths->eth[1].num = 1;
+			eths->eth[1].flags = (ETH_RMII_100M | ETH_PHYSICAL);
 			break;
 	}
 

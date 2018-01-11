@@ -48,6 +48,7 @@ extern "C" {
 #define NETCOM_PLUS_ECO_411		244
 #define NETIO				250
 #define NETIO_WLAN			251
+#define MICROROUTER			260
 
 typedef struct {
 	uint32_t flags;
