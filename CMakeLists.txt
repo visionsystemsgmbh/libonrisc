@@ -20,6 +20,8 @@ INCLUDE(CPack)
 
 cmake_minimum_required(VERSION 2.6)
 
+option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+
 # handle dependencies
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
@@ -108,7 +110,7 @@ if (NODEJS_WRAP)
 endif (NODEJS_WRAP)
 
 # library
-add_library(onrisc SHARED ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
+add_library(onrisc ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
 set_target_properties(onrisc PROPERTIES
 	PUBLIC_HEADER "${PROJECT_BINARY_DIR}/onrisc.h"
 	VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}
@@ -128,7 +130,8 @@ endif (NODEJS_WRAP)
 add_subdirectory(${CMAKE_SOURCE_DIR}/cli)
 
 install(TARGETS onrisc 
-	LIBRARY DESTINATION lib COMPONENT shlib
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
 	PUBLIC_HEADER DESTINATION include COMPONENT dev
 	)
 
