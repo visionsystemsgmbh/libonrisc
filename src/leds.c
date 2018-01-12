@@ -310,7 +310,7 @@ int onrisc_led_init(blink_led_t * blinker)
 		return EXIT_SUCCESS;
 	}
 
-	if(!stat("/proc/device-tree/leds/power", &buf)) {
+	if(!stat("/sys/class/leds/onrisc:red:power", &buf)) {
 		onrisc_capabilities.leds->led[blinker->led_type].flags |= LED_IS_LED_CLASS_BASED;
 		led_flags = onrisc_capabilities.leds->led[blinker->led_type].flags;
 		return EXIT_SUCCESS;
