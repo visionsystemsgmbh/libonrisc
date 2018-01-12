@@ -21,6 +21,9 @@ INCLUDE(CPack)
 cmake_minimum_required(VERSION 2.6)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(PYTHON_WRAP "Build Python bindings" OFF)
+option(LUA_WRAP "Build Lua bindings" OFF)
+option(NODEJS_WRAP "Build Node.js bindings" OFF)
 
 # handle dependencies
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -38,49 +41,27 @@ link_directories(${PC_LIBSOC_LIBDIR} ${PC_LIBUDEV_LIBDIR})
 
 configure_file(${PROJECT_SOURCE_DIR}/include/onrisc.h.in
 	       ${PROJECT_BINARY_DIR}/onrisc.h @ONLY)
-set(SRCS
-	src/onrisc.c
-	src/leds.c
-	src/gpios.c
-	src/dips.c
-	src/system.c
-	src/uarts.c
-	src/devices.c)
+
+aux_source_directory(${PROJECT_SOURCE_DIR}/src SRCS)
 
 set(SWIG_ONRISC_I ${PROJECT_SOURCE_DIR}/swig/onrisc.i)
 
-# SWIG: Python
-if (PYTHON_WRAP)
-	find_package(SWIG REQUIRED)
-	include(${SWIG_USE_FILE})
+# library
+add_library(onrisc ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
+set_target_properties(onrisc PROPERTIES
+	PUBLIC_HEADER "${PROJECT_BINARY_DIR}/onrisc.h"
+	VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}
+	SOVERSION 1)
+target_link_libraries(onrisc ${PC_LIBSOC_LIBRARIES} ${PC_LIBUDEV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-	find_package(PythonInterp REQUIRED)
-	find_package(PythonLibs REQUIRED)
-	include_directories(${PYTHON_INCLUDE_PATH})
+add_subdirectory(${CMAKE_SOURCE_DIR}/cli)
+add_subdirectory(${CMAKE_SOURCE_DIR}/swig)
 
-	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-	set(CMAKE_SWIG_FLAGS "")
-
-	swig_add_module(onrisc python ${SWIG_ONRISC_I} ${SRCS})
-	swig_link_libraries(onrisc ${PYTHON_LIBRARIES} ${PC_LIBSOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${PC_LIBUDEV_LIBRARIES})
-endif (PYTHON_WRAP)
-
-# SWIG: Lua
-if (LUA_WRAP)
-	find_package(SWIG REQUIRED)
-	include(${SWIG_USE_FILE})
-
-	find_package(Lua51 REQUIRED)
-	include_directories(${LUA_INCLUDE_DIR})
-
- 	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-	set(CMAKE_SWIG_FLAGS "")
-
-	swig_add_module(luaonrisc lua ${SWIG_ONRISC_I} ${SRCS})
-	swig_link_libraries(luaonrisc ${PC_LIBSOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${PC_LIBUDEV_LIBRARIES} ${LUA_LIBRARY})
-endif (LUA_WRAP)
+install(TARGETS onrisc
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	PUBLIC_HEADER DESTINATION include COMPONENT dev
+	)
 
 # SWIG: Node.js
 if (NODEJS_WRAP)
@@ -107,17 +88,7 @@ if (NODEJS_WRAP)
 		"${CMAKE_SOURCE_DIR}/swig/index.js"
 		"${CMAKE_SOURCE_DIR}/swig/package.json"
 		DESTINATION ${SWIG_NODEJS})
-endif (NODEJS_WRAP)
 
-# library
-add_library(onrisc ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
-set_target_properties(onrisc PROPERTIES
-	PUBLIC_HEADER "${PROJECT_BINARY_DIR}/onrisc.h"
-	VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}
-	SOVERSION 1)
-target_link_libraries(onrisc ${PC_LIBSOC_LIBRARIES} ${PC_LIBUDEV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-
-if (NODEJS_WRAP)
 	add_custom_command(
 		TARGET onrisc
 		POST_BUILD
@@ -127,14 +98,6 @@ if (NODEJS_WRAP)
 		COMMENT "Creating Node.js bindings: swig")
 endif (NODEJS_WRAP)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/cli)
-
-install(TARGETS onrisc 
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	PUBLIC_HEADER DESTINATION include COMPONENT dev
-	)
-
 # PkgConfig
 set(prefix      ${CMAKE_INSTALL_PREFIX})
 set(exec_prefix ${CMAKE_INSTALL_PREFIX}/bin)
@@ -143,26 +106,3 @@ set(libdir      ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
 
 configure_file(${CMAKE_SOURCE_DIR}/libonrisc.pc.in ${CMAKE_BINARY_DIR}/libonrisc.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/libonrisc.pc DESTINATION lib${LIB_SUFFIX}/pkgconfig)
-
-if (PYTHON_WRAP)
-	execute_process (
-	   COMMAND ${PYTHON_EXECUTABLE} -c
-		 "import site, sys; sys.stdout.write(site.PREFIXES[-1])"
-	   OUTPUT_VARIABLE PYTHON_PREFIX
-	)
-	 file ( TO_CMAKE_PATH "${PYTHON_PREFIX}" PYTHON_PREFIX )
-	 execute_process (
-	   COMMAND ${PYTHON_EXECUTABLE} -c
-		 "import site, sys; sys.stdout.write(site.getsitepackages()[-1])"
-	   OUTPUT_VARIABLE PYTHON_SITE_DIR
-	 )
-	file ( TO_CMAKE_PATH "${PYTHON_SITE_DIR}" PYTHON_SITE_DIR )
-	 string ( REGEX REPLACE "^${PYTHON_PREFIX}/" ""
-	   PYTHON_SITE_DIR "${PYTHON_SITE_DIR}"
-	)
-
-	install ( FILES ${CMAKE_CURRENT_BINARY_DIR}/onrisc.py ${CMAKE_CURRENT_BINARY_DIR}/_onrisc.so
-	   DESTINATION ${PYTHON_SITE_DIR}
-	   COMPONENT library
-	)
-endif (PYTHON_WRAP)
