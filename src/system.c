@@ -211,8 +211,7 @@ int onrisc_get_eeprom(onrisc_eeprom_t *eeprom)
 	/* create a list of the devices in the 'i2c' subsystem. */
 	enumerate = udev_enumerate_new(udev);
 	udev_enumerate_add_match_subsystem(enumerate, "i2c");
-	//udev_enumerate_add_match_sysattr(enumerate, "eeprom", NULL);
-	udev_enumerate_add_match_property(enumerate, "eeprom", NULL);
+	udev_enumerate_add_match_sysattr(enumerate, "eeprom", NULL);
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
 
@@ -314,8 +313,7 @@ int onrisc_get_tca6416_base(int *base, int addr)
 	/* create a list of the devices in the 'gpio' subsystem. */
 	enumerate = udev_enumerate_new(udev);
 	udev_enumerate_add_match_subsystem(enumerate, "gpio");
-	udev_enumerate_add_match_property(enumerate, "label", tca_model);
-	//udev_enumerate_add_match_sysattr(enumerate, "label", tca_model);
+	udev_enumerate_add_match_sysattr(enumerate, "label", tca_model);
 	udev_enumerate_scan_devices(enumerate);
 	devices = udev_enumerate_get_list_entry(enumerate);
 
