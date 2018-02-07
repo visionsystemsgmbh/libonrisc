@@ -189,6 +189,7 @@ error:
 	return rc;
 }
 
+#ifndef NO_UDEV 
 int onrisc_get_eeprom(onrisc_eeprom_t *eeprom)
 {
 	int rc = EXIT_FAILURE;
@@ -238,6 +239,52 @@ int onrisc_get_eeprom(onrisc_eeprom_t *eeprom)
 error:
 	return rc;
 }
+
+#else
+
+int onrisc_get_eeprom(onrisc_eeprom_t *eeprom)
+{
+	int rc = EXIT_FAILURE;
+	DIR* dirp;
+	struct dirent* direntp;
+	struct stat buf;
+	char path[256];
+
+	if (eeprom->path != NULL) {
+		return EXIT_SUCCESS;
+	}
+
+	dirp = opendir( "/sys/bus/i2c/devices" );
+	if( dirp == NULL ) {
+		fprintf(stderr, "can't find sysfs tree\n");
+		goto error;
+	} else {
+		for(;;) {
+			direntp = readdir( dirp );
+			if( direntp == NULL ) break;
+			sprintf(path, "/sys/bus/i2c/devices/%s/eeprom", direntp->d_name);
+			if(!stat(path, &buf)) {
+					eeprom->path = malloc(strlen(path));
+					sprintf(eeprom->path, "%s", path);
+					rc = EXIT_SUCCESS;
+					break;
+				}
+			}
+
+		closedir( dirp );
+
+		if (NULL == eeprom->path) {
+			fprintf(stderr, "failed to allocate memory for EEPROM path\n");
+			goto error;
+		}
+	}
+
+error:
+	return rc;
+}
+
+
+#endif
 
 int onrisc_get_i2c_address(const char *path)
 {
@@ -289,6 +336,7 @@ int onrisc_find_ip175d(void)
 	return rc;
 }
 
+#ifndef NO_UDEV 
 int onrisc_get_tca6416_base(int *base, int addr)
 {
 	int rc = EXIT_FAILURE;
@@ -367,3 +415,67 @@ int onrisc_get_tca6416_base(int *base, int addr)
  error:
 	return rc;
 }
+
+#else
+
+int onrisc_get_tca6416_base(int *base, int addr)
+{
+	int rc = EXIT_FAILURE;
+	FILE* fp;
+	DIR* dirp;
+	struct dirent* direntp;
+	char buf[256];
+	char buf2[256];
+	char path[256];
+
+	char tca_model[10] = "tca6416\n";
+
+	*base = 0;
+
+	if (onrisc_system.model == NETIO || onrisc_system.model == NETIO_WLAN) {
+		sprintf(tca_model, "tca6408\n");
+	}
+
+	dirp = opendir( "/sys/class/gpio" );
+	if( dirp == NULL ) {
+		fprintf(stderr, "can't find sysfs tree\n");
+		goto error;
+	} else {
+		for(;;) {
+			direntp = readdir( dirp );
+			if( direntp == NULL ) break;
+			sprintf(path, "/sys/class/gpio/%s/label", direntp->d_name);
+			if((fp = fopen(path, "r")) > 0 ) {
+				fgets(buf, 255, fp);
+				if(!strcmp(tca_model,buf)) {
+					FILE* fp2;
+					sprintf(path, "/sys/class/gpio/%s/base", direntp->d_name);
+					if((fp2 = fopen(path, "r")) > 0 ) {
+						fgets(buf2, 255, fp2);
+						sscanf(buf2, "%d", base);
+						fclose(fp2);
+			
+					} else {
+						fprintf(stderr, "gpio base wasn't found\n");
+						fclose(fp);
+						goto error;
+					}
+				}
+				fclose(fp);
+			}
+		}
+
+		closedir( dirp );
+	}
+
+	if (*base == 0) {
+		fprintf(stderr, "tca6416 wasn't found\n");
+		goto error;
+	}
+
+	rc = EXIT_SUCCESS;
+ error:
+	return rc;
+}
+
+#endif

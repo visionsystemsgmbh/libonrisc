@@ -5,7 +5,13 @@
 #include <fcntl.h>
 #include <string.h>
 #include <assert.h>
+
+#ifndef NO_UDEV
 #include <libudev.h>
+#else
+#include <dirent.h>
+#endif
+
 #include <net/if.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

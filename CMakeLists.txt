@@ -24,20 +24,19 @@ option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(PYTHON_WRAP "Build Python bindings" OFF)
 option(LUA_WRAP "Build Lua bindings" OFF)
 option(NODEJS_WRAP "Build Node.js bindings" OFF)
+option(NO_UDEV "No udev bindings" OFF)
 
 # handle dependencies
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PC_LIBSOC REQUIRED libsoc)
-pkg_check_modules(PC_LIBUDEV REQUIRED libudev)
 
 include_directories(BEFORE
 	${PROJECT_BINARY_DIR}
 	${PROJECT_SOURCE_DIR}/include
-	${PC_LIBSOC_INCLUDE_DIRS}
-	${PC_LIBUDEV_INCLUDE_DIRS})
-link_directories(${PC_LIBSOC_LIBDIR} ${PC_LIBUDEV_LIBDIR})
+	${PC_LIBSOC_INCLUDE_DIRS})
+link_directories(${PC_LIBSOC_LIBDIR} )
 
 configure_file(${PROJECT_SOURCE_DIR}/include/onrisc.h.in
 	       ${PROJECT_BINARY_DIR}/onrisc.h @ONLY)
@@ -45,6 +44,19 @@ configure_file(${PROJECT_SOURCE_DIR}/include/onrisc.h.in
 aux_source_directory(${PROJECT_SOURCE_DIR}/src SRCS)
 
 set(SWIG_ONRISC_I ${PROJECT_SOURCE_DIR}/swig/onrisc.i)
+set(LIBS
+	${PC_LIBSOC_LIBRARIES}
+	${CMAKE_THREAD_LIBS_INIT}
+	)
+	
+if(NO_UDEV)
+	add_definitions(-DNO_UDEV)
+else(NO_UDEV)
+	pkg_check_modules(PC_LIBUDEV REQUIRED libudev)
+	include_directories(BEFORE ${PC_LIBUDEV_INCLUDE_DIRS})
+	list(APPEND LIBS ${PC_LIBUDEV_LIBRARIES})
+endif(NO_UDEV)
+
 
 # library
 add_library(onrisc ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
@@ -52,7 +64,7 @@ set_target_properties(onrisc PROPERTIES
 	PUBLIC_HEADER "${PROJECT_BINARY_DIR}/onrisc.h"
 	VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}
 	SOVERSION 1)
-target_link_libraries(onrisc ${PC_LIBSOC_LIBRARIES} ${PC_LIBUDEV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(onrisc ${LIBS})
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/cli)
 add_subdirectory(${CMAKE_SOURCE_DIR}/swig)
