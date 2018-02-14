@@ -187,7 +187,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params)
  * @param size partition size to return
  * @return EXIT_SUCCES or EXIT_FAILURE
  */
-int get_partition_size(char *name, ulong * size)
+int get_partition_size(char *name, uint32_t * size)
 {
 	FILE *fp = NULL;
 	char buf[64], final_buf[10], *tmp_ptr;
@@ -241,7 +241,7 @@ int get_partition_size(char *name, ulong * size)
 */
 int onrisc_get_hw_params_nor(struct _param_hw *hw_params)
 {
-	ulong offset, size;
+	uint32_t offset, size;
 	int rv, ret = EXIT_SUCCESS, fd = 0;
 
 	if (get_partition_size(PARTITION_REDBOOT, &size)) {
