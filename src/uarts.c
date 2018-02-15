@@ -2,7 +2,7 @@
 
 gpio *mode_gpios[8];
 
-int onrisc_set_sr485_ioctl(int port_nr, int on)
+int onrisc_set_rs485_ioctl(int port_nr, int on)
 {
 	int rc = EXIT_SUCCESS;
 	int fd = 0;
@@ -104,7 +104,7 @@ int onrisc_uart_init()
 			libsoc_gpio_set_level(ctrl->gpio[1], LOW);
 			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
 			libsoc_gpio_set_level(ctrl->gpio[3], LOW);
-			if (onrisc_set_sr485_ioctl(i, 0) == EXIT_FAILURE) {
+			if (onrisc_set_rs485_ioctl(i, 0) == EXIT_FAILURE) {
 				rc = EXIT_FAILURE;
 				goto error;
 			}
@@ -236,7 +236,7 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 			libsoc_gpio_set_level(ctrl->gpio[0], HIGH);
 			libsoc_gpio_set_level(ctrl->gpio[1], LOW);
 			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
-			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
+			if (onrisc_set_rs485_ioctl(port_nr, 0) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
@@ -244,7 +244,7 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 			libsoc_gpio_set_level(ctrl->gpio[0], HIGH);
 			libsoc_gpio_set_level(ctrl->gpio[1], HIGH);
 			libsoc_gpio_set_level(ctrl->gpio[2], HIGH);
-			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
+			if (onrisc_set_rs485_ioctl(port_nr, 0) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
@@ -252,7 +252,7 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 			libsoc_gpio_set_level(ctrl->gpio[0], HIGH);
 			libsoc_gpio_set_level(ctrl->gpio[1], HIGH);
 			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
-			if (onrisc_set_sr485_ioctl(port_nr, 1) == EXIT_FAILURE) {
+			if (onrisc_set_rs485_ioctl(port_nr, 1) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
@@ -260,7 +260,7 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 			libsoc_gpio_set_level(ctrl->gpio[0], LOW);
 			libsoc_gpio_set_level(ctrl->gpio[1], HIGH);
 			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
-			if (onrisc_set_sr485_ioctl(port_nr, 1) == EXIT_FAILURE) {
+			if (onrisc_set_rs485_ioctl(port_nr, 1) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
@@ -268,7 +268,7 @@ int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
 			libsoc_gpio_set_level(ctrl->gpio[0], LOW);
 			libsoc_gpio_set_level(ctrl->gpio[1], LOW);
 			libsoc_gpio_set_level(ctrl->gpio[2], LOW);
-			if (onrisc_set_sr485_ioctl(port_nr, 0) == EXIT_FAILURE) {
+			if (onrisc_set_rs485_ioctl(port_nr, 0) == EXIT_FAILURE) {
 				return EXIT_FAILURE;
 			}
 			break;
@@ -516,7 +516,7 @@ int onrisc_set_uart_mode_raw(int port_nr, uint8_t mode)
 	libsoc_gpio_set_level(ctrl->gpio[3], (mode & DIP_S4)? HIGH:LOW);
 
 	uint8_t rs485 = (mode == DIP_S2) || (mode == (DIP_S2 | DIP_S1)) ||(mode == (DIP_S4 | DIP_S2)) || (mode == (DIP_S4 | DIP_S2 | DIP_S1));
-	if (onrisc_set_sr485_ioctl(port_nr, rs485) == EXIT_FAILURE) {
+	if (onrisc_set_rs485_ioctl(port_nr, rs485) == EXIT_FAILURE) {
 		return EXIT_FAILURE;
 	}
 
