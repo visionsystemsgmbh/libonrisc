@@ -337,6 +337,16 @@ int onrisc_init_caps()
 				gpios->gpios[offset].dir_fixed = 1;
 			}
 
+			for (i = 0; i < gpios->ngpio / 2; i++) {
+				int offset = i + gpios->ngpio;
+
+				gpios->gpios[offset].flags = GPIO_IS_VIRTUAL;
+				gpios->gpios[offset].direction = INPUT;
+				gpios->gpios[offset].dir_fixed = 0;
+			}
+
+			gpios->nvgpio = 4;
+
 			break;
 		case BALTOS_DIO_1080:
 		case NETCON3:

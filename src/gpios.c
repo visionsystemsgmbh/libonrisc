@@ -2,6 +2,14 @@
 
 int gpio_init_flag = 0;
 onrisc_gpios_int_t * onrisc_gpios;
+FILE * vdir;
+
+int invert_level(int val)
+{
+	if (val != LEVEL_ERROR)
+		val = (val == HIGH) ? LOW : HIGH;
+	return val;
+}
 
 int onrisc_gpio_init_netio()
 {
@@ -250,6 +258,30 @@ int onrisc_gpio_init_baltos()
 		}
 	}
 
+	if (0 < onrisc_gpios->nvgpio) {
+		if ((vdir = fopen("/tmp/vdir", "r+")) == NULL) {
+			if ((vdir = fopen("/tmp/vdir", "w+")) == NULL) {
+				goto error;
+			}
+		}
+
+		int vdir_data = 0;
+		int res = 0;
+		if(0 >= (res = fscanf(vdir, "%1X", &vdir_data))) {
+			vdir_data = 0;
+			fprintf(vdir, "%X", vdir_data);
+		}
+
+		fclose(vdir);
+
+		for (i = 0; i < onrisc_gpios->nvgpio; i++) {
+			int offset = i + onrisc_gpios->ngpio;
+
+			/* set direction */
+			onrisc_gpios->gpios[offset].direction = (vdir_data & (1 << i)) ? OUTPUT : INPUT;
+		}
+	}
+
 	rc = EXIT_SUCCESS;
 
  error:
@@ -333,23 +365,40 @@ int onrisc_gpio_init()
 	return rc;
 }
 
-int onrisc_gpio_set_value_sysfs(onrisc_gpio_t * gpio)
+int onrisc_gpio_set_value_sysfs(int idx, int val)
 {
 	int rc = EXIT_FAILURE;
+
+	onrisc_gpios = onrisc_capabilities.gpios;
 
 	switch (onrisc_system.model) {
 	case ALEKTO:
 	case ALEKTO_LAN:
 	case ALENA:
 		break;
-	case ALEKTO2:
 	case BALTOS_IR_3220:
 	case BALTOS_IR_5221:
+		if (onrisc_gpios->gpios[idx].flags & GPIO_IS_VIRTUAL) {
+			if (onrisc_gpios->gpios[idx].direction == OUTPUT) {
+				val = invert_level(val);
+				if (libsoc_gpio_set_level(onrisc_gpios->gpios[idx - 4].pin, val) ==
+				    EXIT_FAILURE) {
+					goto error;
+				}
+			}
+		} else {
+			if (libsoc_gpio_set_level(onrisc_gpios->gpios[idx].pin, val) ==
+			    EXIT_FAILURE) {
+				goto error;
+			}
+		}
+		break;
+	case ALEKTO2:
 	case BALTOS_DIO_1080:
 	case NETCON3:
 	case NETIO:
 	case NETIO_WLAN:
-		if (libsoc_gpio_set_level(gpio->pin, gpio->value) ==
+		if (libsoc_gpio_set_level(onrisc_gpios->gpios[idx].pin, val) ==
 		    EXIT_FAILURE) {
 			goto error;
 		}
@@ -360,6 +409,40 @@ int onrisc_gpio_set_value_sysfs(onrisc_gpio_t * gpio)
 
  error:
 	return rc;
+}
+
+int onrisc_gpio_get_value_sysfs(int idx)
+{
+	onrisc_gpios = onrisc_capabilities.gpios;
+
+	switch (onrisc_system.model) {
+	case ALEKTO:
+	case ALEKTO_LAN:
+	case ALENA:
+		break;
+	case BALTOS_IR_3220:
+	case BALTOS_IR_5221:
+		if (onrisc_gpios->gpios[idx].flags && GPIO_IS_VIRTUAL) {
+			if (onrisc_gpios->gpios[idx].direction == INPUT) {
+			     return libsoc_gpio_get_level(onrisc_gpios->gpios[idx - 8].pin);
+			} else {
+			     return invert_level(libsoc_gpio_get_level(onrisc_gpios->gpios[idx - 4].pin));
+			}
+
+		} else {
+			return libsoc_gpio_get_level(onrisc_gpios->gpios[idx].pin);
+		}
+		break;
+	case ALEKTO2:
+	case BALTOS_DIO_1080:
+	case NETCON3:
+	case NETIO:
+	case NETIO_WLAN:
+		return libsoc_gpio_get_level(onrisc_gpios->gpios[idx].pin);
+		break;
+	}
+
+	return LEVEL_ERROR;
 }
 
 int onrisc_gpio_set_direction_alekto2(onrisc_gpio_t * gpio, int idx)
@@ -438,7 +521,7 @@ int onrisc_gpio_get_direction(onrisc_gpios_t * gpio_dir)
 	gpio_dir->mask = 0;
 	gpio_dir->value = 0;
 
-	for (i = 0; i < onrisc_gpios->ngpio; i++) {
+	for (i = 0; i < (onrisc_gpios->ngpio + onrisc_gpios->nvgpio); i++) {
 		if (onrisc_gpios->gpios[i].dir_fixed) {
 			gpio_dir->mask |= (1 << i);
 		}
@@ -466,7 +549,7 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 		}
 	}
 
-	for (i = 0; i < onrisc_gpios->ngpio; i++) {
+	for (i = 0; i < (onrisc_gpios->ngpio + onrisc_gpios->nvgpio); i++) {
 		if (gpio_dir->mask & (1 << i)) {
 			/* check, if it is a fixed GPIO */
 			if (onrisc_gpios->gpios[i].dir_fixed) {
@@ -491,6 +574,17 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 					goto error;
 				}
 				break;
+			case BALTOS_IR_3220:
+			case BALTOS_IR_5221:
+				if (onrisc_gpios->gpios[i].flags & GPIO_IS_VIRTUAL) {
+					if (onrisc_gpios->gpios[i].direction == INPUT) {
+						if (libsoc_gpio_set_level(onrisc_gpios->gpios[i - 4].pin, LOW) ==
+						    EXIT_FAILURE) {
+							goto error;
+						}
+					}
+				}
+				break;
 			case NETIO:
 			case NETIO_WLAN:
 				if (libsoc_gpio_set_direction(
@@ -501,6 +595,15 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 				break;
 			}
 		}
+	}
+
+	if (0 < onrisc_gpios->nvgpio) {
+		if ((vdir = fopen("/tmp/vdir", "w")) == NULL) 
+				goto error;
+
+		fprintf(vdir, "%X", gpio_dir->value >> onrisc_gpios->ngpio );
+
+		fclose(vdir);
 	}
 
 	rc = EXIT_SUCCESS;
@@ -524,7 +627,7 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val)
 		}
 	}
 
-	for (i = 0; i < onrisc_gpios->ngpio; i++) {
+	for (i = 0; i < (onrisc_gpios->ngpio + onrisc_gpios->nvgpio); i++) {
 		if (gpio_val->mask & (1 << i)) {
 			/* check, if it is OUTPUT */
 			if (onrisc_gpios->gpios[i].direction == INPUT) {
@@ -533,19 +636,11 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val)
 
 			/* set value */
 			if (onrisc_system.model == NETIO || onrisc_system.model == NETIO_WLAN) {
-				onrisc_gpios->gpios_ctrl[i].value =
-				    gpio_val->value & (1 << i) ? LOW : HIGH;
-
-				if (onrisc_gpio_set_value_sysfs
-				    (&onrisc_gpios->gpios_ctrl[i]) == EXIT_FAILURE) {
+				if (onrisc_gpio_set_value_sysfs(i, gpio_val->value & (1 << i) ? LOW : HIGH) == EXIT_FAILURE) {
 					goto error;
 				}
 			} else {
-				onrisc_gpios->gpios[i].value =
-				    gpio_val->value & (1 << i) ? HIGH : LOW;
-
-				if (onrisc_gpio_set_value_sysfs
-				    (&onrisc_gpios->gpios[i]) == EXIT_FAILURE) {
+				if (onrisc_gpio_set_value_sysfs(i, gpio_val->value & (1 << i) ? HIGH : LOW) == EXIT_FAILURE) {
 					goto error;
 				}
 			}
@@ -626,10 +721,9 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 	case BALTOS_IR_5221:
 	case BALTOS_DIO_1080:
 	case NETCON3:
-		for (i = 0; i < onrisc_gpios->ngpio; i++) {
+		for (i = 0; i < (onrisc_gpios->ngpio + onrisc_gpios->nvgpio); i++) {
 			if ((level =
-			     libsoc_gpio_get_level(onrisc_gpios->gpios[i].
-						   pin)) == LEVEL_ERROR) {
+			     onrisc_gpio_get_value_sysfs(i)) == LEVEL_ERROR) {
 				fprintf(stderr, "failed to get GPIO %d\n", i);
 				goto error;
 			}
