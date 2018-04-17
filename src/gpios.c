@@ -380,7 +380,6 @@ int onrisc_gpio_set_value_sysfs(int idx, int val)
 	case BALTOS_IR_5221:
 		if (onrisc_gpios->gpios[idx].flags & GPIO_IS_VIRTUAL) {
 			if (onrisc_gpios->gpios[idx].direction == OUTPUT) {
-				val = invert_level(val);
 				if (libsoc_gpio_set_level(onrisc_gpios->gpios[idx - 4].pin, val) ==
 				    EXIT_FAILURE) {
 					goto error;
@@ -423,12 +422,7 @@ int onrisc_gpio_get_value_sysfs(int idx)
 	case BALTOS_IR_3220:
 	case BALTOS_IR_5221:
 		if (onrisc_gpios->gpios[idx].flags && GPIO_IS_VIRTUAL) {
-			if (onrisc_gpios->gpios[idx].direction == INPUT) {
-			     return libsoc_gpio_get_level(onrisc_gpios->gpios[idx - 8].pin);
-			} else {
-			     return invert_level(libsoc_gpio_get_level(onrisc_gpios->gpios[idx - 4].pin));
-			}
-
+			return invert_level(libsoc_gpio_get_level(onrisc_gpios->gpios[idx - 8].pin));
 		} else {
 			return libsoc_gpio_get_level(onrisc_gpios->gpios[idx].pin);
 		}
@@ -635,14 +629,8 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val)
 			}
 
 			/* set value */
-			if (onrisc_system.model == NETIO || onrisc_system.model == NETIO_WLAN) {
-				if (onrisc_gpio_set_value_sysfs(i, gpio_val->value & (1 << i) ? LOW : HIGH) == EXIT_FAILURE) {
-					goto error;
-				}
-			} else {
-				if (onrisc_gpio_set_value_sysfs(i, gpio_val->value & (1 << i) ? HIGH : LOW) == EXIT_FAILURE) {
-					goto error;
-				}
+			if (onrisc_gpio_set_value_sysfs(i, gpio_val->value & (1 << i) ? HIGH : LOW) == EXIT_FAILURE) {
+				goto error;
 			}
 		}
 	}
@@ -679,9 +667,9 @@ int onrisc_gpio_get_value_netio(uint32_t * value)
 				goto error;
 			}
 			if (level == LOW) {
-				*value |= 1 << i;
-			} else {
 				*value &= ~(1 << i);
+			} else {
+				*value |= 1 << i;
 			}
 		}
 
