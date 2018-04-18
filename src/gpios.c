@@ -395,9 +395,14 @@ int onrisc_gpio_set_value_sysfs(int idx, int val)
 	case ALEKTO2:
 	case BALTOS_DIO_1080:
 	case NETCON3:
+		if (libsoc_gpio_set_level(onrisc_gpios->gpios[idx].pin, val) ==
+		    EXIT_FAILURE) {
+			goto error;
+		}
+		break;
 	case NETIO:
 	case NETIO_WLAN:
-		if (libsoc_gpio_set_level(onrisc_gpios->gpios[idx].pin, val) ==
+		if (libsoc_gpio_set_level(onrisc_gpios->gpios_ctrl[idx].pin, val) ==
 		    EXIT_FAILURE) {
 			goto error;
 		}
