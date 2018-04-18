@@ -26,7 +26,9 @@ int onrisc_gpio_init_netio()
 	base = onrisc_gpios->base;
 
 	for (i = 0; i < onrisc_gpios->ngpio; i++) {
-		/* init input pins */
+		/* init input pins
+		 * Input pins are pins P00-P03 on the TCA6408 IC.
+		 * */
 		onrisc_gpios->gpios[i].dir_fixed = 0;
 		onrisc_gpios->gpios[i].pin =
 			libsoc_gpio_request(i + base, LS_GPIO_SHARED);
@@ -34,7 +36,14 @@ int onrisc_gpio_init_netio()
 			goto error;
 		}
 
-		/* init control pins */
+		/* init control pins
+		 * Control pins are pins P04-P07 on the TCA6408 IC.
+		 * They have two roles:
+		 * - output GPIOs, when the virtual GPIO pin is configured to output
+		 *   such a pin opens FET with high level and closes with low level
+		 * - GPIO direction control pin: if virtual pins mode is input, the
+		 *   corresponding control pin is always low
+		 * */
 		onrisc_gpios->gpios_ctrl[i].pin =
 			libsoc_gpio_request(i + 4 + base, LS_GPIO_SHARED);
 		if (onrisc_gpios->gpios_ctrl[i].pin == NULL) {
