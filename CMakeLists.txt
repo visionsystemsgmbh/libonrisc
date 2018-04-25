@@ -90,7 +90,7 @@ if (NODEJS_WRAP)
 
 	include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-	set(CMAKE_SWIG_FLAGS "")
+	set(CMAKE_SWIG_FLAGS "-threads")
 	file(COPY
 		${SRCS}
 		"${CMAKE_SOURCE_DIR}/include/vssys.h"

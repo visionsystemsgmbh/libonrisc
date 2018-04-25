@@ -1,8 +1,23 @@
-%module onrisc
+%module(threads="1") onrisc
 
 %{
 #include "onrisc.h"
+
 %}
+
+%constant int DIRECTION_ERROR = -1;
+%constant int INPUT = 0;
+%constant int OUTPUT = 1;
+
+%constant int LEVEL_ERROR = -1;
+%constant int LOW = 0;
+%constant int HIGH = 1;
+
+%constant int EDGE_ERROR = -1;
+%constant int RISING = 0;
+%constant int FALLING = 1;
+%constant int NONE = 2;
+%constant int BOTH = 3;
 
 #define __attribute__(x)
 %include "stdint.i"
@@ -90,8 +105,67 @@ $result = PyString_FromString(mac);
     struct timeval ret = {((PyDateTime_Delta*)$input)->seconds, ((PyDateTime_Delta*)$input)->microseconds};
     $1 = ret;
 }
+
+//Callback stuff
+
+%typemap(in) PyObject *pyfunc {
+  if (!PyCallable_Check($input)) {
+      PyErr_SetString(PyExc_TypeError, "Need a callable object!");
+      return NULL;
+  }
+  $1 = $input;
+}
+
+%{
+
+static int pycb_fn(onrisc_gpios_t trig, void *args)
+{
+   SWIG_PYTHON_THREAD_BEGIN_BLOCK;
+   PyObject *func, *arglist;
+   PyObject *result;
+   int      res = 0;
+   func = (PyObject *) args;                                // Get Python function
+   arglist = Py_BuildValue("(II)", trig.mask, trig.value);   // Build argument list
+   result = PyEval_CallObject(func,arglist);     // Call Python
+   Py_DECREF(arglist);                           // Trash arglist
+   if (result) {                                 // If no errors, return int
+     res = PyInt_AsLong(result);
+   }
+   Py_XDECREF(result);
+   SWIG_PYTHON_THREAD_END_BLOCK;
+   return res;
+}
+
+int py_gpio_register_callback(uint32_t mask, PyObject *pyfunc, gpio_edge edge)
+{
+        SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+        int res = 0;
+        onrisc_gpios_t gpios;
+        gpios.mask = mask;
+        res = onrisc_gpio_register_callback(gpios, pycb_fn, (void *) pyfunc, edge);
+        SWIG_PYTHON_THREAD_END_ALLOW;
+        Py_INCREF(pyfunc);
+        return res;
+}
+
+int py_gpio_cancel_callback(uint32_t mask) {
+        onrisc_gpios_t gpios;
+        gpios.mask = mask;
+        return onrisc_gpio_cancel_callback(gpios);
+}
+
+%}
+
+%nothread py_gpio_register_callback;
+
+extern int py_gpio_register_callback(uint32_t mask, PyObject *pyfunc, gpio_edge edge);
+
+extern int py_gpio_cancel_callback(uint32_t mask);
+
 #endif
 typedef int gpio_level;
+typedef int gpio_edge;
+
 
 %array_class(onrisc_eth_t, ethArray);
 %array_class(onrisc_led_t, ledArray);
