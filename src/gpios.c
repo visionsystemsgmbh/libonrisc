@@ -436,7 +436,11 @@ int onrisc_gpio_get_value_sysfs(int idx)
 	case BALTOS_IR_3220:
 	case BALTOS_IR_5221:
 		if (onrisc_gpios->gpios[idx].flags && GPIO_IS_VIRTUAL) {
-			return invert_level(libsoc_gpio_get_level(onrisc_gpios->gpios[idx - 8].pin));
+			if (onrisc_gpios->gpios[idx].direction == INPUT) {
+				return libsoc_gpio_get_level(onrisc_gpios->gpios[idx - 8].pin);
+			} else {
+				return libsoc_gpio_get_level(onrisc_gpios->gpios[idx - 4].pin);
+			}
 		} else {
 			return libsoc_gpio_get_level(onrisc_gpios->gpios[idx].pin);
 		}
