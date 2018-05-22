@@ -41,13 +41,27 @@ extern "C" {
 #define NETCOM_PLUS_ECO_111		228
 #define NETCOM_PLUS_ECO_113		229
 #define NETCAN				230
+
+/* NetCAN Plus devices based on ar9331 SoC */
 #define NETCAN_PLUS_ECO			231
 #define NETCAN_PLUS_ECO_WLAN		232
+#define NETCAN_PLUS_ECO_110A		233
+#define NETCAN_PLUS_ECO_210A		234
+
+/* NetCom Plus devices based on ar9331 SoC */
 #define NETCOM_PLUS_ECO_111_WLAN	240
 #define NETCOM_PLUS_ECO_113_WLAN	241
 #define NETCOM_PLUS_ECO_411		244
+#define NETCOM_PLUS_ECO_111A		245
+#define NETCOM_PLUS_ECO_113A		246
+#define NETCOM_PLUS_ECO_211A		247
+#define NETCOM_PLUS_ECO_213A		248
+
+/* NetIO devices based on ar9331 SoC */
 #define NETIO				250
 #define NETIO_WLAN			251
+
+/* Router devices based on ar9331 SoC */
 #define MICROROUTER			260
 
 typedef struct {

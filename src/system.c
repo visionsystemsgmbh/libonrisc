@@ -354,7 +354,10 @@ int onrisc_get_tca6416_base(int *base, int addr)
 		fprintf(stderr, "can't create udev object\n");
 		goto error;
 	}
-	if (onrisc_system.model == NETIO || onrisc_system.model == NETIO_WLAN) {
+	if (onrisc_system.model == NETIO
+	    || onrisc_system.model == NETIO_WLAN
+	    || onrisc_system.model == NETCOM_PLUS_ECO_113A
+	    || onrisc_system.model == NETCOM_PLUS_ECO_213A) {
 		sprintf(tca_model, "tca6408");
 	}
 

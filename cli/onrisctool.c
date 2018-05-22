@@ -295,6 +295,14 @@ int set_macs()
 	    NETCOM_PLUS_ECO_113 == onrisc_system.model ||
 	    NETCOM_PLUS_ECO_111_WLAN == onrisc_system.model ||
 	    NETCOM_PLUS_ECO_113_WLAN == onrisc_system.model ||
+	    NETCOM_PLUS_ECO_111A == onrisc_system.model ||
+	    NETCOM_PLUS_ECO_113A == onrisc_system.model ||
+	    NETCOM_PLUS_ECO_211A == onrisc_system.model ||
+	    NETCOM_PLUS_ECO_213A == onrisc_system.model ||
+	    NETCAN_PLUS_ECO == onrisc_system.model ||
+	    NETCAN_PLUS_ECO_WLAN == onrisc_system.model ||
+	    NETCAN_PLUS_ECO_110A == onrisc_system.model ||
+	    NETCAN_PLUS_ECO_210A == onrisc_system.model ||
 	    NETIO == onrisc_system.model ||
 	    NETIO_WLAN == onrisc_system.model ||
 	    NETCOM_PLUS_ECO_411 == onrisc_system.model) {

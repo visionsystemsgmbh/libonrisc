@@ -115,8 +115,14 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
 		case NETCOM_PLUS_ECO_411:
+		case NETCOM_PLUS_ECO_111A:
+		case NETCOM_PLUS_ECO_113A:
+		case NETCOM_PLUS_ECO_211A:
+		case NETCOM_PLUS_ECO_213A:
 		case NETCAN_PLUS_ECO:
 		case NETCAN_PLUS_ECO_WLAN:
+		case NETCAN_PLUS_ECO_110A:
+		case NETCAN_PLUS_ECO_210A:
 		case NETIO:
 		case NETIO_WLAN:
 		case MICROROUTER:
@@ -290,6 +296,38 @@ int onrisc_init_caps()
 			uarts->num = 4;
 			uarts->flags = 0;
 			break;
+		case NETCOM_PLUS_ECO_111A:
+		case NETCOM_PLUS_ECO_113A:
+		case NETCOM_PLUS_ECO_211A:
+		case NETCOM_PLUS_ECO_213A:
+			if (NETCOM_PLUS_ECO_111A == onrisc_system.model
+			    || NETCOM_PLUS_ECO_113A == onrisc_system.model) {
+				uarts->num = 1;
+			} else {
+				uarts->num = 2;
+			}
+
+			if (NETCOM_PLUS_ECO_111A == onrisc_system.model
+			    || NETCOM_PLUS_ECO_211A == onrisc_system.model) {
+				uarts->flags = 0;
+				break;
+			} else {
+				uarts->flags = UARTS_SWITCHABLE;
+			}
+
+			onrisc_config_switch(&uarts->ctrl[0],
+				(RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
+				4,
+				0,
+				0x20);
+			if (NETCOM_PLUS_ECO_213A == onrisc_system.model) {
+				onrisc_config_switch(&uarts->ctrl[1],
+					(RS_HAS_TERMINATION | RS_IS_GPIO_BASED | RS_NEEDS_I2C_ADDR),
+					4,
+					4,
+					0x20);
+			}
+			break;
 	}
 
 	/* GPIOS */
@@ -450,8 +488,14 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
 		case NETCOM_PLUS_ECO_411:
+		case NETCOM_PLUS_ECO_111A:
+		case NETCOM_PLUS_ECO_113A:
+		case NETCOM_PLUS_ECO_211A:
+		case NETCOM_PLUS_ECO_213A:
 		case NETCAN_PLUS_ECO:
 		case NETCAN_PLUS_ECO_WLAN:
+		case NETCAN_PLUS_ECO_110A:
+		case NETCAN_PLUS_ECO_210A:
 		case MICROROUTER:
 			/* initialize DIP caps */
 			dips = malloc(sizeof(onrisc_dip_caps_t));
@@ -620,8 +664,14 @@ int onrisc_init_caps()
 		case NETCOM_PLUS_ECO_111_WLAN:
 		case NETCOM_PLUS_ECO_113_WLAN:
 		case NETCOM_PLUS_ECO_411:
+		case NETCOM_PLUS_ECO_111A:
+		case NETCOM_PLUS_ECO_113A:
+		case NETCOM_PLUS_ECO_211A:
+		case NETCOM_PLUS_ECO_213A:
 		case NETCAN_PLUS_ECO:
 		case NETCAN_PLUS_ECO_WLAN:
+		case NETCAN_PLUS_ECO_110A:
+		case NETCAN_PLUS_ECO_210A:
 		case NETIO:
 		case NETIO_WLAN:
 			strcpy(eths->eth[0].if_name, "eth0");
