@@ -610,6 +610,10 @@ int onrisc_gpio_set_direction(onrisc_gpios_t * gpio_dir)
 	}
 
 	if (0 < onrisc_gpios->nvgpio) {
+		for (i = onrisc_gpios->ngpio; i < (onrisc_gpios->ngpio + onrisc_gpios->nvgpio); i++) {
+			gpio_dir->value |= (onrisc_gpios->gpios[i].direction) ? (1 << i) : 0;
+		}
+
 		if ((vdir = fopen("/tmp/vdir", "w")) == NULL) 
 				goto error;
 
