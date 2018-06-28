@@ -195,6 +195,8 @@ enum rs_mode {TYPE_UNKNOWN, TYPE_RS232, TYPE_RS422, TYPE_RS485_FD, TYPE_RS485_HD
 
 enum dir_ctrl {DIR_ART, DIR_RTS};
 
+enum gpios_type {NUM_PHYSICAL, NUM_VIRTUAL, NUM_BOTH};
+
 /** @name UART mode control structure */
 /*@{*/
 typedef struct {
@@ -459,6 +461,13 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val);
  * @return number of GPIOs
  */
 int onrisc_gpio_get_number();
+
+/**
+ * @brief get the explicit number of GPIOs
+ * @param type type of gpios: physical, virtual, both
+ * @return number of GPIOs
+ */
+int onrisc_gpio_get_exp_number(int type);
 
 /**
  * @brief registers a callback function (interrupt) for GPIO pins
