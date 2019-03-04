@@ -431,7 +431,6 @@ int onrisc_write_hw_params(onrisc_system_t * data)
 
 	fd = open(eeprom.path, O_WRONLY);
 	if (fd < 0) {
-ooo
 		fprintf(stderr, "failed to open EEPROM (%s)\n", eeprom.path);
 		rc = EXIT_FAILURE;
 		goto error;
