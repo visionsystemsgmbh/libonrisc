@@ -241,7 +241,9 @@ int main(int argc, char **argv)
 			} else {
 				onrisc_wlan_sw_register_callback(wlan_sw_callback, NULL, BOTH);
 			}
-			while(1);
+			while(1) {
+				sleep(1);
+			}
 			break;
 		case 'e':
 			if (hw_uart_dips) {
