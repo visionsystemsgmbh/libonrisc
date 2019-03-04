@@ -163,7 +163,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params)
 	int fd, rv, rc = EXIT_SUCCESS;
 
 	fd = open(eeprom.path, O_RDONLY);
-	if (fd <= 0) {
+	if (fd < 0) {
 		fprintf(stderr, "failed to open EEPROM (%s)\n", eeprom.path);
 		rc = EXIT_FAILURE;
 		goto error;
@@ -250,7 +250,7 @@ int onrisc_get_hw_params_nor(struct _param_hw *hw_params)
 	}
 
 	fd = open(PARTITION_REDBOOT, O_RDONLY);
-	if (fd == -1) {
+	if (fd < 0) {
 		ret = EXIT_FAILURE;
 		goto error;
 	}
@@ -430,7 +430,8 @@ int onrisc_write_hw_params(onrisc_system_t * data)
 	}
 
 	fd = open(eeprom.path, O_WRONLY);
-	if (fd <= 0) {
+	if (fd < 0) {
+ooo
 		fprintf(stderr, "failed to open EEPROM (%s)\n", eeprom.path);
 		rc = EXIT_FAILURE;
 		goto error;

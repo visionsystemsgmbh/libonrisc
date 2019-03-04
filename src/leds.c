@@ -351,7 +351,7 @@ int onrisc_led_init(blink_led_t * blinker)
 		}
 
 		blinker->fd = open("/dev/gpio", O_RDWR);
-		if (blinker->fd <= 0) {
+		if (blinker->fd < 0) {
 			return EXIT_FAILURE;
 		}
 		if (ioctl(blinker->fd, GPIO_CMD_GET_LEDS, &blinker->leds_old) <

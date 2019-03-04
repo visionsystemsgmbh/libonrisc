@@ -19,7 +19,7 @@ int onrisc_set_rs485_ioctl(int port_nr, int on)
 	}
 
 	fd = open(port, O_RDWR | O_NONBLOCK);
-	if (fd <= 0) {
+	if (fd < 0) {
 		fprintf(stderr, "failed to open %s\n", port);
 		rc = EXIT_FAILURE;
 		goto error ;
