@@ -216,9 +216,7 @@ int main(int argc, char **argv)
 			onrisc_gpios_t mask;
 			mask.mask=0xF;
 			onrisc_gpio_register_callback(mask, gpio_callback, NULL, BOTH);
-			while(1) {
-				sleep(1);
-			}
+			pause();
 			break;
 		case 'c':
 			readconfig_gpio(NULL);
