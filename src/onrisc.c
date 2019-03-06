@@ -156,7 +156,7 @@ error:
 /**
  * @brief read hardware parameter from EEPROM
  * @param hw_params structure to put hardware parameters to
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params)
 {
@@ -185,7 +185,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params)
  * @brief get MTD partition size from /proc/mtd 
  * @param name the device name of the partition like /dev/mtdblockX
  * @param size partition size to return
- * @return EXIT_SUCCES or EXIT_FAILURE
+ * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int get_partition_size(char *name, uint32_t * size)
 {
@@ -237,7 +237,7 @@ int get_partition_size(char *name, uint32_t * size)
 /**
 * @brief read hardware parameter from flash
 * @param hw_params hardware paramter structure
-* @return EXIT_SUCCES or EXIT_FAILURE
+* @return EXIT_SUCCESS or EXIT_FAILURE
 */
 int onrisc_get_hw_params_nor(struct _param_hw *hw_params)
 {
