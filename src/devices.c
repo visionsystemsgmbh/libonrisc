@@ -126,6 +126,7 @@ int onrisc_init_caps()
 		case NETIO:
 		case NETIO_WLAN:
 		case MICROROUTER:
+		case NETUSB:
 			leds->num = 3;
 			leds->led[LED_POWER].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE | LED_IS_INPUT_ACTIVE);
 			leds->led[LED_POWER].pin = 27;
@@ -136,6 +137,15 @@ int onrisc_init_caps()
 			leds->led[LED_APP].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED | LED_IS_HIGH_ACTIVE);
 			leds->led[LED_APP].pin = 15;
 			strcpy(leds->led[LED_APP].name,"onrisc:green:app");
+			if (NETUSB == onrisc_system.model) {
+				leds->num = 5;
+				leds->led[LED_USB1].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
+				leds->led[LED_USB1].pin = 18;
+				strcpy(leds->led[LED_USB1].name,"onrisc:green:usb1");
+				leds->led[LED_USB2].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
+				leds->led[LED_USB2].pin = 19;
+				strcpy(leds->led[LED_USB2].name,"onrisc:green:usb2");
+			}
 			break;
 	}
 
@@ -497,6 +507,7 @@ int onrisc_init_caps()
 		case NETCAN_PLUS_ECO_110A:
 		case NETCAN_PLUS_ECO_210A:
 		case MICROROUTER:
+		case NETUSB:
 			/* initialize DIP caps */
 			dips = malloc(sizeof(onrisc_dip_caps_t));
 			if (NULL == dips) {
@@ -674,6 +685,7 @@ int onrisc_init_caps()
 		case NETCAN_PLUS_ECO_210A:
 		case NETIO:
 		case NETIO_WLAN:
+		case NETUSB:
 			strcpy(eths->eth[0].if_name, "eth0");
 			break;
 		case MICROROUTER:

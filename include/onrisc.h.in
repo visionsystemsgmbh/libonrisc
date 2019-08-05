@@ -16,7 +16,7 @@ extern "C" {
 
 #define ONRISC_MAX_GPIOS        32
 #define ONRISC_MAX_UARTS        64
-#define ONRISC_MAX_LEDS        	64
+#define ONRISC_MAX_LEDS        	128
 #define ONRISC_MAX_DIPS	        32
 #define ONRISC_MAX_ETHS	        32
 
@@ -60,6 +60,9 @@ extern "C" {
 /* NetIO devices based on ar9331 SoC */
 #define NETIO				250
 #define NETIO_WLAN			251
+
+/* NetUSB devices based on ar9331 SoC */
+#define NETUSB				254
 
 /* Router devices based on ar9331 SoC */
 #define MICROROUTER			260
@@ -141,7 +144,7 @@ typedef struct {
 	uint32_t pin; /*!< LED related IO pin */
 	uint32_t flags; /*!< LED flags */
 	uint8_t i2c_id; /*!< I2C ID for I2C GPIO expander attached LEDs */
-	char name[17];	//!< LED name
+	char name[32];	//!< LED name
 } __attribute__ ((packed)) onrisc_led_t;
 /*@}*/
 
@@ -256,6 +259,8 @@ typedef struct _BSP_VS_HWPARAM    // v1.0
 #define LED_APP					0x04	//!< LED green
 #define LED_BTN_WLAN				0x08	//!< LED button wlan (Arete)
 #define LED_CAN_ERROR				0x10	//!< CAN Error LED (NET-CAN)
+#define LED_USB1				0x20	//!< first USB port connection (NetUSB)
+#define LED_USB2				0x40	//!< second USB port connection (NetUSB)
 
 #define DIP_S1					0x01
 #define DIP_S2					0x02

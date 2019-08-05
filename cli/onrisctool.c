@@ -195,6 +195,10 @@ int handle_leds(char *str)
 		led.led_type = LED_WLAN;
 	} else if (!strcmp(name, "cer")) {
 		led.led_type = LED_CAN_ERROR;
+	} else if (!strcmp(name, "us1")) {
+		led.led_type = LED_USB1;
+	} else if (!strcmp(name, "us2")) {
+		led.led_type = LED_USB2;
 	} else {
 		fprintf(stderr, "unknown LED: %s\n", name);
 		return EXIT_FAILURE;
