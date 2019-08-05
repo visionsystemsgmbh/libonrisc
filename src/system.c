@@ -313,26 +313,28 @@ error:
 
 int onrisc_find_ip175d(void)
 {
-	int rc = EXIT_FAILURE, ret;
+	int rc = EXIT_FAILURE;
 	FILE *fp;
 	char buf[32];
 
 	fp = fopen(ETH0_PHY, "r");
 	if (fp == NULL) {
-		goto error;
+		fp = fopen(ETH0_PHY_FIXED, "r");
+		if (fp == NULL)
+			goto error;
 	}
 
 	while (fgets(buf, sizeof(buf), fp)) {
-		if (strcmp(buf, "0x02430d80")) {
-			break;
-		}
+		buf[strcspn(buf, "\r\n")] = 0;
+		if (strcmp(buf, "0x02430d80") && strcmp(buf, "0x00000000"))
+			goto error;
 	}
 
 	rc = EXIT_SUCCESS;
  error:
-	if (fp != NULL) {
+	if (fp != NULL)
 		fclose(fp);
-	}
+
 	return rc;
 }
 

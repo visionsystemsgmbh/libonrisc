@@ -125,6 +125,7 @@
 #define LS_GPIO_WEAK	2
 
 #define ETH0_PHY			"/sys/bus/mdio_bus/devices/4a101000.mdio:00/phy_id"
+#define ETH0_PHY_FIXED			"/sys/bus/mdio_bus/devices/fixed-0:00/phy_id"
 extern int init_flag;
 extern onrisc_system_t onrisc_system;
 extern int serial_mode_first_pin;
