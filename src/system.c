@@ -449,7 +449,7 @@ int onrisc_get_tca6416_base(int *base, int addr)
 		for(;;) {
 			direntp = readdir( dirp );
 			if( direntp == NULL ) break;
-			sprintf(path, "/sys/class/gpio/%s/label", direntp->d_name);
+			sprintf(path, "/sys/class/gpio/%s/device/name", direntp->d_name);
 			if((fp = fopen(path, "r")) > 0 ) {
 				fgets(buf, 255, fp);
 				if(!strcmp(tca_model,buf)) {
