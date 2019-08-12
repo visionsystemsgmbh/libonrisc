@@ -24,7 +24,6 @@ option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(PYTHON_WRAP "Build Python bindings" OFF)
 option(LUA_WRAP "Build Lua bindings" OFF)
 option(NODEJS_WRAP "Build Node.js bindings" OFF)
-option(NO_UDEV "No udev bindings" OFF)
 
 # handle dependencies
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -49,15 +48,6 @@ set(LIBS
 	${CMAKE_THREAD_LIBS_INIT}
 	)
 	
-if(NO_UDEV)
-	add_definitions(-DNO_UDEV)
-else(NO_UDEV)
-	pkg_check_modules(PC_LIBUDEV REQUIRED libudev)
-	include_directories(BEFORE ${PC_LIBUDEV_INCLUDE_DIRS})
-	list(APPEND LIBS ${PC_LIBUDEV_LIBRARIES})
-endif(NO_UDEV)
-
-
 # library
 add_library(onrisc ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
 set_target_properties(onrisc PROPERTIES
@@ -116,10 +106,5 @@ set(exec_prefix ${CMAKE_INSTALL_PREFIX}/bin)
 set(includedir  ${CMAKE_INSTALL_PREFIX}/include)
 set(libdir      ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
 
-if(NO_UDEV)
-	configure_file(${CMAKE_SOURCE_DIR}/libonrisc_noudev.pc.in ${CMAKE_BINARY_DIR}/libonrisc_noudev.pc @ONLY)
-	install(FILES ${CMAKE_BINARY_DIR}/libonrisc_noudev.pc DESTINATION lib${LIB_SUFFIX}/pkgconfig RENAME libonrisc.pc)
-else(NO_UDEV)
-	configure_file(${CMAKE_SOURCE_DIR}/libonrisc.pc.in ${CMAKE_BINARY_DIR}/libonrisc.pc @ONLY)
-	install(FILES ${CMAKE_BINARY_DIR}/libonrisc.pc DESTINATION lib${LIB_SUFFIX}/pkgconfig)
-endif(NO_UDEV)
+configure_file(${CMAKE_SOURCE_DIR}/libonrisc.pc.in ${CMAKE_BINARY_DIR}/libonrisc.pc @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/libonrisc.pc DESTINATION lib${LIB_SUFFIX}/pkgconfig)
