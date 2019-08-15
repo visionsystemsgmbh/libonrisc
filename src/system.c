@@ -230,29 +230,25 @@ error:
 	return rc;
 }
 
-int onrisc_get_i2c_address(const char *path)
+int onrisc_get_i2c_address(const char *gpiochip)
 {
 	int addr = -1;
 	char *ptr, *ptr2;
+	char buf[512], path[128];
 	
-	ptr = strstr(path, "gpiochip");
-	if (ptr == NULL) {
-		goto error;
-	}
-	
-	ptr2 = strchr(ptr - 11, '-');
-	if (ptr2 == NULL) {
+	sprintf(path, "/sys/class/gpio/%s", gpiochip);
+	if (readlink(path, buf, sizeof(buf)) < 0) {
+		perror("Read gpiochip symlink:");
 		goto error;
 	}
 
-	if (sscanf(ptr2, "-%4x/", &addr) != 1) {
-		fprintf(stderr, "i2c addres not found\n");
-		goto error;
-	}
+	if (strstr(buf, "-0020") != NULL)
+		addr = 0x20;
+	else if (strstr(buf, "-0021") != NULL)
+		addr = 0x21;
 
-	return addr;
 error: 
-	return -1;
+	return addr;
 }
 
 int onrisc_find_ip175d(void)
@@ -285,11 +281,9 @@ int onrisc_find_ip175d(void)
 int onrisc_get_tca6416_base(int *base, int addr)
 {
 	int rc = EXIT_FAILURE;
-	FILE* fp;
 	DIR* dirp;
 	struct dirent* direntp;
 	char buf[256];
-	char buf2[256];
 	char path[256];
 
 	char tca_model[10] = "tca6416\n";
@@ -309,30 +303,32 @@ int onrisc_get_tca6416_base(int *base, int addr)
 		goto error;
 	} else {
 		for(;;) {
-			direntp = readdir( dirp );
-			if( direntp == NULL ) break;
+			FILE* fp;
+			direntp = readdir(dirp);
+			if(direntp == NULL)
+				break;
+			if(strstr(direntp->d_name, "gpiochip") == NULL)
+				continue;
 			sprintf(path, "/sys/class/gpio/%s/device/name", direntp->d_name);
-			if((fp = fopen(path, "r")) > 0 ) {
+			if ((fp = fopen(path, "r")) > 0 ) {
 				fgets(buf, 255, fp);
-				if(!strcmp(tca_model,buf)) {
-					FILE* fp2;
-					sprintf(path, "/sys/class/gpio/%s/base", direntp->d_name);
-					if((fp2 = fopen(path, "r")) > 0 ) {
-						fgets(buf2, 255, fp2);
-						sscanf(buf2, "%d", base);
-						fclose(fp2);
-			
-					} else {
-						fprintf(stderr, "gpio base wasn't found\n");
-						fclose(fp);
-						goto error;
+				fclose(fp);
+				if (!strcmp(tca_model, buf)) {
+					if (onrisc_get_i2c_address(direntp->d_name) == addr) {
+						sprintf(path, "/sys/class/gpio/%s/base", direntp->d_name);
+						if((fp = fopen(path, "r")) > 0 ) {
+							fgets(buf, 255, fp);
+							sscanf(buf, "%d", base);
+							fclose(fp);
+						} else {
+							fprintf(stderr, "gpio base wasn't found\n");
+							goto error;
+						}
 					}
 				}
-				fclose(fp);
 			}
 		}
-
-		closedir( dirp );
+		closedir(dirp);
 	}
 
 	if (*base == 0) {
