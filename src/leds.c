@@ -93,11 +93,11 @@ int onrisc_get_led_state(blink_led_t * led, uint8_t * state)
 
 	if (led_cap->flags & LED_IS_LED_CLASS_BASED) {
 		char path[256];
-		sprintf(path,"/sys/class/leds/%s/brightness",led_cap->name);
+		sprintf(path, "/sys/class/leds/%s/brightness", led_cap->name);
 		FILE *fp = fopen(path, "r");
 		if (fp == NULL)
 			return EXIT_FAILURE;
-		fscanf(fp,"%d", state);
+		fscanf(fp, "%d", state);
 		fclose(fp);
 
 		return EXIT_SUCCESS;
@@ -107,10 +107,10 @@ int onrisc_get_led_state(blink_led_t * led, uint8_t * state)
 		val = libsoc_gpio_get_level(led->led);
 		switch (val) {
 			case HIGH:
-				*state = led_flags & LED_IS_HIGH_ACTIVE ? HIGH : LOW;
+				*state = (led_flags & LED_IS_HIGH_ACTIVE) ? HIGH : LOW;
 				break;
 			case LOW:
-				*state = led_flags & LED_IS_HIGH_ACTIVE ? LOW : HIGH;
+				*state = (led_flags & LED_IS_HIGH_ACTIVE) ? LOW : HIGH;
 				break;
 			case LEVEL_ERROR:
 				*state = val;
@@ -138,18 +138,18 @@ int onrisc_switch_led(blink_led_t * led, uint8_t state)
 
 	if (led_cap->flags & LED_IS_LED_CLASS_BASED) {
 		char path[256];
-		sprintf(path,"/sys/class/leds/%s/trigger",led_cap->name);
+		sprintf(path, "/sys/class/leds/%s/trigger", led_cap->name);
 		FILE *fp = fopen(path, "w");
 		if (fp == NULL)
 			return EXIT_FAILURE;
 		fprintf(fp,"none");
 		fclose(fp);
 
-		sprintf(path,"/sys/class/leds/%s/brightness",led_cap->name);
+		sprintf(path, "/sys/class/leds/%s/brightness", led_cap->name);
 		fp = fopen(path, "w");
 		if (fp == NULL)
 			return EXIT_FAILURE;
-		fprintf(fp,state ? "1" : "0");
+		fprintf(fp, state ? "1" : "0");
 		fclose(fp);
 
 		return EXIT_SUCCESS;
@@ -244,7 +244,6 @@ void *blink_class_thread(void *data)
 {
 	blink_led_t *led = (blink_led_t *) data;
 	struct timeval stop_after;
-	uint8_t run = 1;
 	int32_t count = led->count;
 	onrisc_led_t *led_cap = &onrisc_capabilities.leds->led[led->led_type];
 
@@ -290,14 +289,12 @@ int onrisc_led_init(blink_led_t * blinker)
 	gpio *libsoc_gpio;
 	uint8_t led_flags;
 	uint32_t pin;
-	char *name; 
 	struct stat buf;
 
 	assert(blinker->led_type < ONRISC_MAX_LEDS);
 
 	led_flags = onrisc_capabilities.leds->led[blinker->led_type].flags;
 	pin = onrisc_capabilities.leds->led[blinker->led_type].pin;
-	name = onrisc_capabilities.leds->led[blinker->led_type].name;
 
 	if (!(led_flags & LED_IS_AVAILABLE)) {
 		fprintf(stderr, "LED (%d) is not available on this device\n",
@@ -312,7 +309,6 @@ int onrisc_led_init(blink_led_t * blinker)
 
 	if(!stat("/sys/class/leds/onrisc:red:power", &buf)) {
 		onrisc_capabilities.leds->led[blinker->led_type].flags |= LED_IS_LED_CLASS_BASED;
-		led_flags = onrisc_capabilities.leds->led[blinker->led_type].flags;
 		return EXIT_SUCCESS;
 	}
 
@@ -366,7 +362,7 @@ int onrisc_led_init(blink_led_t * blinker)
 int onrisc_blink_led_start(blink_led_t * blinker)
 {
 	int rc;
-	struct timeval tmp, tmp_res, off;
+	struct timeval tmp, tmp_res;
 	onrisc_led_t *led_cap = &onrisc_capabilities.leds->led[blinker->led_type];
 
 
