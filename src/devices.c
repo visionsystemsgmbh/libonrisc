@@ -69,7 +69,7 @@ int onrisc_init_caps()
 				leds->num = 4;
 				leds->led[LED_CAN_ERROR].flags = (LED_IS_AVAILABLE | LED_IS_GPIO_BASED);
 				leds->led[LED_CAN_ERROR].pin = 15;
-				break;
+				strcpy(leds->led[LED_CAN_ERROR].name,"can_error");
 			}
 
 			break;
