@@ -480,9 +480,9 @@ error:
 
 int onrisc_set_uart_mode_raw(int port_nr, uint8_t mode)
 {
-	int i;
 	if (port_nr == -1) {
-		for (i=1; i <= onrisc_capabilities.uarts->num; ++i) {
+		int i;
+		for (i = 1; i <= onrisc_capabilities.uarts->num; ++i) {
 			if(onrisc_set_uart_mode_raw(i, mode) == EXIT_FAILURE)
 				return EXIT_FAILURE;
 		}
