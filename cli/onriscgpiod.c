@@ -68,7 +68,6 @@ int gpio_callback(onrisc_gpios_t gpios, void* data)
 {
 	int port_nr = ALL_PORTS;
 	int i;
-	char cmd[256];
 	
 	if(gpios.mask == 0) {
 		port_nr = *((int *) data);

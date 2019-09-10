@@ -90,7 +90,6 @@ int test_callback(onrisc_gpios_t dips, void* data)
 int wlan_sw_callback(onrisc_gpios_t gpios, void* data)
 {
 	int port_nr = ALL_PORTS;
-	char cmd[256];
 	
 	if (gpios.value) {
 		if(dip_list[16].action_type == SERIAL_MODE) {
