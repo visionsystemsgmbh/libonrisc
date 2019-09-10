@@ -18,7 +18,7 @@ int onrisc_init_caps()
 	int i, rc = EXIT_FAILURE;
 	int maj, min;
 	onrisc_gpios_int_t *gpios = NULL;
-	onrisc_led_caps_t *leds = NULL;
+	onrisc_led_caps_t *leds;
 	onrisc_dip_caps_t *dips = NULL;
 	onrisc_uart_caps_t *uarts = NULL;
 	onrisc_sw_caps_t *wlan_sw = NULL;

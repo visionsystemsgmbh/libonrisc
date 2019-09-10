@@ -189,7 +189,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params)
  */
 int get_partition_size(char *name, uint32_t * size)
 {
-	FILE *fp = NULL;
+	FILE *fp;
 	char buf[64], final_buf[10], *tmp_ptr;
 	int rc = EXIT_SUCCESS;
 
