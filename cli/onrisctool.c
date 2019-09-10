@@ -123,10 +123,10 @@ int show_rs_modes()
 			}
 			printf
 			    ("Port %d: mode: unknown vector: %s%s%s%s\n",
-			     i + 1, dips & DIP_S1 ? "1" : "0",
-				dips & DIP_S2 ? "1" : "0",
-				dips & DIP_S3 ? "1" : "0",
-				dips & DIP_S4 ? "1" : "0");
+			     i + 1, (dips & DIP_S1) ? "1" : "0",
+				(dips & DIP_S2) ? "1" : "0",
+				(dips & DIP_S3) ? "1" : "0",
+				(dips & DIP_S4) ? "1" : "0");
 
 			break;
 		}
@@ -473,14 +473,14 @@ int main(int argc, char **argv)
 				goto error;
 			}
 
-			printf("DIP S1: %s\n", dips & DIP_S1 ? "on" : "off");
-			printf("DIP S2: %s\n", dips & DIP_S2 ? "on" : "off");
-			printf("DIP S3: %s\n", dips & DIP_S3 ? "on" : "off");
-			printf("DIP S4: %s\n\n", dips & DIP_S4 ? "on" : "off");
-			printf("Vector: %s%s%s%s\n", dips & DIP_S1 ? "1" : "0",
-				dips & DIP_S2 ? "1" : "0",
-				dips & DIP_S3 ? "1" : "0",
-				dips & DIP_S4 ? "1" : "0");
+			printf("DIP S1: %s\n", (dips & DIP_S1) ? "on" : "off");
+			printf("DIP S2: %s\n", (dips & DIP_S2) ? "on" : "off");
+			printf("DIP S3: %s\n", (dips & DIP_S3) ? "on" : "off");
+			printf("DIP S4: %s\n\n", (dips & DIP_S4) ? "on" : "off");
+			printf("Vector: %s%s%s%s\n", (dips & DIP_S1) ? "1" : "0",
+				(dips & DIP_S2) ? "1" : "0",
+				(dips & DIP_S3) ? "1" : "0",
+				(dips & DIP_S4) ? "1" : "0");
 
 
 			break;
