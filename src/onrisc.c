@@ -558,7 +558,6 @@ int generic_wlan_sw_callback(void * arg)
 	onrisc_gpios_t val;
 	val.mask = 1;
 	gpio_level level;
-	int i;
 
 	onrisc_wlsw = onrisc_capabilities.wlan_sw;
 
