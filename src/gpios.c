@@ -651,7 +651,7 @@ int onrisc_gpio_set_value(onrisc_gpios_t * gpio_val)
 			}
 
 			/* set value */
-			if (onrisc_gpio_set_value_sysfs(i, gpio_val->value & (1 << i) ? HIGH : LOW) == EXIT_FAILURE) {
+			if (onrisc_gpio_set_value_sysfs(i, (gpio_val->value & (1 << i)) ? HIGH : LOW) == EXIT_FAILURE) {
 				goto error;
 			}
 		}
