@@ -223,7 +223,8 @@ int onrisc_init_caps()
 			}
 
 			if (NETCOM_PLUS_811 == onrisc_system.model || NETCOM_PLUS == onrisc_system.model) {
-				if (1 == maj && 2 == min) {
+				int base;
+				if (onrisc_get_tca6416_base(&base, 0x20) == EXIT_FAILURE) {
 					uarts->flags = 0;
 					break;
 				}
