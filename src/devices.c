@@ -80,7 +80,6 @@ int onrisc_init_caps()
 			leds->led[LED_POWER].i2c_id = 0x21;
 
 			break;
-		/*TODO: detect hw rev */
 		case NETCOM_PLUS:
 		case NETCOM_PLUS_811:
 		case NETCOM_PLUS_413:
@@ -94,7 +93,8 @@ int onrisc_init_caps()
 			leds->led[LED_APP].pin = 16;
 
 			if (NETCOM_PLUS_811 == onrisc_system.model || NETCOM_PLUS == onrisc_system.model) {
-				if (1 == maj && 2 == min) {
+				int base;
+				if (onrisc_get_tca6416_base(&base, 0x20) == EXIT_FAILURE) {
 					leds->led[LED_WLAN].pin = 16;
 					leds->led[LED_APP].pin = 17;
 				}
