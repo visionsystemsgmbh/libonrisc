@@ -690,11 +690,11 @@ int onrisc_init_caps()
 			strcpy(eths->eth[0].if_name, "eth0");
 			break;
 		case MICROROUTER:
-			//WAN
+			/* WAN */
 			strcpy(eths->eth[0].if_name, "eth0");
 			eths->eth[0].num = 1;
 			eths->eth[0].flags = (ETH_RMII_100M | ETH_PHYSICAL);
-			//LAN
+			/* LAN */
 			strcpy(eths->eth[1].if_name, "eth1");
 			eths->eth[1].num = 1;
 			eths->eth[1].flags = (ETH_RMII_100M | ETH_PHYSICAL);

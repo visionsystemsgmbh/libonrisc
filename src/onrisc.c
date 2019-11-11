@@ -236,7 +236,7 @@ int get_partition_size(char *name, uint32_t * size)
 
 /**
 * @brief read hardware parameter from flash
-* @param hw_params hardware paramter structure
+* @param hw_params hardware parameter structure
 * @return EXIT_SUCCESS or EXIT_FAILURE
 */
 int onrisc_get_hw_params_nor(struct _param_hw *hw_params)

@@ -50,7 +50,7 @@ void print_usage()
 	fprintf(stderr,
 		"         -i                 turn network switch off\n");
 	fprintf(stderr,
-		"         -I                 initalize device hardware\n");
+		"         -I                 initialize device hardware\n");
 	fprintf(stderr, "         -w                 set wlan0 MAC\n");
 	fprintf(stderr,
 		"         -q                 query WLAN switch state\n");
