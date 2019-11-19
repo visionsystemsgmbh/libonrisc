@@ -278,6 +278,7 @@ int onrisc_gpio_init_baltos()
 		int res = 0;
 		if(0 >= (res = fscanf(vdir, "%1X", &vdir_data))) {
 			vdir_data = 0;
+			fseek(vdir, 0, SEEK_SET);
 			fprintf(vdir, "%X", vdir_data);
 		}
 
