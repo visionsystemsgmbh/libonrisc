@@ -545,7 +545,9 @@ int onrisc_init(onrisc_system_t * data)
 	}
 
 	/* initialize devices specific capabilities */
-	onrisc_init_caps();
+	if (!init_flag) {
+		onrisc_init_caps();
+	}
 
 	init_flag = 1;
 

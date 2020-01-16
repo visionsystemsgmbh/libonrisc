@@ -55,12 +55,14 @@ int onrisc_get_dips(uint32_t * dips)
 	*dips = 0;
 
 	if (NULL == dip_caps) {
+		fprintf(stderr, "no dip caps\n");
 		rc = EXIT_FAILURE;
 		goto error;
 	}
 
 	if (!dip_init_flag) {
 		if (onrisc_dip_init() == EXIT_FAILURE) {
+			fprintf(stderr, "dip init failed\n");
 			goto error;
 		}
 	}
@@ -71,6 +73,7 @@ int onrisc_get_dips(uint32_t * dips)
 		/* get level */
 		level = libsoc_gpio_get_level(dip_caps->dip_switch[0].gpio[i]);
 		if (level == LEVEL_ERROR) {
+			fprintf(stderr, "gpio %d get level failed\n", i);
 			rc = EXIT_FAILURE;
 			goto error;
 		}
