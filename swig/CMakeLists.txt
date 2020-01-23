@@ -11,7 +11,11 @@ if (PYTHON_WRAP)
 
 	set(CMAKE_SWIG_FLAGS "")
 
-	swig_add_module(onrisc python ${SWIG_ONRISC_I} ${SRCS})
+	swig_add_library(
+			 onrisc
+			 LANGUAGE python
+			 SOURCES ${SWIG_ONRISC_I} ${SRCS}
+			)
 	swig_link_libraries(onrisc ${PYTHON_LIBRARIES} ${PC_LIBSOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${PC_LIBUDEV_LIBRARIES})
 endif (PYTHON_WRAP)
 
@@ -27,7 +31,11 @@ if (LUA_WRAP)
 
 	set(CMAKE_SWIG_FLAGS "")
 
-	swig_add_module(luaonrisc lua ${SWIG_ONRISC_I} ${SRCS})
+	swig_add_library(
+			 luaonrisc
+			 LANGUAGE lua
+			 SOURCES ${SWIG_ONRISC_I} ${SRCS}
+			)
 	swig_link_libraries(luaonrisc ${PC_LIBSOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${PC_LIBUDEV_LIBRARIES} ${LUA_LIBRARY})
 endif (LUA_WRAP)
 
