@@ -71,6 +71,8 @@ if (NODEJS_WRAP)
 	include(${SWIG_USE_FILE})
 	set(SWIG_NODEJS "${CMAKE_BINARY_DIR}/swig_nodejs")
 	file(MAKE_DIRECTORY ${SWIG_NODEJS})
+	configure_file(${PROJECT_SOURCE_DIR}/swig/package.json.in
+		       ${SWIG_NODEJS}/package.json @ONLY)
 
 	# search for node-gyp
 	find_program(NODE_GYP node-gyp)
@@ -88,7 +90,6 @@ if (NODEJS_WRAP)
 		"${SWIG_ONRISC_I}"
 		"${CMAKE_SOURCE_DIR}/swig/binding.gyp"
 		"${CMAKE_SOURCE_DIR}/swig/index.js"
-		"${CMAKE_SOURCE_DIR}/swig/package.json"
 		DESTINATION ${SWIG_NODEJS})
 
 	add_custom_command(
