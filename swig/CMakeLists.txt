@@ -1,3 +1,7 @@
+if (POLICY CMP0078)
+	cmake_policy(SET CMP0078 OLD)
+endif()
+
 # SWIG: Python
 if (PYTHON_WRAP)
 	find_package(SWIG REQUIRED)
@@ -16,7 +20,13 @@ if (PYTHON_WRAP)
 			 LANGUAGE python
 			 SOURCES ${SWIG_ONRISC_I} ${SRCS}
 			)
-	swig_link_libraries(onrisc ${PYTHON_LIBRARIES} ${PC_LIBSOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${PC_LIBUDEV_LIBRARIES})
+	swig_link_libraries(
+		onrisc
+		${PYTHON_LIBRARIES}
+		${PC_LIBSOC_LIBRARIES}
+		${CMAKE_THREAD_LIBS_INIT}
+		${PC_LIBUDEV_LIBRARIES})
+	
 endif (PYTHON_WRAP)
 
 # SWIG: Lua
@@ -36,7 +46,12 @@ if (LUA_WRAP)
 			 LANGUAGE lua
 			 SOURCES ${SWIG_ONRISC_I} ${SRCS}
 			)
-	swig_link_libraries(luaonrisc ${PC_LIBSOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} ${PC_LIBUDEV_LIBRARIES} ${LUA_LIBRARY})
+	swig_link_libraries(
+		luaonrisc
+		${PC_LIBSOC_LIBRARIES}
+		${CMAKE_THREAD_LIBS_INIT}
+		${PC_LIBUDEV_LIBRARIES}
+		${LUA_LIBRARY})
 endif (LUA_WRAP)
 
 if (PYTHON_WRAP)
