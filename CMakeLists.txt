@@ -18,7 +18,7 @@ SET(CPACK_PACKAGE_CONTACT "service@visionsystems.de")
 SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${VSOR_ARCH})
 INCLUDE(CPack)
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.10)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(PYTHON_WRAP "Build Python bindings" OFF)
