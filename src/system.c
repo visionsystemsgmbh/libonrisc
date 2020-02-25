@@ -233,7 +233,6 @@ error:
 int onrisc_get_i2c_address(const char *gpiochip)
 {
 	int addr = -1;
-	char *ptr, *ptr2;
 	char buf[512], path[128];
 	
 	sprintf(path, "/sys/class/gpio/%s", gpiochip);

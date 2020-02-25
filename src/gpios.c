@@ -15,7 +15,6 @@ int onrisc_gpio_init_netio()
 {
 	int i, rc = EXIT_FAILURE;
 	int base;
-	gpio_direction cur_dir;
 
 	onrisc_gpios = onrisc_capabilities.gpios;
 

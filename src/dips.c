@@ -7,12 +7,10 @@ onrisc_dip_caps_t * onrisc_dips;
 int onrisc_dip_init()
 {
 	int rc = EXIT_SUCCESS;
-	gpio_level level;
 	int i;
 	onrisc_dip_caps_t *dip_caps = onrisc_capabilities.dips;
 
 	assert(init_flag == 1);
-
 
 	if (NULL == dip_caps) {
 		rc = EXIT_FAILURE;
@@ -68,8 +66,6 @@ int onrisc_get_dips(uint32_t * dips)
 	}
 
 	for (i = 0; i < dip_caps->dip_switch[0].num; i++) {
-		uint32_t pin = dip_caps->dip_switch[0].pin[i];
-
 		/* get level */
 		level = libsoc_gpio_get_level(dip_caps->dip_switch[0].gpio[i]);
 		if (level == LEVEL_ERROR) {

@@ -173,11 +173,8 @@ int main(int argc, char **argv)
 	int echo = 0;
 	int dir_ctrl = DIR_ART;
 	onrisc_gpios_t dips;
-	onrisc_uart_mode_t onrisc_uart_mode;
 	uint32_t mask = 0, value = 0, dir_mask = 0, dir_value = 0;
-	onrisc_gpios_t gpios;
 	bool set_gpio = false, set_dir_gpio = false;
-	gpio_level wlan_sw_state;
 
 	if (onrisc_init(&onrisc_system) == EXIT_FAILURE) {
 		printf("Failed to init\n");

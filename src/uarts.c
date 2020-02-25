@@ -387,7 +387,6 @@ int onrisc_get_uart_mode_raw(int port_nr, uint32_t * mode)
 
 	if (onrisc_capabilities.uarts->ctrl[port_nr - 1].flags & RS_IS_GPIO_BASED) {
 		int i;
-		gpio_direction dir;
 		onrisc_dip_switch_t *ctrl = &onrisc_capabilities.uarts->ctrl[port_nr - 1];
 		gpio_level val;
 
