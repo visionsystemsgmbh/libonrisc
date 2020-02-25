@@ -903,6 +903,7 @@ int onrisc_gpio_get_number()
 
 int onrisc_gpio_get_exp_number(int type)
 {
+	int num_gpios = onrisc_gpios->ngpio + onrisc_gpios->nvgpio;
 	onrisc_gpios = onrisc_capabilities.gpios;
 
 	if (!gpio_init_flag) {
@@ -912,11 +913,10 @@ int onrisc_gpio_get_exp_number(int type)
 	}
 
 	if (type == NUM_PHYSICAL )	
-		return onrisc_gpios->ngpio;
+		num_gpios = onrisc_gpios->ngpio;
 
 	if (type == NUM_VIRTUAL )	
-		return onrisc_gpios->nvgpio;
+		num_gpios = onrisc_gpios->nvgpio;
 
-	if (type == NUM_BOTH )	
-		return onrisc_gpios->ngpio + onrisc_gpios->nvgpio;
+	return num_gpios;
 }

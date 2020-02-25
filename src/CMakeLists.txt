@@ -1,3 +1,5 @@
+add_definitions("-Wreturn-type")
+
 # library
 add_library(onrisc ${SRCS} ${PROJECT_SOURCE_DIR}/include/onrisc.h)
 set_target_properties(onrisc PROPERTIES

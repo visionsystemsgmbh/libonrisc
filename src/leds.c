@@ -233,6 +233,8 @@ void *blink_thread(void *data)
 			run = 0;
 		}
 	}
+
+	return NULL;
 }
 
 /**
@@ -258,6 +260,8 @@ void *blink_class_thread(void *data)
 		return NULL;
 	fprintf(fp,"none");
 	fclose(fp);
+
+	return NULL;
 }
 
 void onrisc_blink_create(blink_led_t * blinker)

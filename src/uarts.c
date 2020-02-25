@@ -216,6 +216,8 @@ int onrisc_set_uart_mode_ks8695(int port_nr, onrisc_uart_mode_t *mode)
 			}
 			break;
 	}
+
+	return EXIT_SUCCESS;
 }
 
 int onrisc_set_uart_mode_omap3(int port_nr, onrisc_uart_mode_t * mode)
