@@ -1,7 +1,6 @@
 #include "vssys.h"
 
 int dip_init_flag = 0;
-onrisc_capabilities_t onrisc_capabilities;
 onrisc_dip_caps_t * onrisc_dips;
 
 int onrisc_dip_init()

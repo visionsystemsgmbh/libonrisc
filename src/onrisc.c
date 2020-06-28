@@ -3,7 +3,6 @@
 int init_flag = 0;
 onrisc_system_t onrisc_system;
 onrisc_capabilities_t onrisc_capabilities;
-onrisc_dip_caps_t * onrisc_dips;
 onrisc_sw_caps_t * onrisc_wlsw;
 onrisc_eeprom_t eeprom;
 
