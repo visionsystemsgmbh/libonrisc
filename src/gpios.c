@@ -18,11 +18,11 @@ int onrisc_gpio_init_netio()
 
 	onrisc_gpios = onrisc_capabilities.gpios;
 
-	if (onrisc_get_tca6416_base(&onrisc_gpios->base, 0x20) == EXIT_FAILURE) {
+	if (onrisc_get_tca6416_base(&base, 0x20) == EXIT_FAILURE) {
 		goto error;
 	}
 
-	base = onrisc_gpios->base;
+	onrisc_gpios->base = base;
 
 	for (i = 0; i < onrisc_gpios->ngpio; i++) {
 		/* init input pins
@@ -66,11 +66,11 @@ int onrisc_gpio_init_alekto2()
 
 	onrisc_gpios = onrisc_capabilities.gpios;
 
-	if (onrisc_get_tca6416_base(&onrisc_gpios->base, 0x20) == EXIT_FAILURE) {
+	if (onrisc_get_tca6416_base(&base, 0x20) == EXIT_FAILURE) {
 		goto error;
 	}
 
-	base = onrisc_gpios->base;
+	onrisc_gpios->base = base;
 
 	for (i = 0; i < onrisc_gpios->ngpio / 2; i++) {
 		onrisc_gpios->gpios[i].direction = INPUT;
@@ -215,17 +215,18 @@ int onrisc_gpio_init_alekto2()
 int onrisc_gpio_init_baltos()
 {
 	int i, rc = EXIT_FAILURE;
+	int base;
 
 	onrisc_gpios = onrisc_capabilities.gpios;
 
-	if (onrisc_get_tca6416_base(&onrisc_gpios->base, 0x20) == EXIT_FAILURE) {
+	if (onrisc_get_tca6416_base(&base, 0x20) == EXIT_FAILURE) {
 		goto error;
 	}
+	onrisc_gpios->base = base;
 
 	for (i = 0; i < onrisc_gpios->ngpio / 2; i++) {
 		gpio_direction cur_dir;
 		int offset = i + onrisc_gpios->ngpio / 2;
-		int base = onrisc_gpios->base;
 
 		/* init inputs */
 		onrisc_gpios->gpios[i].pin =
@@ -706,6 +707,7 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 {
 	int i, rc = EXIT_FAILURE;
 	gpio_level level;
+	uint32_t val;
 
 	if (!onrisc_capabilities.gpios){
 		goto error;
@@ -747,9 +749,10 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val)
 		break;
 	case NETIO:
 	case NETIO_WLAN:
-		if (onrisc_gpio_get_value_netio(&gpio_val->value) == EXIT_FAILURE) {
+		if (onrisc_gpio_get_value_netio(&val) == EXIT_FAILURE) {
 			goto error;
 		}
+		gpio_val->value = val;
 		break;
 	}
 	rc = EXIT_SUCCESS;

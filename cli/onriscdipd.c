@@ -243,14 +243,18 @@ int main(int argc, char **argv)
 		case 'e':
 			if (hw_uart_dips) {
 				for(i=1;i <= caps->uarts->num; ++i) {	
+					uint32_t val;
 					dips.mask=0;
-					onrisc_get_uart_dips(i,&dips.value);
+					onrisc_get_uart_dips(i,&val);
+					dips.value = val;
 					test_callback(dips,&i);
 				}
 			} else {
+				uint32_t val;
 				dips.mask=0;
 				i=ALL_PORTS;
-				onrisc_get_dips(&dips.value);
+				onrisc_get_dips(&val);
+				dips.value = val;
 				test_callback(dips,&i);
 			}
 			if (wlan_sw) {
