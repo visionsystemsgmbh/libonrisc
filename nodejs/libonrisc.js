@@ -1,0 +1,62 @@
+var ffi = require('ffi-napi');
+var ref = require('ref-napi');
+var Struct = require('ref-struct-napi');
+var ArrayType = require('ref-array-napi')
+
+const rs_type = {
+	TYPE_UNKNOWN: 0,
+	TYPE_RS232: 1,
+	TYPE_RS422: 2,
+	TYPE_RS485_FD: 3,
+	TYPE_RS485_HD: 4,
+	TYPE_LOOPBACK: 5,
+	TYPE_DIP: 6,
+	TYPE_CAN: 7,
+}
+
+var onrisc_system_t = Struct({
+  'model' : 'uint16',
+  'hw_rev' : 'uint32',
+  'ser_nr' : 'uint32',
+  'prd_date' : ArrayType('char', 11),
+  'mac1' : ArrayType('uint8', 6),
+  'mac2' : ArrayType('uint8', 6),
+  'mac3' : ArrayType('uint8', 6),
+});
+var onrisc_system_ptr = ref.refType(onrisc_system_t);
+
+var onrisc_uart_mode_t = Struct({
+  'rs_mode' : 'uint32',
+  'termination' : 'uint32',
+  'dir_ctrl' : 'uint32',
+  'echo' : 'uint32',
+  'src' : 'uint32',
+});
+var onrisc_uart_mode_ptr = ref.refType(onrisc_uart_mode_t);
+
+var lib_file = 'libonrisc.so';
+
+// loads all symbols from the shared object for the libonrisc.so
+ffi.DynamicLibrary(lib_file, ffi.DynamicLibrary.FLAGS.RTLD_NOW |
+                             ffi.DynamicLibrary.FLAGS.RTLD_GLOBAL);
+
+var onrisc = ffi.Library(lib_file, {
+  'onrisc_init': ['int32', [onrisc_system_ptr]],
+  'onrisc_get_uart_mode': ['int32', ['int', onrisc_uart_mode_ptr]],
+  'onrisc_set_uart_mode': ['int32', ['int', onrisc_uart_mode_ptr]],
+  'onrisc_get_wlan_sw_state': ['int32', ['int32*']],
+  'onrisc_get_mpcie_sw_state': ['int32', ['int32*']],
+  'onrisc_set_mpcie_sw_state': ['int32', ['int32']],
+  'onrisc_get_dips': ['int32', ['uint32*']],
+});
+
+exports.rs_type = rs_type
+exports.onrisc_system_t = onrisc_system_t
+exports.onrisc_uart_mode_t = onrisc_uart_mode_t
+exports.onrisc_init = onrisc.onrisc_init
+exports.onrisc_get_uart_mode = onrisc.onrisc_get_uart_mode
+exports.onrisc_set_uart_mode = onrisc.onrisc_set_uart_mode
+exports.onrisc_get_wlan_sw_state = onrisc.onrisc_get_wlan_sw_state
+exports.onrisc_get_mpcie_sw_state = onrisc.onrisc_get_mpcie_sw_state
+exports.onrisc_set_mpcie_sw_state = onrisc.onrisc_set_mpcie_sw_state
+exports.onrisc_get_dips = onrisc.onrisc_get_dips

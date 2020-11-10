@@ -51,6 +51,9 @@ set(LIBS
 add_subdirectory(${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(${CMAKE_SOURCE_DIR}/cli)
 add_subdirectory(${CMAKE_SOURCE_DIR}/swig)
+if (NODEJS_WRAP)
+	add_subdirectory(${CMAKE_SOURCE_DIR}/nodejs)
+endif (NODEJS_WRAP)
 
 # PkgConfig
 set(prefix      ${CMAKE_INSTALL_PREFIX})
