@@ -40,6 +40,12 @@ var onrisc_uart_mode_t = Struct({
 });
 var onrisc_uart_mode_ptr = ref.refType(onrisc_uart_mode_t);
 
+var onrisc_gpios_t = Struct({
+  'mask' : 'uint32',
+  'value' : 'uint32',
+});
+var onrisc_gpios_ptr = ref.refType(onrisc_gpios_t);
+
 // define the time types
 var time_t = ref.types.long
 var suseconds_t = ref.types.long
@@ -78,6 +84,8 @@ var onrisc = ffi.Library(lib_file, {
   'onrisc_get_dips': ['int32', ['uint32*']],
   'onrisc_blink_create': ['void', [blink_led_ptr]],
   'onrisc_switch_led': ['int32', [blink_led_ptr, 'uint8']],
+  'onrisc_gpio_get_value': ['int32', [onrisc_gpios_ptr]],
+  'onrisc_gpio_set_value': ['int32', [onrisc_gpios_ptr]],
 });
 
 exports.rs_type = rs_type
@@ -85,6 +93,7 @@ exports.led_type = led_type
 exports.onrisc_system_t = onrisc_system_t
 exports.onrisc_uart_mode_t = onrisc_uart_mode_t
 exports.blink_led_t = blink_led_t
+exports.onrisc_gpios_t = onrisc_gpios_t
 exports.onrisc_init = onrisc.onrisc_init
 exports.onrisc_get_uart_mode = onrisc.onrisc_get_uart_mode
 exports.onrisc_set_uart_mode = onrisc.onrisc_set_uart_mode
@@ -94,3 +103,5 @@ exports.onrisc_set_mpcie_sw_state = onrisc.onrisc_set_mpcie_sw_state
 exports.onrisc_get_dips = onrisc.onrisc_get_dips
 exports.onrisc_blink_create = onrisc.onrisc_blink_create
 exports.onrisc_switch_led = onrisc.onrisc_switch_led
+exports.onrisc_gpio_get_value = onrisc.onrisc_gpio_get_value
+exports.onrisc_gpio_set_value = onrisc.onrisc_gpio_set_value
