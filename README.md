@@ -14,8 +14,8 @@ Features
 Installation
 ------------
 
-**libonrisc** has following requirements: **CMake** as a build system and it
-depends on **libsoc** and **libudev** libraries.
+**libonrisc** has the following requirements: **CMake** as a build system
+and it depends on **libsoc** and **libudev** libraries.
 
 1. `mkdir build`
 2. `cd build`
@@ -38,12 +38,12 @@ section:
 
     cmake .. -DPYTHON_WRAP=ON
 
-In Debian following packages provide Python bindings:
+In Debian, the following packages provide Python bindings:
 
 * **python-onrisc1** - for Python 2
 * **python3-onrisc1** - for Python 3
 
-Following example shows how to get device's serial number:
+The following example shows how to get device's serial number:
 
 ```python
 import onrisc
@@ -58,16 +58,15 @@ Further Python examples can be found in `test` folder.
 Node.js Bindings
 ----------------
 
-**libonrisc** also provides Node.js bindings generated via SWIG. In order to
-build them in Debian install **swig** and **nodejs** packages and tell CMake
-to create Node.js bindings:
+**libonrisc** also provides Node.js bindings. In order to build them in Debian
+install **nodejs** package and tell CMake to create Node.js bindings:
 
     cmake .. -DNODEJS_WRAP=ON
 
-Now perform following actions:
+Now perform the following actions:
 
 1. `make`
-2. `cd swig_nodejs`
+2. `cd nodejs`
 3. `npm install -g --unsafe-perm`
 4. `echo "export NODE_PATH=/usr/lib/node_modules" >> /etc/profile.d/vscom.sh`
 5. `source /etc/profile.d/vscom.sh`
@@ -78,7 +77,7 @@ Following example shows how to get device's serial number:
 var onrisc = require('libonrisc');
 
 var info = new onrisc.onrisc_system_t();
-onrisc.onrisc_init(info);
+onrisc.onrisc_init(info.ref());
 
 console.log("Serial number: %d", info.ser_nr);
 ```
@@ -178,7 +177,8 @@ int onrisc_gpio_get_value(onrisc_gpios_t * gpio_val);
 int onrisc_get_dips(uint32_t *dips);
 ```
 
-`onrisc_get_dips()` returns DIP switch state. You can check, whether particular switch is set via following macros and *&* operator:
+`onrisc_get_dips()` returns DIP switch state. You can check, whether
+particular switch is set via the following macros and *&* operator:
 
 ```C
 #define DIP_S1	0x01
