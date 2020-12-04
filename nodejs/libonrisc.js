@@ -70,6 +70,10 @@ var blink_led_ptr = ref.refType(blink_led_t);
 
 var lib_file = 'libonrisc.so';
 
+var mpcie_state_ptr = ref.alloc('int32');
+var wlan_sw_state_ptr = ref.alloc('int32');
+var dips_state_ptr = ref.alloc('uint32');
+
 // loads all symbols from the shared object for the libonrisc.so
 ffi.DynamicLibrary(lib_file, ffi.DynamicLibrary.FLAGS.RTLD_NOW |
                              ffi.DynamicLibrary.FLAGS.RTLD_GLOBAL);
@@ -88,6 +92,9 @@ var onrisc = ffi.Library(lib_file, {
   'onrisc_gpio_set_value': ['int32', [onrisc_gpios_ptr]],
 });
 
+exports.mpcie_state_ptr = mpcie_state_ptr
+exports.wlan_sw_state_ptr = wlan_sw_state_ptr
+exports.dips_state_ptr = dips_state_ptr
 exports.rs_type = rs_type
 exports.led_type = led_type
 exports.onrisc_system_t = onrisc_system_t
