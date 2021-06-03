@@ -906,8 +906,8 @@ int onrisc_gpio_get_number()
 
 int onrisc_gpio_get_exp_number(int type)
 {
-	int num_gpios = onrisc_gpios->ngpio + onrisc_gpios->nvgpio;
 	onrisc_gpios = onrisc_capabilities.gpios;
+	int num_gpios = onrisc_gpios->ngpio + onrisc_gpios->nvgpio;
 
 	if (!gpio_init_flag) {
 		if (onrisc_gpio_init() == EXIT_FAILURE) {
