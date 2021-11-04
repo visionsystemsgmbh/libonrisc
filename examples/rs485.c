@@ -27,7 +27,7 @@ int main(int argc, char **argv)
 	char buf[32];
 
 	if (argc != 3) {
-		printf("Wrong parameter count. \nUsage:\nrs485 device port-number\nExmaple:\nrs485 /dev/ttyO1 1\n");
+		printf("Wrong parameter count. \nUsage:\nrs485 device port-number\nExmaple:\nrs485 /dev/ttyS1 1\n");
 		goto error;
 	}
 

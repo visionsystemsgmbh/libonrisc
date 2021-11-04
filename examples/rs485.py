@@ -7,12 +7,13 @@ and send some characters at 115200 baud.
 
 Invocation:
 
-python rs485.py /dev/ttyO1 1
+python rs485.py /dev/ttyS1 1
 '''
 
 import sys
 import serial
 import onrisc
+
 
 def switch_to_rs485(port_nr):
     '''Setup RS mode via libonrisc to RS485 and enable termination.'''
@@ -21,9 +22,10 @@ def switch_to_rs485(port_nr):
     uart.termination = 1
     onrisc.onrisc_set_uart_mode(port_nr, uart)
 
+
 if len(sys.argv) != 3:
     print("Wrong parameter count. \nUsage:\npython rs485.py device port-number \
-        \nExmaple:\npython rs485.py /dev/ttyO1 1\n")
+        \nExmaple:\npython rs485.py /dev/ttyS1 1\n")
     sys.exit(1)
 
 # initialize libonrisc
