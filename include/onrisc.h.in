@@ -10,6 +10,7 @@ extern "C" {
 #include <stdint.h>
 #include <sys/time.h>
 #include <linux/serial.h>
+#include <linux/gpio.h>
 #include <libsoc_gpio.h>
 
 #define LIBONRISC_VERSION "@CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@.@CPACK_PACKAGE_VERSION_PATCH@"
@@ -574,6 +575,16 @@ int onrisc_set_mpcie_sw_state(gpio_level state);
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_sw_init(onrisc_sw_caps_t *sw);
+
+/**
+ * @brief get gpiochip index and line offset for a given GPIO name
+ * @param name GPIO name taken from DTS file
+ * @param chip returned gpiochip index extracted from "/dev/gpiochipx"
+ * @param offset returned GPIO line offset within the gpiochip
+ * @param base returned gpiochip base in the old sysfs structure
+ * @return EXIT_SUCCESS or EXIT_FAILURE
+ */
+int onrisc_get_gpiochip_and_offset(const char *name, int *chip, int *offset, int *base);
 
 #ifdef __cplusplus
 }

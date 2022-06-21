@@ -9,6 +9,85 @@ onrisc_eeprom_t eeprom;
 /* UART mode variables */
 int serial_mode_first_pin = 200;
 
+int onrisc_get_gpiochip_and_offset(const char *name, int *chip, int *offset, int *base)
+{
+	DIR *dp;
+	struct dirent *item;
+	int rc = EXIT_FAILURE;
+
+	*chip = -1;
+	*offset = -1;
+
+	dp = opendir("/dev");
+	if (dp == NULL) {
+		fprintf(stderr, "Failed to open /dev\n");
+		goto error;
+	}
+
+	while(item = readdir(dp)) {
+		if (strstr(item->d_name, "gpiochip")) {
+			int fd, ret, i;
+			char gpiochip_name[16];
+			struct gpiochip_info info;
+			sprintf(gpiochip_name, "/dev/%s", item->d_name);
+			fd = open(gpiochip_name, O_RDONLY);
+			if (fd < 0) {
+				fprintf(stderr, "Unabled to open gpiochip device\n");
+				goto error;
+			}
+			ret = ioctl(fd, GPIO_GET_CHIPINFO_IOCTL, &info);
+			if (ret < 0) {
+				fprintf(stderr, "Failed to get gpiochip info\n");
+				close(fd);
+				goto error;
+			}
+
+			for (i = 0; i < info.lines; i++) {
+				struct gpioline_info line_info;
+				line_info.line_offset = i;
+				ret = ioctl(fd, GPIO_GET_LINEINFO_IOCTL, &line_info);
+				if (ret < 0) {
+					 fprintf(stderr, "Failed to get gpioline info\n");
+					 close(fd);
+					 goto error;
+				}
+				if (!strcmp(name, line_info.name)) {
+					int chip_nr, chip_base;
+					*offset = i;
+					if (sscanf(gpiochip_name, "/dev/gpiochip%d", &chip_nr) != 1) {
+						perror("sscanf gpiochip: ");
+						close(fd);
+						goto error;
+					}
+					*chip = chip_nr;
+					if (sscanf(info.label, "gpio-%d", &chip_base) != 1) {
+						perror("sscanf gpiochip label: ");
+						close(fd);
+						goto error;
+					}
+					*base = chip_base;
+					break;
+				}
+			}
+
+			close(fd);
+
+			if (*offset != -1 && *chip != -1)
+				break;
+		}
+
+	}
+
+	if (*offset != -1 && *chip != -1)
+		rc = EXIT_SUCCESS;
+
+error:
+	if (dp != NULL)
+		closedir(dp);
+
+	return rc;
+}
+
 char *onrisc_get_eeprom_path(void)
 {
 	assert(init_flag == 1);

@@ -20,10 +20,21 @@ INCLUDE(CPack)
 
 cmake_minimum_required(VERSION 3.10)
 
+include(CheckTypeSize)
+
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(PYTHON_WRAP "Build Python bindings" OFF)
 option(LUA_WRAP "Build Lua bindings" OFF)
 option(NODEJS_WRAP "Build Node.js bindings" OFF)
+
+set(CMAKE_EXTRA_INCLUDE_FILES linux/gpio.h)
+check_type_size("struct gpiochip_info" STRUCT_GPIOCHIP_INFO)
+set(CMAKE_EXTRA_INCLUDE_FILES)
+
+if (NOT HAVE_STRUCT_GPIOCHIP_INFO)
+	message(FATAL_ERROR "libonrisc requires a toolchain \
+with GPIO character devices API (Linux header version > 4.5.x)")
+endif (NOT HAVE_STRUCT_GPIOCHIP_INFO)
 
 # handle dependencies
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
