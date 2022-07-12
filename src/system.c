@@ -339,3 +339,14 @@ int onrisc_get_tca6416_base(int *base, int addr)
  error:
 	return rc;
 }
+
+int onrisc_get_gpio_number(char *name, int def_nr)
+{
+	int chip, offset, base;
+
+	if (onrisc_get_gpiochip_and_offset(name, &chip, &offset, &base) != EXIT_SUCCESS) {
+		return def_nr;
+	}
+
+	return base + offset;
+}

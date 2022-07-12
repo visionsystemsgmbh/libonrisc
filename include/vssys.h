@@ -135,3 +135,4 @@ int onrisc_find_ip175d(void);
 int onrisc_get_tca6416_base(int *base, int addr);
 int onrisc_init_caps(void);
 char *mtd_dev(const char *partition);
+int onrisc_get_gpio_number(char *name, int def_nr);
