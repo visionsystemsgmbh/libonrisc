@@ -268,18 +268,22 @@ int onrisc_init_caps()
 				uarts->flags = UARTS_SWITCHABLE;
 			}
 
-			onrisc_config_switch(&uarts->ctrl[0],
-				(RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED),
-				4,
-				32 * 3 + 14,
-				0);
+			uarts->ctrl[0].num = 4;
+			uarts->ctrl[0].i2c_id = 0;
+			uarts->ctrl[0].flags = RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED;
+			uarts->ctrl[0].pin[0] = onrisc_get_gpio_number("ModeA0", 32 * 3 + 14);
+			uarts->ctrl[0].pin[1] = onrisc_get_gpio_number("ModeA1", 32 * 3 + 15);
+			uarts->ctrl[0].pin[2] = onrisc_get_gpio_number("ModeA2", 32 * 3 + 16);
+			uarts->ctrl[0].pin[3] = onrisc_get_gpio_number("ModeA3", 32 * 3 + 17);
 
 			if (NETCOM_PLUS_211 == onrisc_system.model || NETCOM_PLUS_213 == onrisc_system.model) {
-				onrisc_config_switch(&uarts->ctrl[1],
-					(RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED),
-					4,
-					32 * 3 + 18,
-					0);
+				uarts->ctrl[1].num = 4;
+				uarts->ctrl[1].i2c_id = 0;
+				uarts->ctrl[1].flags = RS_HAS_485_SW | RS_HAS_TERMINATION | RS_IS_GPIO_BASED;
+				uarts->ctrl[1].pin[0] = onrisc_get_gpio_number("ModeB0", 32 * 3 + 18);
+				uarts->ctrl[1].pin[1] = onrisc_get_gpio_number("ModeB1", 32 * 3 + 19);
+				uarts->ctrl[1].pin[2] = onrisc_get_gpio_number("ModeB2", 32 * 3 + 20);
+				uarts->ctrl[1].pin[3] = onrisc_get_gpio_number("ModeB3", 32 * 3 + 21);
 			}
 
 			break;
@@ -441,10 +445,10 @@ int onrisc_init_caps()
 
 			dips->num = 1;
 			dips->dip_switch[0].num = 4;
-			dips->dip_switch[0].pin[0] = 44;
-			dips->dip_switch[0].pin[1] = 45;
-			dips->dip_switch[0].pin[2] = 46;
-			dips->dip_switch[0].pin[3] = 47;
+			dips->dip_switch[0].pin[0] = onrisc_get_gpio_number("SW2_0_alt", 44);
+			dips->dip_switch[0].pin[1] = onrisc_get_gpio_number("SW2_1_alt", 45);
+			dips->dip_switch[0].pin[2] = onrisc_get_gpio_number("SW2_2_alt", 46);
+			dips->dip_switch[0].pin[3] = onrisc_get_gpio_number("SW2_3_alt", 47);
 
 			break;
 		case NETCOM_PLUS:
@@ -459,17 +463,17 @@ int onrisc_init_caps()
 			if (1 == maj && 2 == min) {
 				dips->num = 1;
 				dips->dip_switch[0].num = 4;
-				dips->dip_switch[0].pin[0] = 44;
-				dips->dip_switch[0].pin[1] = 45;
-				dips->dip_switch[0].pin[2] = 46;
-				dips->dip_switch[0].pin[3] = 47;
+				dips->dip_switch[0].pin[0] = onrisc_get_gpio_number("SW2_0_alt", 44);
+				dips->dip_switch[0].pin[1] = onrisc_get_gpio_number("SW2_1_alt", 45);
+				dips->dip_switch[0].pin[2] = onrisc_get_gpio_number("SW2_2_alt", 46);
+				dips->dip_switch[0].pin[3] = onrisc_get_gpio_number("SW2_3_alt", 47);
 			} else {
 				dips->num = 1;
 				dips->dip_switch[0].num = 4;
-				dips->dip_switch[0].pin[0] = 32 * 2 + 18;
-				dips->dip_switch[0].pin[1] = 32 * 2 + 19;
-				dips->dip_switch[0].pin[2] = 32 * 3 + 9;
-				dips->dip_switch[0].pin[3] = 32 * 3 + 10;
+				dips->dip_switch[0].pin[0] = onrisc_get_gpio_number("SW2_0", 32 * 2 + 18);
+				dips->dip_switch[0].pin[1] = onrisc_get_gpio_number("SW2_1", 32 * 2 + 19);
+				dips->dip_switch[0].pin[2] = onrisc_get_gpio_number("SW2_2", 32 * 3 + 9);
+				dips->dip_switch[0].pin[3] = onrisc_get_gpio_number("SW2_3", 32 * 3 + 10);
 			}
 			break;
 		case NETCOM_PLUS_413:
@@ -489,10 +493,10 @@ int onrisc_init_caps()
 
 			dips->num = 1;
 			dips->dip_switch[0].num = 4;
-			dips->dip_switch[0].pin[0] = 32 * 2 + 18;
-			dips->dip_switch[0].pin[1] = 32 * 2 + 19;
-			dips->dip_switch[0].pin[2] = 32 * 3 + 9;
-			dips->dip_switch[0].pin[3] = 32 * 3 + 10;
+			dips->dip_switch[0].pin[0] = onrisc_get_gpio_number("SW2_0", 32 * 2 + 18);
+			dips->dip_switch[0].pin[1] = onrisc_get_gpio_number("SW2_1", 32 * 2 + 19);
+			dips->dip_switch[0].pin[2] = onrisc_get_gpio_number("SW2_2", 32 * 3 + 9);
+			dips->dip_switch[0].pin[3] = onrisc_get_gpio_number("SW2_3", 32 * 3 + 10);
 			break;
 		case NETCOM_PLUS_ECO_111:
 		case NETCOM_PLUS_ECO_113:
@@ -551,7 +555,7 @@ int onrisc_init_caps()
 			}
 			memset(wlan_sw, 0, sizeof(onrisc_sw_caps_t));
 
-			wlan_sw->pin = 6;
+			wlan_sw->pin = onrisc_get_gpio_number("WLAN_BTN", 6);
 			wlan_sw->flags = SW_IS_READ_ONLY;
 
 			/* initialize mPCIe switch caps */
@@ -561,7 +565,7 @@ int onrisc_init_caps()
 			}
 			memset(mpcie_sw, 0, sizeof(onrisc_sw_caps_t));
 
-			mpcie_sw->pin = 100;
+			mpcie_sw->pin = onrisc_get_gpio_number("3G_PWR_EN", 100);
 
 			break;
 		/*TODO: detect hw rev */
@@ -575,7 +579,7 @@ int onrisc_init_caps()
 			}
 			memset(mpcie_sw, 0, sizeof(onrisc_sw_caps_t));
 
-			mpcie_sw->pin = 100;
+			mpcie_sw->pin = onrisc_get_gpio_number("3G_PWR_EN", 100);
 
 			break;
 		/*TODO: detect hw rev */
@@ -588,7 +592,7 @@ int onrisc_init_caps()
 			}
 			memset(mpcie_sw, 0, sizeof(onrisc_sw_caps_t));
 
-			mpcie_sw->pin = 100;
+			mpcie_sw->pin = onrisc_get_gpio_number("3G_PWR_EN", 100);
 
 			break;
 	}
