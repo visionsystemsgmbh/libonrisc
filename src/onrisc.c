@@ -184,7 +184,7 @@ int onrisc_write_mdio_reg(int phy_id, int reg, int val)
 		fprintf(stderr, "failed to perform SIOCSMIIREG\n");
 		goto error;
 	}
-	
+
 	rc = EXIT_SUCCESS;
 error:
 	if (fd > 0) {
@@ -219,7 +219,7 @@ int onrisc_read_mdio_reg(int phy_id, int reg, int *val)
 		fprintf(stderr, "failed to perform SIOCGMIIREG\n");
 		goto error;
 	}
-	
+
 	*val = mii->val_out;
 
 	rc = EXIT_SUCCESS;
@@ -260,7 +260,7 @@ int onrisc_get_hw_params_eeprom(BSP_VS_HWPARAM * hw_params)
 }
 
 /**
- * @brief get MTD partition size from /proc/mtd 
+ * @brief get MTD partition size from /proc/mtd
  * @param name the device name of the partition like /dev/mtdblockX
  * @param size partition size to return
  * @return EXIT_SUCCESS or EXIT_FAILURE
@@ -393,6 +393,8 @@ int onrisc_get_model(int *model)
 
 			*model = NETCOM_PLUS_ECO_111;
 			break;
+		} else if (strstr(buf, "GenuineIntel") || strstr(buf, "AuthenticAMD")) {
+			*model = GENERIC_X86_HOST;
 		} else {
 			/* TODO: default device */
 		}
@@ -403,7 +405,7 @@ int onrisc_get_model(int *model)
 
 	/* get model from device tree */
 	if (*model == ALEKTO2) {
-		FILE *fp = fopen("/proc/device-tree/model", "r");
+		fp = fopen("/proc/device-tree/model", "r");
 		/* Alekto2 doesn't have this entry, so leave type as is */
 		if (fp == NULL)
 			goto error;
@@ -582,39 +584,54 @@ int onrisc_init(onrisc_system_t * data)
 	}
 
 	/* find EEPROM */
-	if (onrisc_get_eeprom(&eeprom) == EXIT_FAILURE && ALEKTO != model) {
-		fprintf(stderr, "failed to find EEPROM\n");
-		return EXIT_FAILURE;
+	if (model != ALEKTO && model != GENERIC_X86_HOST) {
+		if (onrisc_get_eeprom(&eeprom) == EXIT_FAILURE) {
+			fprintf(stderr, "failed to find EEPROM\n");
+			return EXIT_FAILURE;
+		}
 	}
 
-	if (ALEKTO == model) {
-		if (onrisc_get_hw_params_nor(&hw_nor) == EXIT_FAILURE) {
-			return EXIT_FAILURE;
-		}
-		onrisc_system.model = hw_nor.biosid;
-		onrisc_system.hw_rev = hw_nor.hwrev;
-		onrisc_system.ser_nr = hw_nor.serialnr;
-		strncpy(onrisc_system.prd_date, hw_nor.prddate, 11);
-		for (i = 0; i < 6; i++) {
-			onrisc_system.mac1[i] = hw_nor.mac1[i];
-			onrisc_system.mac2[i] = hw_nor.mac2[i];
-			onrisc_system.mac3[i] = 0xff;
-		}
-	} else {
-		if (onrisc_get_hw_params_eeprom(&hw_eeprom) ==
-		    EXIT_FAILURE) {
-			return EXIT_FAILURE;
-		}
+	switch (model) {
+		case ALEKTO:
+			if (onrisc_get_hw_params_nor(&hw_nor) == EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
+			onrisc_system.model = hw_nor.biosid;
+			onrisc_system.hw_rev = hw_nor.hwrev;
+			onrisc_system.ser_nr = hw_nor.serialnr;
+			strncpy(onrisc_system.prd_date, hw_nor.prddate, 11);
+			for (i = 0; i < 6; i++) {
+				onrisc_system.mac1[i] = hw_nor.mac1[i];
+				onrisc_system.mac2[i] = hw_nor.mac2[i];
+				onrisc_system.mac3[i] = 0xff;
+			}
+			break;
+		case GENERIC_X86_HOST:
+			onrisc_system.model = GENERIC_X86_HOST;
+			onrisc_system.hw_rev = 0x0101;
+			onrisc_system.ser_nr = 12345678;
+			strncpy(onrisc_system.prd_date, "01.01.2023", 11);
+			for (i = 0; i < 6; i++) {
+				onrisc_system.mac1[i] = 0x01;
+				onrisc_system.mac2[i] = 0x02;
+				onrisc_system.mac3[i] = 0x03;
+			}
+			break;
+		default:
+			if (onrisc_get_hw_params_eeprom(&hw_eeprom) ==
+			    EXIT_FAILURE) {
+				return EXIT_FAILURE;
+			}
 
-		onrisc_system.model = hw_eeprom.SystemId;
-		onrisc_system.hw_rev = hw_eeprom.HwRev;
-		onrisc_system.ser_nr = hw_eeprom.SerialNumber;
-		strncpy(onrisc_system.prd_date, hw_eeprom.PrdDate, 11);
-		for (i = 0; i < 6; i++) {
-			onrisc_system.mac1[i] = hw_eeprom.MAC1[i];
-			onrisc_system.mac2[i] = hw_eeprom.MAC2[i];
-			onrisc_system.mac3[i] = hw_eeprom.MAC3[i];
-		}
+			onrisc_system.model = hw_eeprom.SystemId;
+			onrisc_system.hw_rev = hw_eeprom.HwRev;
+			onrisc_system.ser_nr = hw_eeprom.SerialNumber;
+			strncpy(onrisc_system.prd_date, hw_eeprom.PrdDate, 11);
+			for (i = 0; i < 6; i++) {
+				onrisc_system.mac1[i] = hw_eeprom.MAC1[i];
+				onrisc_system.mac2[i] = hw_eeprom.MAC2[i];
+				onrisc_system.mac3[i] = hw_eeprom.MAC3[i];
+			}
 	}
 
 	/* copy onrisc_system_t to user space */
@@ -670,16 +687,16 @@ int onrisc_wlan_sw_register_callback(int (*callback_fn) (onrisc_gpios_t, void *)
 	}
 
 	/* set trigger edge */
-	libsoc_gpio_set_edge(onrisc_wlsw->gpio, edge);	
+	libsoc_gpio_set_edge(onrisc_wlsw->gpio, edge);
 	params = malloc(sizeof(callback_int_arg_t));
 	if (NULL == params) {
 		goto error;
 	}
 	memset(params, 0, sizeof(callback_int_arg_t));
-	
-	params->callback_fn = callback_fn;				
-	params->index = 0;				
-	params->args = arg;				
+
+	params->callback_fn = callback_fn;
+	params->index = 0;
+	params->args = arg;
 
 	/* register ISR */
 	libsoc_gpio_callback_interrupt(onrisc_wlsw->gpio, generic_wlan_sw_callback, (void *) params);

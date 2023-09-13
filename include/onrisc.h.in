@@ -24,6 +24,7 @@ extern "C" {
 #define ALEKTO				1
 #define ALENA				2
 #define ALEKTO_LAN			3
+#define GENERIC_X86_HOST		10
 #define VS860				100
 #define ALEKTO2				200
 #define BALTOS_IR_5221			210
@@ -213,7 +214,7 @@ typedef struct {
 /*@}*/
 
 typedef struct {
-	uint16_t model;	
+	uint16_t model;
 	uint32_t hw_rev;
 	uint32_t ser_nr;
 	char prd_date[11];
@@ -253,7 +254,7 @@ typedef struct _BSP_VS_HWPARAM    // v1.0
 	uint8_t MAC1[6];        // internal EMAC
 	uint8_t MAC2[6];        // SMSC9514
 	uint8_t MAC3[6];        // WL1271 WLAN
-} __attribute__ ((packed)) BSP_VS_HWPARAM; 
+} __attribute__ ((packed)) BSP_VS_HWPARAM;
 
 #define LED_POWER				0x01	//!< power LED red
 #define LED_WLAN				0x02	//!< WLAN LED blue
@@ -414,7 +415,7 @@ int onrisc_get_uart_mode(int port_nr, onrisc_uart_mode_t *mode);
 /**
  * @brief get UART's mode like RS232/RS422/RS485 and termination
  * @param port_nr port number, i.e. 1 - for /dev/ttyS1 or /dev/sertest0
- * @param mode pointer to a binary vector 
+ * @param mode pointer to a binary vector
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_get_uart_mode_raw(int port_nr, uint32_t *mode);
@@ -422,7 +423,7 @@ int onrisc_get_uart_mode_raw(int port_nr, uint32_t *mode);
 /**
  * @brief get UART DIPs (switches to INPUT during execution)
  * @param port_nr port number, i.e. 1 - for /dev/ttyS1 or /dev/sertest0
- * @param mode pointer to a binary vector 
+ * @param mode pointer to a binary vector
  * @return EXIT_SUCCESS or EXIT_FAILURE
  */
 int onrisc_get_uart_dips(int port_nr, uint32_t *mode);
