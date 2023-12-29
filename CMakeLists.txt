@@ -71,9 +71,9 @@ endif (NODEJS_WRAP)
 
 # PkgConfig
 set(prefix      ${CMAKE_INSTALL_PREFIX})
-set(exec_prefix ${CMAKE_INSTALL_PREFIX}/bin)
-set(includedir  ${CMAKE_INSTALL_PREFIX}/include)
-set(libdir      ${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX})
+set(exec_prefix "\${prefix}")
+set(includedir  "\${prefix}/include")
+set(libdir      "\${exec_prefix}/lib")
 
 configure_file(
   ${CMAKE_SOURCE_DIR}/libonrisc.pc.in
