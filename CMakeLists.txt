@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.10)
 
 project (libonrisc C)
 
+# Require explicit source file extensions
+if(POLICY CMP0115)
+  cmake_policy(SET CMP0115 NEW)
+endif()
+
 if(NOT VSOR_ARCH)
   set(VSOR_ARCH "armhf")
 endif(NOT VSOR_ARCH)
@@ -54,7 +59,15 @@ configure_file(
   ${PROJECT_BINARY_DIR}/onrisc.h @ONLY
 )
 
-aux_source_directory(${PROJECT_SOURCE_DIR}/src SRCS)
+set(SRCS
+  ${PROJECT_SOURCE_DIR}/src/devices.c
+  ${PROJECT_SOURCE_DIR}/src/dips.c
+  ${PROJECT_SOURCE_DIR}/src/gpios.c
+  ${PROJECT_SOURCE_DIR}/src/leds.c
+  ${PROJECT_SOURCE_DIR}/src/onrisc.c
+  ${PROJECT_SOURCE_DIR}/src/system.c
+  ${PROJECT_SOURCE_DIR}/src/uarts.c
+)
 
 set(SWIG_ONRISC_I ${PROJECT_SOURCE_DIR}/swig/onrisc.i)
 set(LIBS
