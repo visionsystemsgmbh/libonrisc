@@ -70,11 +70,6 @@ if (NODEJS_WRAP)
 endif (NODEJS_WRAP)
 
 # PkgConfig
-set(prefix      ${CMAKE_INSTALL_PREFIX})
-set(exec_prefix "\${prefix}")
-set(includedir  "\${prefix}/include")
-set(libdir      "\${exec_prefix}/lib")
-
 configure_file(
   ${CMAKE_SOURCE_DIR}/libonrisc.pc.in
   ${CMAKE_BINARY_DIR}/libonrisc.pc @ONLY
