@@ -1,5 +1,9 @@
 if (POLICY CMP0078)
-	cmake_policy(SET CMP0078 OLD)
+  cmake_policy(SET CMP0078 NEW)
+endif()
+
+if (POLICY CMP0086)
+  cmake_policy(SET CMP0086 NEW)
 endif()
 
 # SWIG: Python
@@ -16,16 +20,16 @@ if (PYTHON_WRAP)
 	set(CMAKE_SWIG_FLAGS "")
 
 	swig_add_library(
-			 onrisc
+			 pyonrisc
 			 LANGUAGE python
 			 SOURCES ${SWIG_ONRISC_I} ${SRCS}
 			)
 	swig_link_libraries(
-		onrisc
+		pyonrisc
 		${PYTHON_LIBRARIES}
 		${PC_LIBSOC_LIBRARIES}
 		${CMAKE_THREAD_LIBS_INIT})
-	
+
 endif (PYTHON_WRAP)
 
 # SWIG: Lua
@@ -69,8 +73,11 @@ if (PYTHON_WRAP)
 	   PYTHON_SITE_DIR "${PYTHON_SITE_DIR}"
 	)
 
-	install ( FILES ${CMAKE_CURRENT_BINARY_DIR}/onrisc.py ${CMAKE_CURRENT_BINARY_DIR}/_onrisc.so
-	   DESTINATION ${PYTHON_SITE_DIR}
-	   COMPONENT library
-	)
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/onrisc.py
+      ${CMAKE_CURRENT_BINARY_DIR}/_pyonrisc.so
+    DESTINATION ${PYTHON_SITE_DIR}
+    COMPONENT library
+  )
 endif (PYTHON_WRAP)
