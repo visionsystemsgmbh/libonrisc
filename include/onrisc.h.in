@@ -13,7 +13,7 @@ extern "C" {
 #include <linux/gpio.h>
 #include <libsoc_gpio.h>
 
-#define LIBONRISC_VERSION "@CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@.@CPACK_PACKAGE_VERSION_PATCH@"
+#define LIBONRISC_VERSION "@CMAKE_PROJECT_VERSION@"
 
 #define ONRISC_MAX_GPIOS        32
 #define ONRISC_MAX_UARTS        64

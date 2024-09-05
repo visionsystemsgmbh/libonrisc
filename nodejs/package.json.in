@@ -1,6 +1,6 @@
 {
   "name": "libonrisc",
-  "version": "@CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@.@CPACK_PACKAGE_VERSION_PATCH@",
+  "version": "@CMAKE_PROJECT_VERSION@",
   "description": "OnRISC Hardware API Library",
   "author": "service@visionsystems.de",
   "license": "None",

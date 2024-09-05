@@ -1,29 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
-project (libonrisc C)
+project (libonrisc VERSION 1.7.1 LANGUAGES C)
 
 # Require explicit source file extensions
 if(POLICY CMP0115)
   cmake_policy(SET CMP0115 NEW)
 endif()
-
-if(NOT VSOR_ARCH)
-  set(VSOR_ARCH "armhf")
-endif(NOT VSOR_ARCH)
-
-#CPack stuff
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OnRISC Hardware API Library")
-SET(CPACK_PACKAGE_VENDOR "VScom")
-SET(CPACK_PACKAGE_VERSION_MAJOR "1")
-SET(CPACK_PACKAGE_VERSION_MINOR "7")
-SET(CPACK_PACKAGE_VERSION_PATCH "1")
-SET(CPACK_SOURCE_STRIP_FILES "")
-SET(CPACK_PACKAGING_INSTALL_PREFIX "/usr/")
-SET(CPACK_GENERATOR "DEB")
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libsoc | libsoc2")
-SET(CPACK_PACKAGE_CONTACT "service@visionsystems.de")
-SET(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${VSOR_ARCH})
-INCLUDE(CPack)
 
 include(CheckTypeSize)
 

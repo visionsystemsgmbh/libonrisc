@@ -6,6 +6,6 @@ includedir=${prefix}/include
 Name: libonrisc
 Description: OnRISC Hardware API Library
 Requires: libsoc
-Version: @CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@.@CPACK_PACKAGE_VERSION_PATCH@
+Version: @CMAKE_PROJECT_VERSION@
 Libs: -L${libdir} -lonrisc
 Cflags: -I${includedir}
