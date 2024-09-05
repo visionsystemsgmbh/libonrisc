@@ -10,6 +10,9 @@ onrisctool
 .prepared*
 CMakeCache.txt
 /CMakeFiles/
+cli/CMakeFiles/
+src/CMakeFiles/
+swig/CMakeFiles/
 /build/
 install_manifest.txt
 /ipkg*
@@ -18,3 +21,4 @@ Headers/
 oe-logs
 oe-workdir
 *.patch
+.pkgdir
