@@ -4,12 +4,9 @@
   "description": "OnRISC Hardware API Library",
   "author": "service@visionsystems.de",
   "license": "None",
-  "main" : "libonrisc.js",
+  "main" : "index.js",
   "dependencies": {
-    "ffi-napi": "^3.0.1",
-    "ref-napi": "^3.0.1",
-    "ref-struct-napi": "^1.1.1",
-    "ref-array-napi": "^1.2.1"
+    "node-addon-api": "*"
   },
   "repository": {
     "type": "git",
