@@ -24,9 +24,10 @@ int onrisc_get_gpiochip_and_offset(const char *name, int *chip, int *offset, int
 		goto error;
 	}
 
-	while(item = readdir(dp)) {
+	while((item = readdir(dp))) {
 		if (strstr(item->d_name, "gpiochip")) {
-			int fd, ret, i;
+			int fd, ret;
+			unsigned int i;
 			char gpiochip_name[16];
 			struct gpiochip_info info;
 			sprintf(gpiochip_name, "/dev/%s", item->d_name);
@@ -485,7 +486,8 @@ error:
 
 int onrisc_write_hw_params(onrisc_system_t * data)
 {
-	int i, fd, rv, rc = EXIT_SUCCESS;
+	int i, rv, rc = EXIT_SUCCESS;
+	int fd = -1;
 	BSP_VS_HWPARAM hw_eeprom, tmp_eeprom;
 
 	if (NULL == eeprom.path) {
