@@ -14,6 +14,9 @@ option(PYTHON_WRAP "Build Python bindings" OFF)
 option(LUA_WRAP "Build Lua bindings" OFF)
 option(NODEJS_WRAP "Build Node.js bindings" OFF)
 
+# Create compile_commands.json file
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 set(CMAKE_EXTRA_INCLUDE_FILES linux/gpio.h)
 check_type_size("struct gpiochip_info" STRUCT_GPIOCHIP_INFO)
 set(CMAKE_EXTRA_INCLUDE_FILES)
