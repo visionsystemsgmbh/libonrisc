@@ -22,3 +22,4 @@ oe-logs
 oe-workdir
 *.patch
 .pkgdir
+compile_commands.json
