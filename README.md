@@ -15,18 +15,11 @@ Installation
 ------------
 
 **libonrisc** has the following requirements: **CMake** as a build system
-and it depends on **libsoc** and **libudev** libraries.
+and it depends on **libsoc** library.
 
-1. `mkdir build`
-2. `cd build`
-3. `cmake ..`
-4. `make`
-5. `make install`
-
-On **Debian** one can skip the last step and create/install deb package:
-
-1. `cpack`
-2. `dpkg -i *.deb`
+1. `cmake -B build`
+2. `cmake --build build`
+3. `cmake --install build`
 
 Python Bindings
 ---------------
@@ -36,12 +29,9 @@ build them install **swig** and **libpython** development packages and tell
 CMake to create Python bindings and proceed as described in the "Installation"
 section:
 
-    cmake .. -DPYTHON_WRAP=ON
+    cmake -B build -DPYTHON_WRAP=ON
 
-In Debian, the following packages provide Python bindings:
-
-* **python-onrisc1** - for Python 2
-* **python3-onrisc1** - for Python 3
+In Debian, the **python3-onrisc1** package provides Python bindings.
 
 The following example shows how to get device's serial number:
 
@@ -53,33 +43,29 @@ onrisc.onrisc_init(info)
 print(info.ser_nr)
 ```
 
-Further Python examples can be found in `test` folder.
+Further Python examples can be found in the `test` folder.
 
 Node.js Bindings
 ----------------
 
-**libonrisc** also provides Node.js bindings. In order to build them in Debian
+**libonrisc** also provides Node.js bindings. In order to build them in Debian,
 install **nodejs** package and tell CMake to create Node.js bindings:
 
-    cmake .. -DNODEJS_WRAP=ON
+    cmake -B build -DNODEJS_WRAP=ON
 
 Now perform the following actions:
 
-1. `make`
-2. `cd nodejs`
-3. `npm install -g --unsafe-perm`
-4. `echo "export NODE_PATH=/usr/lib/node_modules" >> /etc/profile.d/vscom.sh`
-5. `source /etc/profile.d/vscom.sh`
+1. ``npm install -g `npm pack ./build/nodejs` ``
+2. `echo "export NODE_PATH=/usr/lib/node_modules" >> /etc/profile.d/vscom.sh`
+3. `source /etc/profile.d/vscom.sh`
 
-Following example shows how to get device's serial number:
+The following example shows how to get device's serial number:
 
 ```javascript
 var onrisc = require('libonrisc');
 
-var info = new onrisc.onrisc_system_t();
-onrisc.onrisc_init(info.ref());
-
-console.log("Serial number: %d", info.ser_nr);
+var obj = new onrisc.OnriscSystem();
+console.log(obj.getHwParams().ser_nr)
 ```
 
 Further Node.js examples can be found in `test` folder.
@@ -87,16 +73,18 @@ Further Node.js examples can be found in `test` folder.
 pkg-config Support
 ------------------
 
-**libonrisc** automatically installs `libonrisc.pc` file, so that one can query its version, linker flags etc. To query **libonrisc** version invoke:
+**libonrisc** automatically installs `libonrisc.pc` file, so that one can query
+its version, linker flags, etc. To query **libonrisc** version invoke:
 
     pkg-config --modversion libonrisc
 
-In CMake you can use following code fragment to find `libonrisc`:
+In CMake you can use the following code fragment to find `libonrisc`:
 
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(PC_LIBONRISC REQUIRED libonrisc)
 
-If `libonrisc` was found its include and linker flags will be stored in `${PC_LIBONRISC_INCLUDE_DIRS}` and `${PC_LIBONRISC_LIBRARIES}` respectively.
+If `libonrisc` was found its include and linker flags will be stored in
+`${PC_LIBONRISC_INCLUDE_DIRS}` and `${PC_LIBONRISC_LIBRARIES}` respectively.
 
 API
 ---
