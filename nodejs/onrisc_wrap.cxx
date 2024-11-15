@@ -217,7 +217,6 @@ private:
 
     void SwitchLed(const Napi::CallbackInfo& info) {
         Napi::Env env = info.Env();
-	onrisc_gpios_t gpio_val;
 	blink_led_t *led;
 
 	if (info.Length() != 2) {
