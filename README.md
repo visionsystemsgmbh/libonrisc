@@ -26,10 +26,11 @@ Python Bindings
 
 **libonrisc** also provides Python bindings generated via SWIG. In order to
 build them install **swig** and **libpython** development packages and tell
-CMake to create Python bindings and proceed as described in the "Installation"
-section:
+CMake to create Python bindings:
 
-    cmake -B build -DPYTHON_WRAP=ON
+1. `cmake -B build -DPYTHON_WRAP=ON`
+2. `cmake --build build`
+3. `cmake --install build`
 
 In Debian, the **python3-onrisc1** package provides Python bindings.
 
@@ -51,13 +52,10 @@ Node.js Bindings
 **libonrisc** also provides Node.js bindings. In order to build them in Debian,
 install **nodejs** package and tell CMake to create Node.js bindings:
 
-    cmake -B build -DNODEJS_WRAP=ON
-
-Now perform the following actions:
-
-1. ``npm install -g `npm pack ./build/nodejs` ``
-2. `echo "export NODE_PATH=/usr/lib/node_modules" >> /etc/profile.d/vscom.sh`
-3. `source /etc/profile.d/vscom.sh`
+1. `cmake -B build -DNODEJS_WRAP=ON`
+2. ``npm install -g `npm pack ./build/nodejs` ``
+3. `echo "export NODE_PATH=/usr/lib/node_modules" >> /etc/profile.d/vscom.sh`
+4. `source /etc/profile.d/vscom.sh`
 
 The following example shows how to get device's serial number:
 
