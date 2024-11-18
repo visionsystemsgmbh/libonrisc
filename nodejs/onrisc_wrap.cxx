@@ -238,6 +238,10 @@ private:
 		case LED_WLAN:
 			led = &wln;
 			break;
+		default:
+			Napi::TypeError::New(env, "Unknown LED type")
+			.ThrowAsJavaScriptException();
+			return;
 	}
 
 	if (onrisc_switch_led(led, led_state) == EXIT_FAILURE) {
