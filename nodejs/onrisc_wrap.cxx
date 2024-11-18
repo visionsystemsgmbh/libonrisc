@@ -8,6 +8,7 @@ public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports) {
         Napi::Function func = DefineClass(env, "OnriscSystem", {
             InstanceMethod("getHwParams", &OnriscSystem::GetHwParams),
+            InstanceMethod("getDevCaps", &OnriscSystem::GetDevCaps),
             InstanceMethod("getWlanSwState", &OnriscSystem::GetWlanSwState),
             InstanceMethod("setMpcieSwState", &OnriscSystem::SetMpcieSwState),
             InstanceMethod("setUartMode", &OnriscSystem::SetUartMode),
@@ -45,6 +46,7 @@ public:
         // Initialize the C struct here
         memset(&system_data, 0, sizeof(onrisc_system_t));
 	onrisc_init(&system_data);
+	caps = onrisc_get_dev_caps();
 	onrisc_blink_create(&pwr);
 	pwr.led_type = LED_POWER;
 	onrisc_blink_create(&app);
@@ -90,6 +92,49 @@ private:
 		system_data.mac3[4],
 		system_data.mac3[5]);
         result.Set("mac3", Napi::String::New(env, tmp));
+
+        return result;
+    }
+
+    Napi::Value GetDevCaps(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+
+        // Create an object literal
+        Napi::Object result = Napi::Object::New(env);
+	if (caps->gpios)
+        	result.Set("gpios", Napi::Boolean::New(env, true));
+	else
+        	result.Set("gpios", Napi::Boolean::New(env, false));
+
+	if (caps->uarts)
+        	result.Set("uarts", Napi::Boolean::New(env, true));
+	else
+        	result.Set("uarts", Napi::Boolean::New(env, false));
+
+	if (caps->dips)
+        	result.Set("dips", Napi::Boolean::New(env, true));
+	else
+        	result.Set("dips", Napi::Boolean::New(env, false));
+
+	if (caps->leds)
+        	result.Set("leds", Napi::Boolean::New(env, true));
+	else
+        	result.Set("leds", Napi::Boolean::New(env, false));
+
+	if (caps->wlan_sw)
+        	result.Set("wlan_sw", Napi::Boolean::New(env, true));
+	else
+        	result.Set("wlan_sw", Napi::Boolean::New(env, false));
+
+	if (caps->mpcie_sw)
+        	result.Set("mpcie_sw", Napi::Boolean::New(env, true));
+	else
+        	result.Set("mpcie_sw", Napi::Boolean::New(env, false));
+
+	if (caps->eths)
+        	result.Set("eths", Napi::Boolean::New(env, true));
+	else
+        	result.Set("eths", Napi::Boolean::New(env, false));
 
         return result;
     }
@@ -266,6 +311,7 @@ private:
 
 private:
     onrisc_system_t system_data;
+    onrisc_capabilities_t *caps;
     blink_led_t pwr;
     blink_led_t app;
     blink_led_t wln;
