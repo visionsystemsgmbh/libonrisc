@@ -326,7 +326,7 @@ int set_macs()
 	return 0;
 }
 
-int print_caps() {
+void print_caps() {
 	onrisc_capabilities_t * caps = onrisc_get_dev_caps();
 
 	printf(" Device Capabilities\n---------------------------\n");
