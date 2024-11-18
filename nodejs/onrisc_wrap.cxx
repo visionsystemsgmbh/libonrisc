@@ -11,6 +11,7 @@ public:
             InstanceMethod("getDevCaps", &OnriscSystem::GetDevCaps),
             InstanceMethod("getWlanSwState", &OnriscSystem::GetWlanSwState),
             InstanceMethod("setMpcieSwState", &OnriscSystem::SetMpcieSwState),
+            InstanceMethod("getMpcieSwState", &OnriscSystem::GetMpcieSwState),
             InstanceMethod("setUartMode", &OnriscSystem::SetUartMode),
             InstanceMethod("getUartMode", &OnriscSystem::GetUartMode),
             InstanceMethod("setGpioValue", &OnriscSystem::SetGpioValue),
@@ -176,6 +177,18 @@ private:
         	.ThrowAsJavaScriptException();
     		return;
 	}
+    }
+
+    Napi::Value GetMpcieSwState(const Napi::CallbackInfo& info) {
+        Napi::Env env = info.Env();
+	gpio_level sw_state;
+	if (onrisc_get_mpcie_sw_state(&sw_state) == EXIT_FAILURE) {
+    		Napi::TypeError::New(env, "Failed to get the mPCIe switch state")
+        	.ThrowAsJavaScriptException();
+    		return env.Null();
+	}
+
+	return Napi::Number::New(env, sw_state);
     }
 
     Napi::Value GetUartMode(const Napi::CallbackInfo& info) {
