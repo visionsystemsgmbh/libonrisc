@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project (libonrisc VERSION 1.7.1 LANGUAGES C)
+project (libonrisc VERSION 1.8.0 LANGUAGES C)
 
 # Require explicit source file extensions
 if(POLICY CMP0115)
