@@ -27,6 +27,14 @@ public:
 	enumLedObj.Set("LED_APP", Napi::Number::New(env, LED_APP));
         exports.Set("LedType", enumLedObj);
 
+	// DIP enum
+	Napi::Object enumDipObj = Napi::Object::New(env);
+	enumDipObj.Set("DIP_S1", Napi::Number::New(env, DIP_S1));
+	enumDipObj.Set("DIP_S2", Napi::Number::New(env, DIP_S2));
+	enumDipObj.Set("DIP_S3", Napi::Number::New(env, DIP_S3));
+	enumDipObj.Set("DIP_S4", Napi::Number::New(env, DIP_S4));
+        exports.Set("DipMask", enumDipObj);
+
 	// RS mode enum
 	Napi::Object enumRsModesObj = Napi::Object::New(env);
 	enumRsModesObj.Set("TYPE_UNKNOWN", Napi::Number::New(env, TYPE_UNKNOWN));
