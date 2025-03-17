@@ -126,7 +126,7 @@ static int pycb_fn(onrisc_gpios_t trig, void *args)
    int      res = 0;
    func = (PyObject *) args;                                // Get Python function
    arglist = Py_BuildValue("(II)", trig.mask, trig.value);   // Build argument list
-   result = PyEval_CallObject(func,arglist);     // Call Python
+   result = PyObject_Call(func, arglist, NULL);     // Call Python
    Py_DECREF(arglist);                           // Trash arglist
    if (result) {                                 // If no errors, return int
      res = PyInt_AsLong(result);
