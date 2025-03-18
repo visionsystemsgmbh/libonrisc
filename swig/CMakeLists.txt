@@ -11,9 +11,8 @@ if (PYTHON_WRAP)
   find_package(SWIG REQUIRED)
   include(${SWIG_USE_FILE})
 
-  find_package(PythonInterp REQUIRED)
-  find_package(PythonLibs REQUIRED)
-  include_directories(${PYTHON_INCLUDE_PATH})
+  find_package(Python3 COMPONENTS Interpreter Development)
+  include_directories(${Python3_INCLUDE_DIRS})
 
   include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -26,7 +25,7 @@ if (PYTHON_WRAP)
   )
   swig_link_libraries(
     pyonrisc
-    ${PYTHON_LIBRARIES}
+    ${Python3_LIBRARIES}
     ${PC_LIBSOC_LIBRARIES}
     ${CMAKE_THREAD_LIBS_INIT}
   )
@@ -60,13 +59,13 @@ endif (LUA_WRAP)
 
 if (PYTHON_WRAP)
   execute_process (
-    COMMAND ${PYTHON_EXECUTABLE} -c
+    COMMAND ${Python3_EXECUTABLE} -c
     "import site, sys; sys.stdout.write(site.PREFIXES[-1])"
     OUTPUT_VARIABLE PYTHON_PREFIX
   )
   file ( TO_CMAKE_PATH "${PYTHON_PREFIX}" PYTHON_PREFIX )
   execute_process (
-    COMMAND ${PYTHON_EXECUTABLE} -c
+    COMMAND ${Python3_EXECUTABLE} -c
     "import site, sys; sys.stdout.write(site.getsitepackages()[-1])"
     OUTPUT_VARIABLE PYTHON_SITE_DIR
   )

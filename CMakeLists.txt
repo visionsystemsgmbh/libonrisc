@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 
 project (libonrisc VERSION 1.8.0 LANGUAGES C)
 
