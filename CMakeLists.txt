@@ -12,6 +12,11 @@ option(NODEJS_WRAP "Build Node.js bindings" OFF)
 # Create compile_commands.json file
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+if(NOT PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
+  # Auto-create a .gitignore in the out-of-source build directory.
+  file(GENERATE OUTPUT .gitignore CONTENT "*")
+endif()
+
 set(CMAKE_EXTRA_INCLUDE_FILES linux/gpio.h)
 check_type_size("struct gpiochip_info" STRUCT_GPIOCHIP_INFO)
 set(CMAKE_EXTRA_INCLUDE_FILES)
