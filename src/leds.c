@@ -9,8 +9,7 @@ gpio *onrisc_gpio_init_sysfs(unsigned int gpio_id)
 	return test_gpio;
 }
 
-int timeval_subtract(result, x, y)
-struct timeval *result, *x, *y;
+int timeval_subtract(struct timeval *result, struct timeval *x, struct timeval *y)
 {
 	/* Perform the carry for the later subtraction by updating y. */
 	if (x->tv_usec < y->tv_usec) {
@@ -33,9 +32,7 @@ struct timeval *result, *x, *y;
 	return x->tv_sec < y->tv_sec;
 }
 
-int timeval_multiply(result, x, y)
-struct timeval *result, *x;
-int32_t y;
+int timeval_multiply(struct timeval *result, struct timeval *x, int32_t y)
 {
 	result->tv_usec = y * x->tv_usec;
 	result->tv_sec = y * x->tv_sec;
@@ -97,7 +94,9 @@ int onrisc_get_led_state(blink_led_t * led, uint8_t * state)
 		FILE *fp = fopen(path, "r");
 		if (fp == NULL)
 			return EXIT_FAILURE;
-		fscanf(fp, "%d", state);
+		int tmp;
+		fscanf(fp, "%d", &tmp);
+		*state = (uint8_t)tmp;
 		fclose(fp);
 
 		return EXIT_SUCCESS;
@@ -393,14 +392,14 @@ int onrisc_blink_led_start(blink_led_t * blinker)
 		fp = fopen(path, "w");
 		if (fp == NULL)
 			return EXIT_FAILURE;
-		fprintf(fp,"%d", (tmp.tv_sec * 1000) + (tmp.tv_usec / 1000));
+		fprintf(fp, "%ld", (tmp.tv_sec * 1000) + (tmp.tv_usec / 1000));
 		fclose(fp);
 
 		sprintf(path,"/sys/class/leds/%s/delay_off",led_cap->name);
 		fp = fopen(path, "w");
 		if (fp == NULL)
 			return EXIT_FAILURE;
-		fprintf(fp,"%d", (tmp_res.tv_sec * 1000) + (tmp_res.tv_usec / 1000));
+		fprintf(fp, "%ld", (tmp_res.tv_sec * 1000) + (tmp_res.tv_usec / 1000));
 		fclose(fp);
 
 		if(blinker->count > 0) {
