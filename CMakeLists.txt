@@ -2,11 +2,6 @@ cmake_minimum_required(VERSION 3.15)
 
 project (libonrisc VERSION 1.8.0 LANGUAGES C)
 
-# Require explicit source file extensions
-if(POLICY CMP0115)
-  cmake_policy(SET CMP0115 NEW)
-endif()
-
 include(CheckTypeSize)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)

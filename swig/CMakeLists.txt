@@ -1,11 +1,3 @@
-if (POLICY CMP0078)
-  cmake_policy(SET CMP0078 NEW)
-endif()
-
-if (POLICY CMP0086)
-  cmake_policy(SET CMP0086 NEW)
-endif()
-
 # SWIG: Python
 if (PYTHON_WRAP)
   find_package(SWIG REQUIRED)
