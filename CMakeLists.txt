@@ -10,7 +10,7 @@ option(LUA_WRAP "Build Lua bindings" OFF)
 option(NODEJS_WRAP "Build Node.js bindings" OFF)
 
 # Create compile_commands.json file
-set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(NOT PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
   # Auto-create a .gitignore in the out-of-source build directory.
