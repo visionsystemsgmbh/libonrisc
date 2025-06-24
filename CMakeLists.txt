@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project (libonrisc VERSION 1.8.0 LANGUAGES C)
+project(libonrisc VERSION 1.8.0 LANGUAGES C)
 
 include(CheckTypeSize)
 
@@ -16,10 +16,10 @@ set(CMAKE_EXTRA_INCLUDE_FILES linux/gpio.h)
 check_type_size("struct gpiochip_info" STRUCT_GPIOCHIP_INFO)
 set(CMAKE_EXTRA_INCLUDE_FILES)
 
-if (NOT HAVE_STRUCT_GPIOCHIP_INFO)
+if(NOT HAVE_STRUCT_GPIOCHIP_INFO)
   message(FATAL_ERROR "libonrisc requires a toolchain \
 with GPIO character devices API (Linux header version > 4.5.x)")
-endif (NOT HAVE_STRUCT_GPIOCHIP_INFO)
+endif()
 
 # handle dependencies
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -58,9 +58,9 @@ set(LIBS
 add_subdirectory(${CMAKE_SOURCE_DIR}/src)
 add_subdirectory(${CMAKE_SOURCE_DIR}/cli)
 add_subdirectory(${CMAKE_SOURCE_DIR}/swig)
-if (NODEJS_WRAP)
+if(NODEJS_WRAP)
   add_subdirectory(${CMAKE_SOURCE_DIR}/nodejs)
-endif (NODEJS_WRAP)
+endif()
 
 # PkgConfig
 configure_file(
