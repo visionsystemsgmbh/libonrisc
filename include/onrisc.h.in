@@ -307,6 +307,9 @@ typedef struct
  */
 int onrisc_init(onrisc_system_t *data);
 
+/** @brief free allocated resources */
+void onrisc_free(void);
+
 /**
  * @brief get device capabilities structure
  * @return device capabilities structure

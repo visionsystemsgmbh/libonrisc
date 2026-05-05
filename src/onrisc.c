@@ -651,6 +651,23 @@ int onrisc_init(onrisc_system_t * data)
 	return EXIT_SUCCESS;
 }
 
+void onrisc_free(void) {
+  if (onrisc_capabilities.dips != NULL)
+    free(onrisc_capabilities.dips);
+  if (onrisc_capabilities.eths != NULL)
+    free(onrisc_capabilities.eths);
+  if (onrisc_capabilities.gpios != NULL)
+    free(onrisc_capabilities.gpios);
+  if (onrisc_capabilities.leds != NULL)
+    free(onrisc_capabilities.leds);
+  if (onrisc_capabilities.mpcie_sw != NULL)
+    free(onrisc_capabilities.mpcie_sw);
+  if (onrisc_capabilities.wlan_sw != NULL)
+    free(onrisc_capabilities.wlan_sw);
+  if (onrisc_capabilities.uarts != NULL)
+    free(onrisc_capabilities.uarts);
+}
+
 int generic_wlan_sw_callback(void * arg)
 {
 	callback_int_arg_t * params = (callback_int_arg_t *) arg;
